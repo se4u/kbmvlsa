@@ -2,25 +2,39 @@
 ### This is an easy to use R implementation of one of our VN procedures
 ### The code first embeds the graph into a suitable Euclidean space and then
 ### runs a suitable classifier with regression to get the nomination procedure
-
+### USAGE: R -q -e "source('VN1.R'); VN1()"
 ### dependencies
 library("igraph")
 library("mclust")
 library("irlba")
-if("ssClust" %in% rownames(installed.packages()) == TRUE)
-{
+if("ssClust" %in% rownames(installed.packages()) == TRUE){
     ## line to include ssCLUST
     require(ssClust,lib.loc="/home/hltcoe/vlyzinski/...")
 }
 
-VN1<-function(g, maxd, knownRed, knownNotRed, ProjectToSphere=FALSE, Laplacian=FALSE, classifier )
-{
+VN1<-function(
+    g=NaN, knownRed=c(), knownNotRed=c(), maxd=500,
+    ProjectToSphere=FALSE, Laplacian=FALSE, classifier="logistic"){
     ## g is an igraph graph object
     ## check if graph has edge weights and extract the
     ## adjacency matrix of the graph
     ## classifier is:
-    ## 1 for SS GMM (slow and great); 2 for Unsupervised K-means (fast and dirty);
-    ## 3 Random Forest; 4 Logisitic regression
+    ## "ssgmm" for SS GMM (slow and great);
+    ## "kmean" for Unsupervised K-means (fast and dirty);
+    ## "randomforest" for Random Forest;
+    ## "logistic" Logisitic regression
+    print("Started VN1")
+
+    if(is.nan(g)){
+        g = graph.atlas(1000)
+        g.was.nan = TRUE
+        knownRed = c(1,7)
+        knownNotRed = c(3,4)
+        print("The graph was Nan. Initialized graph g= ")
+        print(g)
+    } else {
+        g.was.nan = FALSE
+    }
 
     if(length(edge_attr(g)$weight)==0){
         A<-as_adjacency_matrix(g)
@@ -29,14 +43,19 @@ VN1<-function(g, maxd, knownRed, knownNotRed, ProjectToSphere=FALSE, Laplacian=F
         A<-as_adjacency_matrix(g, attr="weight")
         d<-edge_attr(g)$weight
     }
-
+    if(g.was.nan){
+        print(A)
+        print(d)
+    }
+    maxd = min(maxd, min(nrow(A), ncol(A)) - 1)
+    print("maxd=")
+    print(maxd)
     ## we extracted the edge list, now we embed the graph
     ## maxd is the maximum number of singular vectors you can
     ## compute, then we use an elbow finder to find a suitable
     ## dimension for the embedding
     ## set Laplacian=TRUE if you want to do Laplacian spectral embedding,
     ## otherwise, adjacency matrix is embedded directly
-
     if(Laplacian==TRUE){
         D<-Diagonal(length(V(g)),d^{-1/2})
         A=D%*%A%*%D
@@ -57,7 +76,6 @@ VN1<-function(g, maxd, knownRed, knownNotRed, ProjectToSphere=FALSE, Laplacian=F
 
     ## if the graph is very sparse, you may want to project the embedding to the sphere
     ## in order to mitigate sparcity concerns
-
     if(ProjectToSphere==TRUE){
         for(i in 1:dim(A.coords)[1])
             {A.coords[i,]<-A.coords[i,]/(sum(A.coords[i,]^2)^(1/2))}
@@ -65,7 +83,7 @@ VN1<-function(g, maxd, knownRed, knownNotRed, ProjectToSphere=FALSE, Laplacian=F
 
     ## run the classifier
     ## if not so big, use ssMclust
-    if(classifier==1){
+    if(classifier == "ssgmm"){
         n=nrow(A.coords)
         trueLabels <- rep(NA, n)
         trueLabels[knownRed] = 1
@@ -85,22 +103,51 @@ VN1<-function(g, maxd, knownRed, knownNotRed, ProjectToSphere=FALSE, Laplacian=F
                     fracOfCores2Use=1,
                     initClassAssignments=NULL,
                     initializationStrategy = "kpp")
-        ##now determine which class is "red"
 
+        ##now determine which class is "red"
         redClassNumber <- unique(ss$cl[knownRed])
 
         ##then process the z's and get mahalanobis distance for rankings
-
         redRanking <- ss$z[,redClassNumber]
         NominationScheme <- order(redRanking, decreasing = T)
-    }else if(classifier==2){
+
+    }else if(classifier == "kmeans"){
         X<-kmeans(A.coords,dim)
-    }else if(classifier==3){
-
-
+    }else if(classifier == "randomforest"){
+        ## Create a random forest classifier.
+        stop(paste("Not Implemented classifier: ", classifier))
+    } else if(classifier == "logistic"){
+        ## Create a logistic regression classifier.
+        ## Perform the classification.
+        ## Rank the outputs by class probabilities.
+        labels = rep(NA, nrow(A.coords))
+        labels[knownRed] = 1
+        labels[knownNotRed] = 0
+        source("classifier.r")
+        retval = my.classify.wrapper(
+            as.data.frame(A.coords),
+            data.frame(y=labels),
+            glm.families = list(binomial(link='logit')),
+            return.everything=TRUE)
+        print("Fit the model")
+        model = retval$model
+        train.data = retval$train.data
+        test.data = retval$test.data
+        predict.fn = retval$predict.fn
+        train.prediction = predict.fn(model, train.data)
+        train.error = get.error(model, train.data, train.prediction)
+        print(train.error)
+        ## test.prediction = predict.fn(model, test.data)
+        ## test.error = get.error(model, test.data, test.prediction)
+    } else {
+        stop(paste("Not Implemented classifier: ", classifier))
     }
 }
 
+get.error <- function(model, data, prediction){
+    prediction = predict(model, newdata = data, type="response")
+    return(prediction == data$y)
+}
 ## the elbow finding function
 
 getElbows <- function(dat, n = 3, threshold = FALSE, plot = TRUE) {
