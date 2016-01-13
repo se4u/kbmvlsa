@@ -3,7 +3,7 @@
 ### The code first embeds the graph into a suitable Euclidean space and then
 ### runs a suitable classifier with regression to get the nomination procedure
 
-###dependencies
+### dependencies
 library("igraph")
 library("mclust")
 library("irlba")
@@ -107,7 +107,8 @@ getElbows <- function(dat, n = 3, threshold = FALSE, plot = TRUE) {
     ## Given a decreasingly sorted vector, return the given number of elbows
     ##
     ## Args:
-    ##   dat: a input vector (e.g. a vector of standard deviations), or a input feature matrix.
+    ##   dat: a input vector (e.g. a vector of standard deviations),
+    ##        or a input feature matrix.
     ##   n: the number of returned elbows.
     ##   threshold: either FALSE or a number. If threshold is a number, then all
     ##   the elements in d that are not larger than the threshold will be ignored.
@@ -120,8 +121,7 @@ getElbows <- function(dat, n = 3, threshold = FALSE, plot = TRUE) {
     ##   Zhu, Mu and Ghodsi, Ali (2006), "Automatic dimensionality selection from
     ##   the scree plot via the use of profile likelihood", Computational
     ##   Statistics & Data Analysis, Volume 51 Issue 2, pp 918-930, November, 2006.
-
-                                        #  if (is.unsorted(-d))
+    ##  if (is.unsorted(-d))
 
 
     if (is.matrix(dat))
