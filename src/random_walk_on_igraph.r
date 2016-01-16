@@ -8,27 +8,50 @@
 ###     they were visited across all the runs, along with the associated ranks
 ###     (so that ties can be seen)
 ### USAGE: R -q -e "source('random_walk_on_igraph.r'); main()"
-library("igraph")
+library("igraph", verbose=FALSE, warn.conflicts=FALSE)
+library("Matrix", verbose=FALSE, warn.conflicts=FALSE)
+my.time <- function(){
+    ## Return: The Total Time taken.
+    proc.time()[3]
+}
 
-RW_weighted <- function(g, start, A.matrix, graph.strength.matrix,
+RW_weighted <- function(g, start, A.matrix, graph.strength.vector,
+                        connected.node.list, edge.weights.list,
                         path.maxlength=c(10, 25, 50),
                         n.runs=50){
     ## g is igraph object with weighted edges
     ## start is a vector of start nodes.
     ## if edges unweighted, use built in RW function
+
+    ##-----------------------------------------------------------------#
+    ## IMPORTANT NOTE: We assume that the sparse matrix is symmetric.  #
+    ## We dont assert that because that would be too inefficient.      #
+    ## R `sparseMatrix` class really prefers Column-compressed format  #
+    ## Therefore we index by the A.matrix[,state] since that is faster #
+    ## Also we really want to get a sparse representation instead of   #
+    ## the default dense one therefore we do the hack of getting the   #
+    ## indices (Note:A.matrix[,state] is faster than A.matrix[state,]  #
+    ## because its in CSmatrix format. we could change it RSparse form #
+    ## The sample function afterward is straightforward                #
+    ##-----------------------------------------------------------------#
+
+    stopifnot(length(start) == 1) # Right now we only want there to be 1 start.
     visit=rep(NaN, length(V(g)))
     for(i in 1:length(start)){
-        w = graph.strength.matrix[state]
-        A <- A.matrix[state,]
-        A_by_w = A/w
-        ## TODO: Sort A_by_w
         for(run in 1:n.runs){
             state=start[i]
             steps=0
-            while(steps < path.maxlength){
-                ## TODO: Sample using binary search based on the sorted A_by_w vector.
-                state <- sample(1:length(visit), 1, replace=FALSE, prob=A_by_w)
-                steps = steps+1
+            for(steps in 1:path.maxlength){
+                connected.node.idx = connected.node.list[[state]]
+                edge.weights = edge.weights.list[[state]]
+
+                ## Move forward
+                ## Update state and visits.
+                state <- sample(
+                    connected.node.idx, # Vector of adjacent nodes
+                    1, # Number of Samples
+                    replace=FALSE,
+                    prob=edge.weights / graph.strength.vector[state])
                 visit[state] <- visit[state]+1
             }
         }
@@ -36,34 +59,76 @@ RW_weighted <- function(g, start, A.matrix, graph.strength.matrix,
     return(visit)
 }
 
-my.time <- function(){ proc.time()[3] } 
-
-main <- function(
-    path.maxlength = 10,
-    n.runs=50,
-    graph.fn="/export/projects/prastogi/kbvn/enron_contactgraph.graphml",
-    query.fn="/export/projects/prastogi/kbvn/enron_contactgraph_queries"){
-    ## Load graph
+### There are a 1000 things.
+### Each thing takes 90 seconds to run a chain of length 10.
+### And it takes 450 sec to run a chain of length 50.
+### So it would take 25 hours to run all chains of length 10
+### And it would take 125 hours to run all chains of length 50.
+### So unless I do a speedup of 125 on single machine, I would have to parallelize.
+main <- function(path.maxlength = 10, # 50
+                 n.runs=10, #50
+                 graph.fn="/export/projects/prastogi/kbvn/enron_contactgraph.graphml",
+                 query.fn="/export/projects/prastogi/kbvn/enron_contactgraph_queries"){
+    ##------------#
+    ## Load graph #
+    ##------------#
     tic = my.time()
-       graph = as.undirected(read.graph(graph.fn, format="graphml"))
+    graph = as.undirected(read.graph(graph.fn, format="graphml"))
     print(paste("time for loading graph=", my.time() - tic)) # 80s
 
+    ##-------------------------#
+    ## Create Adjacency Matrix #
+    ##-------------------------#
     tic = my.time()
-       A.matrix = as_adjacency_matrix(graph, attr="weights")
+    A.matrix = as_adjacency_matrix(graph, attr="weights", sparse=TRUE)
     print(paste("time for creating adjacency=", my.time() - tic)) # 12s
+    ##-------------------------------------#
+    ## Check that the matrix is symmetric. #
+    ##-------------------------------------#
+    tic = proc.time()[3]
+    stopifnot(isSymmetric(A.matrix))
+    print(paste("time for Checking symmetricity=", proc.time()[3] - tic))
 
-    tic = my.time()
-    graph.strength.matrix = rep(NaN, length(V(graph)))
-    for(state in 1:(length(V(graph)))){
-	graph.strength.matrix[state] = graph.strength(graph, state)    
+    ##-------------------------------------------------------------------#
+    ## Precompute node and edge weight list in the hope of reducing time.#
+    ##-------------------------------------------------------------------#
+    tic = proc.time()[3]
+    connected.node.list = list(NaN, length(V(graph)))
+    edge.weights.list = list(NaN, length(V(graph)))
+
+    ## Just this part of accessing the connected edges
+    ## and the weights of connected edges is excruciatingly
+    ## slow. R is for retards.
+    for(state in 1:length(V(graph))){
+        connected.node.idx = ego(graph, 1, nodes=state)
+        connected.node.list[[state]] = connected.node.idx
+        edge.weights.list[[state]] = A.matrix[connected.node.idx, state]
     }
-    print(paste("time for creating strength=", my.time() - tic)) # 
+    print(paste("time for precomputing connected node and edge weight list=",
+                proc.time()[3] - tic))
 
+    ##-----------------------------------#
+    ## Create The Vertex Strength Vector #
+    ##-----------------------------------#
+    tic = my.time()
+    graph.strength.vector = rep(NaN, length(V(graph)))
+    for(state in 1:(length(V(graph)))){
+        graph.strength.vector[state] = graph.strength(graph, state)
+    }
+    print(paste("time for creating strength=", my.time() - tic)) #
+
+    ##------------------#
+    ## Read The Queries #
+    ##------------------#
     max.fields = max(count.fields(query.fn))
-    queries = read.table(query.fn, header=FALSE, fill=TRUE, col.names=1:max.fields)
+    queries = read.table(
+        query.fn, header=FALSE, fill=TRUE, col.names=1:max.fields)
     n.queries = nrow(queries)
     print(paste("n.queries =", n.queries))
-    ## for query in queries
+
+    ##------------------------------------------#
+    ## for query in queries, run a random walks #
+    ##------------------------------------------#
     for(qid in 1:n.queries){
         starting_points = queries[qid,-1][!is.na(queries[qid,-1])]
         n.starting_points = length(starting_points)
@@ -72,10 +137,13 @@ main <- function(
         for(starting_point_idx in 1:n.starting_points){
             start = starting_points[starting_point_idx]
             ## store a vector of counts for each start into a df
-            print(paste(qid, starting_point_idx))
-            visit.vec = RW_weighted(graph, start, A.matrix, graph.strength.matrix,
-	                    path.maxlength=path.maxlength, 
-                            n.runs=n.runs)
+            print(paste("Starting Run", qid, starting_point_idx, start))
+            tic = my.time()
+            visit.vec = RW_weighted(
+                graph, start, A.matrix, graph.strength.vector,
+                connected.node.list, edge.weights.list,
+                path.maxlength=path.maxlength, n.runs=n.runs)
+            print(paste("Time for doing a walk=", my.time() - tic))
         }
     }
 }
