@@ -1,0 +1,15 @@
+Kelvin.BinaryCoMentionGraph.features_maxd~100_ProjectToSphere~FALSE_Laplacian~FALSE_dimkept~100_logistic_training_acc.pickle      macro_average 0.700865093335
+Kelvin.BinaryCoMentionGraph.features_maxd~100_ProjectToSphere~FALSE_Laplacian~TRUE_dimkept~100_logistic_training_acc.pickle       macro_average 0.632990951885
+Kelvin.BinaryCoMentionGraph.features_maxd~100_ProjectToSphere~FALSE_Laplacian~TRUE_dimkept~78_logistic_training_acc.pickle        macro_average 0.62942731503
+Kelvin.BinaryCoMentionGraph.features_maxd~100_ProjectToSphere~TRUE_Laplacian~FALSE_dimkept~100_logistic_training_acc.pickle       macro_average 0.893981804125
+Kelvin.BinaryCoMentionGraph.features_maxd~100_ProjectToSphere~TRUE_Laplacian~TRUE_dimkept~100_logistic_training_acc.pickle        macro_average 0.788438519314
+Kelvin.BinaryCoMentionGraph.features_maxd~100_ProjectToSphere~TRUE_Laplacian~TRUE_dimkept~78_logistic_training_acc.pickle         macro_average 0.769277858122
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~FALSE_Laplacian~FALSE_dimkept~200_logistic_training_acc.pickle      macro_average 0.716247601097
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~FALSE_Laplacian~FALSE_dimkept~6_logistic_training_acc.pickle        macro_average 0.658134032903
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~FALSE_Laplacian~TRUE_dimkept~165_logistic_training_acc.pickle       macro_average 0.639320769318
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~FALSE_Laplacian~TRUE_dimkept~200_logistic_training_acc.pickle       macro_average 0.652277549664
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~TRUE_Laplacian~FALSE_dimkept~200_logistic_training_acc.pickle       macro_average 0.924359608829
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~TRUE_Laplacian~FALSE_dimkept~6_logistic_training_acc.pickle         macro_average 0.72726294314
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~TRUE_Laplacian~TRUE_dimkept~165_logistic_training_acc.pickle        macro_average 0.857346935747
+Kelvin.BinaryCoMentionGraph.features_maxd~200_ProjectToSphere~TRUE_Laplacian~TRUE_dimkept~200_logistic_training_acc.pickle        macro_average 0.870885752328
+Kelvin.BinaryCoMentionGraph.features_maxd~25_ProjectToSphere~TRUE_Laplacian~FALSE_dimkept~10_logistic_training_acc.pickle         macro_average 0.762887875957

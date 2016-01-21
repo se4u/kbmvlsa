@@ -1,0 +1,7 @@
+submit_grid_stub.sh.o*
+*.pyc
+*.pdf
+*.Rhistory
+*~
+\#*
+*.pickle
