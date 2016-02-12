@@ -1,0 +1,305 @@
+\documentclass{article}
+%\usepackage[letterpaper,portrait,paperwidth=21in]{geometry}
+\usepackage{graphicx,amsmath,amssymb,subcaption,url,xspace,changepage}
+% tex.stackexchange.com/questions/2291/how-do-i-change-the-enumerate-list-format-to-use-letters-instead-of-the-defaul#comment3172_2294
+\usepackage[shortlabels]{enumitem}
+% tex.stackexchange.com/questions/171803/change-font-size-of-the-verbatim-environment
+\usepackage{fancyvrb}
+\usepackage[acronym]{glossaries}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage[]{todonotes} % insert [disable] to disable all notes.
+\newcommand{\note}[1]{\todo[author=PR,color=blue!40,size=\small,inline]{#1}}
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\bigeg}{E.g.,\xspace}
+\newcommand{\etal}{\textit{et~al.\xspace}}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\bigie}{I.e.,\xspace}
+\newcommand{\remove}[1]{} % Change to {\remove}[0]{} to bring back
+\newcommand{\tabletodo}[1]{\begin{minipage}{4cm}\note{#1}\end{minip‌​age}}
+\newcommand{\specialcell}[1]{\begin{tabular}[c]{@{}c@{}}#1\end{tabular}}
+\title{Analytics on a Knowledge Graph}
+\author{Pushpendre Rastogi}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+First, we briefly delineate two acronyms, KBP and KBC.
+\begin{description}
+  \item[Knowledge Base Population] Build a knowledge base(See~\ref{ssec:kb}) from plain text documents.
+  \item[Knowledge Base Completion] Given a knowledge base, infer which edges might be missing. This is a post-processing step after a KB has been built, or populated.
+\end{description}
+
+\subsection{A Model for a Knowledge Base}
+\label{ssec:kb}
+A Knowledge base is a tuple of sets, $((V, F), E_1, \ldots, E_N)$.
+$V$ is a set of vertices and $E_1$ to $E_n$ are sets of edges between these
+entities and $F$ is a set of features on these vertices. The edges encode binary
+relations between the entities that the vertices represent.
+
+
+
+
+\subsection{Knowledge Base Population}
+\label{sec:knowl-base-popul}
+In traditional IE it might be sufficient to learn that the actor
+Paul Newman was born in Cleveland, Ohio and was married to Joanne
+Woodward; however, KBP requires filling in birthplace and spouse
+slots for the appropriate node in the reference ontology.
+Furthermore, the goal would be to link the spouse field in the 'Paul Newman'
+node to another ontology node -- one for Joanne Woodward -- and not merely
+provide a textual fragment containing her name.
+
+\subsection{Knowledge Base Completion}
+This post-processing step which technically is a part of KBP, but usually isn't
+considered as such. It is divorced from classical NLP tasks such as NER etc.
+
+One recent review is ``A review of relational Machine learning for Knowledge Graphs'' by
+Maximillian Nickel, Kevin Murphy, Volker Tresp, Evgeniy Gabirolovich, but the rate of publication is high in this area and a lot of details are missing.
+
+The input is assumed to be a knowledge base, the goal is to predict add edges to a KB
+but there are many variants for posing these queries.
+\begin{itemize}
+\item Specify an entity of interest, and then predict which of the other nodes should be connected to it. \textbf{Hits@N, P@N, MRR, AP, MAP, AUC}.
+\item Binary classification accuracy over true,false edges in a test set.
+\item Relation wise precision, recall.
+\item Predicting an entirely new unknown triple. \textbf{P@N}
+\end{itemize}
+
+\begin{description}
+\item[\textit{FB15k}] Introduced by Antoine Bordes and Jaosn Weston in their NIPS-2013 paper, ``Translating Embeddings for Modeling Multi Relational Data''.
+
+\end{description}
+
+Some of the reported performance numbers are:
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{c c c c }
+    Model & Who said & \textbf{Hits@1} & \textbf{Hits@10} \\
+    Uns &  wei2015largescale &     0.4 &15.6\\
+    SE& wei2015largescale &       28.6 &61.0\\
+    SME-lin&wei2015largescale &   29.8 &68.4\\
+    SME-bil&wei2015largescale &   32.9 &68.5\\
+    TransE&wei2015largescale &    29.4 &73.7\\
+    Rescal& bordes2013translating & &28.4\\
+    SE& bordes2013translating & &28.8\\
+    SME-lin& bordes2013translating & &30.7\\
+    SME-bilin& bordes2013translating & &31.3\\
+    TransE & bordes2013translating & &34.9\\
+  \end{tabular}
+  \caption{Baselines}
+  \label{tab:baselines}
+\end{table}
+
+The learning curves of the TransE methods are fairly unfavorable,
+it takes 100 times as many samples to generate twice the performance.
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{c c}
+    10 &  17\\
+    100&  28\\
+    1000& 33
+  \end{tabular}
+  \caption{Learning curve of Hits@10 from Bordes-nips-13 paper}
+  \label{tab:lrcurve-bordes2013nips}
+\end{table}
+
+
+
+\begin{table}[htbp]
+  \centering
+  \begin{adjustwidth}{-4cm}{}
+  \begin{tabular}{c c c }
+    wei2015largescale & Hits@N, AP@N & FB15K \\
+    bordes2013translating & Hits@10 & FB15K, FB1M \\
+    he2015web & relation wise P, R, F1 & Yago 2, DBPedia \\
+    hyland2015generative & binary classification accuracy  & wordnet dataset by Socher \\
+    toutanova2015representing & MRR, HITS@10 & fb15k-237 (a filtered fb15k)\\
+    duran-bordes2015combining & AUC, Mean Rank, HITS@10 & FB15K, SVO, Kinships, UMLS \\
+    socher2013reasoning & binary accuracy & socher-wordnet \\
+    neelakantan2015inferring & MAP, Global Average Precision(GAP), G@K & \textbf{neelkantan-vertex-nomination} \\
+    quan2015knowledge & hits@1,P@N(for predicting entire new triples) & micro-nell-subsets, (500-entities, 710 triples)(1hour)
+  \end{tabular}
+  \end{adjustwidth}
+  \caption{Metrics used}
+  \label{tab:metrics}
+\end{table}
+
+
+The methods that have been applied in this area are:
+\begin{enumerate}
+\item Random Walks: Horn clause based inference is expensive to apply on Nell, therefore
+  Cohen came up with the random walk based inference algorithm called the
+  path rank algorithm, Random walks are used to find paths that connect the source and target
+  nodes of relation instance and features of these paths are then used
+  in a logistic classifier. This work was augments by Mitchell's paper on
+  incorporating vector space similarity in random walk inference over knowledge bases.
+\item Energy minimization of some function
+\item Matrix Factorization
+\item Compositional Universal Schema Through Energy minimization such as toutanova2015representing
+\item Knowledge base completion via search based QA. Learn which search query to ask to fill a blank with highest accuracy.
+\end{enumerate}
+
+The following is a table that I mined.
+\begin{table}[htbp]
+  \centering
+  \begin{adjustwidth}{-4cm}{}
+  \resizebox{1.6\textwidth}{!}{
+  \begin{tabular}{c c c c c}
+    \textbf{author}                                                      & \textbf{booktitle}                   & \textbf{title}                                                                                                       & \textbf{year} \\
+1 & Wei, Zhuoyu and Zhao, Jun and Liu, Kang and Qi, Zhenyu and  & ACM CIKM                    & \specialcell{Large-scale Knowledge Base Completion: \\Inferring via Grounding Network Sampling over Selected Instances}     & 2015 \\
+ 2 & He, Wenqiang and Feng, Yansong and Zou, Lei and Zhao, Dongy & Web Technologies            & Knowledge Base Completion Using Matrix Factorization                                                        & 2015 \\
+ 3 & Hyland, Stephanie L and Karaletsos, Theofanis and R{a}tsch & arXiv                       & A Generative Model of Words and Relationships from Multiple Sources                                         & 2015 \\
+ 4 & Toutanova, Kristina and Chen, Danqi and Pantel, Patrick and & ACL                         & Representing text for joint embedding of text and knowledge bases                                           & 2015 \\
+ 5 & Gu, Kelvin and Miller, John and Liang, Percy                & arXiv                       & Traversing knowledge graphs in vector space                                                                 & 2015 \\
+% TODO %
+ 6 & Wang, Quan and Wang, Bin and Guo, Li                        & IJCAI                        & Knowledge base completion using embeddings and rules                                                        & 2015 \\
+ 7 & Wanga, Chenguang and Songb, Yangqiu and Rothb, Dan and Wang & IJCAI                     & \specialcell{Constrained Information-Theoretic Tripartite Graph Clustering\\ to Identify Semantically Similar Relations}    &   2015   \\
+%
+ 8 & Dana Movshovitz-Attias and William W. Cohen & ACL & KB-LDA: Jointly Learning a Knowledge Base of Hierarchy, Relations, and Facts & 2015\\
+ 9 & Wang, Mazaitis, Lao, Mitchell, and Cohen & ML & \specialcell{Efficient Inference and Learning in a Large Knowledge Base: Reasoning with\\ Extracted Information using a Locally Groundable First-Order Probabilistic Logic}  & 2015\\
+ 10 & Toutanova, Kristina and Chen, Danqi                         & NIPS Workshop               & Observed versus latent features for knowledge base and text inference                                       & 2015 \\
+ 11 & Zhao, Yu and Gao, Sheng and Gallinari, Patrick and Guo, Jun & KDD                         & Knowledge base completion by learning pairwise-interaction differentiated embeddings                        & 2015 \\
+ 12 & Lin, Yankai and Liu, Zhiyuan and Sun, Maosong               & arXiv                       & Modeling relation paths for representation learning of knowledge bases                                      & 2015 \\
+ 13 & Lin, Yankai and Liu, Zhiyuan and Sun, Maosong and Liu, Yang & AAAI                        & Learning entity and relation embeddings for knowledge graph completion                                      & 2015 \\
+ 14 & Neelakantan, Arvind and Roth, Benjamin and McCallum, Andrew & arXiv                       & Compositional Vector Space Models for Knowledge Base Completion                                             & 2015 \\
+ 15 & Gardner, Matt and Mitchell, Tom                             & EMNLP                       & Efficient and Expressive Knowledge Base Completion Using Subgraph Feature Extraction                        & 2015 \\
+ 16 & Garcia-Duran, Alberto and Bordes, Antoine and Usunier, Nico & arXiv                       & Combining Two And Three-Way Embeddings Models for Link Prediction in Knowledge Bases                        & 2015 \\
+ 17 & Fan, Miao and Zhou, Qiang and Zheng, Thomas Fang and Grishm & arXiv                       & Probabilistic Belief Embedding for Knowledge Base Completion                                                & 2015 \\
+ 18 & Hakkani-T{\'u}r, Dilek and Celikyilmaz, Asli and Heck, Larry & INTERSPEECH                 & \specialcell{Probabilistic enrichment of knowledge graph entities\\ for relation detection in conversational understanding} & 2014 \\
+ 19 & Dong, Xin and Gabrilovich, Evgeniy and Heitz, Geremy and Ho & SIGKDD                      & Knowledge vault: A web-scale approach to probabilistic knowledge fusion                                     & 2014 \\
+ 20 & Chang, Kai-Wei and Yih, Wen-tau and Yang, Bishan and Meek,  & EMNLP                       & Typed tensor decomposition of knowledge bases for relation extraction                                       & 2014 \\
+ 21 & West, Robert and Gabrilovich, Evgeniy and Murphy, Kevin and & WWW                         & Knowledge base completion via search-based question answering                                               & 2014 \\
+ 22 & B{\'u}hmann, Lorenz and Lehmann, Jens                        & ISWC & Pattern based knowledge base enrichment                                                                     & 2013 \\
+ 23 & Socher, Danqi, Manning, Ng  & NIPS                        & Reasoning with neural tensor networks for knowledge base completion                                         & 2013 \\
+ 24 & Lehmann, Jens and V{o}lker, Johanna                        & Reasoning Web Summer School & Ontology learning                                                                                           & 2010\\
+25 & Riedel, Yao, Marlin, and McCallum & NAACL & Relation extraction with matrix factorization and universal schemas & 2013\\
+26 & Wang, Mazaitis, Cohen & CIKM & \specialcell{Programming with Personalized PageRank: \\A Locally Groundable First-Order Probabilistic Logic} & 2013 \\
+27 & Bordes, Weston, Collobert, Bengio  & AAAI &  Learning Structured Embeddings of Knowledge Bases & 2011\\
+28 & N. Lao, T. Mitchell, and W. W. Cohen. & EMNLP & Random walk inference and learning in a large scale knowledge base & 2011 \\
+ \end{tabular}}
+\end{adjustwidth}
+  \caption{Publications in 2015}
+  \label{tab:pubs2015kbc}
+\end{table}
+\note{1. This is basically the model by bordes, with a MLN based reranker appended. Their ``alleged'' SOTA perf on the \textit{Hits@1} metric, on the FB15K dataset is $72\%$. }
+\note{4. Toutanova did a conv net meets universal schema paper}
+\note{5. Using the QA accuracy as an objective to traing a KBC system}
+\note{6. Incorporates rules during inference in a KB with embeddings by posing it as an ILP. They solve an ILP over the entire databse !!}
+\note{23. introduce a model that can accurately predict additional true facts
+using only an existing database. This is achieved by representing each
+entity (i.e., each object or individual) in the database as a
+vector. These vectors can capture facts about that entity and how
+probable it is, that the entity is a part of a certain relation.
+}
+
+\paragraph{Evaluation Metrics}
+\begin{description}
+\item[Hit@N] The MLE of the Bernoulli that the true answer is within the top 10 guesses.
+  Apparently there is a disagreement between what the true meaning of Hits@N is.
+  The question is whether we should consider any value that can suitably fill the blank
+  as the correct answer, or should be consider only the thing that we removed. So the
+  Wei2015's Hits@10 is different from Bordes 2013's.
+\end{description}
+
+\pagebreak
+\subsection{Entity Type, Class Label Acquisition}
+\begin{table}[htbp]
+  \centering
+\begin{adjustwidth}{-4cm}{}
+  \resizebox{1.6\textwidth}{!}{
+  \begin{tabular}{c c c c c }
+  0&  Blum, Chawla & Learning from labeled and unlabeled data using graph mincuts & NIPS & 2001 \\
+  1&  Szummer and Jaakkola & Partially labeled classification with Markov random walks & NIPS & 2001  \\
+  2&  Zhu, Ghahramani & Learning from Labeled and Unlabeled Data with Label Propagation & NIPS & 2002 \\
+  3&  Joachims & Transductive Learning via Spectral Graph Partitioning & ICML & 2003 \\
+  4&  Baluja, Seth, Sivakumar, Jing... & Video Suggestion and Discovery for YouTube: Taking Random Walks Through the View Graph & WWW & 2008 \\
+  5&  Talukdar et al. & Weakly-Supervised Acquisition of Labeled Class Instances using Graph Random Walks. & 2008 & EMNLP \\
+  6&  Frank Lin and Cohen & Semi-supervised classification of network data using very few labels. & 2009 \\
+  7&  Talukdar and Pereira & Experiments in Graph-based Semi-Supervised Learning Methods for Class-Instance Acquisition & ACL  & 2010 \\
+  8&  Kozareva, Voevodski, Teng & Class label enhancement via related instances & 2011 & EMNLP\\
+9&Hensley(SUNY), Doboli, Mangoubi, Doboli &  Generalized Label Propagation & 2015 & IJCNN  \\
+10&    Talukdar, Cohen & Scaling Graph based semi-supervised learning to learge number of labels using count-min sketch & 2014 & AISTATS \\
+11&    Dana Movshovitz-Attias, Cohen & KB-LDA: Jointly Learning a Knowledge Base of Hierarchy, Relations, and Facts & ACL & 2015 \\
+12&Wang , Mazaitis , Lao , Cohen& Efficient inference and learning in a large
+                                  knowledge base & ML & 2015\\
+13 & Neelakantan, Arvind and Chang, Ming-Wei                     & Inferring Missing Entity Type Instances for Knowledge Base Completion: New Dataset and Methods  & arXiv            & 2015 \\
+  \end{tabular}}
+\end{adjustwidth}
+  \caption{papers}
+  \label{tab:papers-classlabel}
+\end{table}
+\note{5. The output of pattern-based class-instance extractors is often high-precision and low-recall in nature, which is inadequate for many real world applications. We use \textbf{Adsorption}, a graph based label propagation algorithm, to significantly increase recall of an initial high-precision, low-recall pattern-based extractor by combining evidences from unstructured and structured text corpora. They claim that Ghahramani and Jaakola's work was just a variant of adsorption.}
+\note{7. Building on Adsorption, we propose a new label propagation algorithm, Modified Adsorption (MAD), and demonstrate its effectiveness on various real-world datasets. Additionally, we also show how class-instance acquisition performance in the graph-based SSL setting can be improved by incorporating additional semantic constraints available in independently developed knowledge bases.}
+\note{8. They seem to claim that label propagation till now was only applied to class-instance relations. Apparently applying to the instance-instance graph was new}
+\note{9. We generalize the concept of label propagation to constrain the random walk to regions of the search space where the true solution may lie based on prior knowledge. Specifically, we reformulate the label propagation algorithm as a minimum energy control problem that embraces traditional label propagation as a special case.}
+\appendix
+\section{Appendix}
+\label{sec:appendix}
+Sourced from \url{pmcnamee.net/kbp/090601-KBPTaskGuidelines.pdf}
+and \url{pmcnamee.net/kbp.html}
+Task Description for KBP at TAC 2009
+discover information about named entities and to
+incorporate this information in a knowledge source.
+For the evaluation an initial (or
+reference) knowledge base will be provided along with a document collection that
+systems are to use to learn from. Attributes (a.k.a., “slots”) derived from Wikipedia
+infoboxes will be used to create the reference knowledge base. There will be two related
+tasks: Entity Linking, where names must be aligned to entities in the KB, and Slot Filling,
+which involves mining information about entities from text.
+
+
+
+
+% Finally, Bowman (2014) recently
+% demonstrated that a neural tensor network can accurately
+% learn natural logic reasoning.
+% **** The Future Work
+% We will investigate methods to automatically mine commonsense
+% knowledge for injection into embeddings from
+% additional resources such as Probase (Wu et al., 2012)
+% or directly from text using a semantic parser (Zettlemoyer
+% and Collins, 2005).
+% **** The website with code.
+% github.com/uclmr/low-rank-logic.}}
+
+\begin{verbatim}
+******** Other possible models that he did not use.
+Distance Model : g(e1, R, e2) = ||W_R1 e_1 − W_R2 e_2 ||_1
+Single Layer Model : u' f(W_r1 e_1 + W_r2 e_2)
+Hadamard Model : g(e_1, R, e_2) = (W_1 e_1 \otimes W_r1 e_r + b_1)'(W_2 e_2 ⊗ W_r2 e_R + b_2)
+Bilinear Model : g(e_1, R, e_2) = e_1 'W_R e_2
+******** His training method was contrastive max-margin
+we cross-validate using the development set to find the best
+hyperparameters:
+(i) vector initialization (see next section);
+(ii) regularization parameter λ = 0.0001;
+(iii) the dimensionality of the hidden vector (for the single layer
+      and NTN models d = 100)
+(iv) number of training iterations T = 500.
+(v)  number of slices = 4 in NTN model
+
+******* Their Related work Section (Socher claims he outperforms these)
+[8] A. Bordes, J. Weston, R. Collobert, and Y. Bengio. Learning
+    structured embeddings of knowledge bases. In AAAI, 2011.
+[9] R. Jenatton, N. Le Roux, A. Bordes, and G. Obozinski. A latent
+    factor model for highly multi-relational data. In NIPS, 2012.
+[10] A. Bordes, X. Glorot, J. Weston, and Y. Bengio. Joint Learning of
+     Words and Meaning Representations for Open-Text Semantic
+     Parsing. AISTATS, 2012.
+[11] I. Sutskever, R. Salakhutdinov, and J. B. Tenenbaum. Modelling
+     relational data using Bayesian clustered tensor factorization. In
+     NIPS, 2009.
+\end{verbatim}
+% \bibliographystyle{plain}
+% \bibliography{references.bib}
+
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

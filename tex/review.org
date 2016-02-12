@@ -1,0 +1,215 @@
+#+STARTUP: fnconfirm
+* Approaches
+** Cohen - (Page Rank)
+*** DONE Lao 2012
+    CLOSED: [2016-02-08 Mon 03:22]
+*** TODO Wang 2014
+** Riedel - (Universal Schema)
+** Talukdar - Modified Adsorption
+* Other Facets of Previous Work
+** Studies that have looked at the contribution of text-based extraction to KBC
+    Lao 2012
+    Gardner 2013
+** Work that has applied latent feature models to datasets.
+    Bordes 2013
+    Wang 2014
+    Yang 2015
+** Work that compares observed and latent feature models.
+    Dong 2014 - Nickel Knowledge Vault
+    Nickel 2014
+** Work that uses inference from both text and knowledge base relations.
+    Lao 2012
+    Riedel 2013
+    Dong 2014
+    Gardner 2014
+* Murphy - A Review of Relational Machine Learning for Knowledge Graphs
+  GOAL: Train ML models on large knowledge graphs, and then use them to
+      predict new facts about the world.
+  ASSUMPTION: Predicting new facts about the world is equivalent to predicting new
+      edges in a graph.
+** Title Deconstruction: Relational Machine Learning
+   ML that studies methods for the statistical analysis of relational or graph
+   structured data.
+** What Are Knowledge Graphs? Building and maintaining a Knowledge Graph
+   Knowledge Graphs are Multi Graphs with possibly extra:
+   - labels on vertices
+   - type hierarchies
+   - type constraints
+
+   Handling labeled binary relations is obvious.
+   Unary relations can be naturally represented as well.
+   Higher order relations require auxilliary uniquely identified nodes
+   that can be used to break a higher arity relation into binary relations.
+*** Open vs Closed World Assumption
+    Closed World means that non-existing triples are false.
+    We know everything that there is to know.
+
+    Open world means non-existing is unknown.
+*** Supervision used during Knowledge Base Population
+    Curated
+    Collaborative
+    Automatic Semi-Structured
+    Automatic Un-Structured
+*** Fixed vs Open lexicon of entities and relations
+***** Schema Based Approaches: Entities and relations have a guid
+***** Schema Free: OpenIE
+*** Uses of Knowledge Graphs in Biology
+    Bio2Rdf
+    NeuroCommons
+    LinkedLifeData
+*** Statistical Properties of Knowledge Graphs
+    - Homophily: Entities with similar features tend to cluster together.
+    - Block Structure: Entities with the same latent features cluster together.
+    - Long Range Dependencies
+*** Activities for maintaining graphs
+    Link Prediction/KBC
+    Entity Resolution/Deduplication
+    Vertex Clustering
+
+** Notation
+   Let y_ijk be the binary/real variable representing an edge/strength
+   from node i to node j of type k.
+** Methods Studied
+*** Latent Feature Models : (Probabilistic Or Score-based)
+    Assume all y_ijk are conditionally independent given latent features
+    associated with subject, object and relation type and additional parameters.
+
+    All these models explain triples via latent features of entities.
+    Denote the latent feature representation of an entity bu e_i \in R^{H_e}
+**** Tensor Factorization
+***** RESCAL : A Bilinear Model
+      f_ijk := <e_i, W_{k}e_j>
+      The SGD based optimization automatically handles the zeros in the tensor.
+      F_k = E W_k E^T , where F_k \in R^{N_e \times N_e} holds the scores for the k-th
+      relation.
+
+      Note that the RESCAL can also be computed as a score based model.
+      And due to sparsity of the data, RESCAL can be computed via a sequence
+      of efficient closed-form updates when using the square-loss.
+***** DISTMULT : Yang et al. A Special form of RESCAL where non-diagonal entries in relation matrices are assumed to be zero.
+***** (Other) Tensor Factorization Factorization Models
+**** Matrix Factorization Methods
+     Do the universal schema:
+     Convert the adjacency tensor Y \in R^{N_e \times N_e \times N_r} into R^{N_e^2 \times N_r}
+**** Neural Networks - with dot product scoring functions.
+****** E-MLP Model
+       \phi_ij^{E-MLP}  := [ e_i ; e_j ]
+       h_ijk^a    := A_k^T \phi_ij^{E-MLP} | Linear transform h_ijk is a vector.
+       f_ijk^{E-MLP} := w_k^T g(h_ijk^a) | Elem wise power, pass through non-lin, project.
+****** ER-MLP Model
+       Define \phi_ijk^{ER-MLP} := [ e_i ; e_j; r_k ]
+****** All Others
+       See Table V in the paper.
+       Note that the latent-distance models were first introduced by Peter Hoff
+       in JASA!
+**** Latent Distance Models - Squared distance.
+*** Graph Feature Models : (Probabilistic Or Score-based)
+    Assume all y_ijk are conditionally independent given observed graph features and
+    additional parameters.
+    Existence of an edge can be predicted by extracting features from the
+    observed edges in the graph. For example we can predict,
+    (john, married, mary) from (john, parentof, anne), and (mary, parentof, anne)
+**** Similarity Measures for Uni-Relational Data
+     [97] categorizes similarity measures of entities into 3 approaches:
+     | 1. | Local       | Entities are similar if they have common neighbors.                     |
+     | 2. | Global      | Katz Index, Leicht Holme Newman Index, Hitting Time, Commute , Pagerank |
+     | 3. | Quasi-Local | Local Katz Index, Local Random Walks                                    |
+     Katz Index
+       Compute the influence of a node by counting an attenuated number of
+       neighbors, attenuated by the number of hops.
+     Leicht Holme Newman - "Vertex similarity in networks"
+       We propose a measure of similarity based on the concept that tow vertices
+       are similar if their immediate neighbors in the network are also
+       similar. This seems like a belief-propagation-factor graph maximization
+       problem. A simplified version of their method is:
+       S = \phi AS + \psi I => S = [I - \phi A]^{-1}
+     Hitting Time
+       A parameter of a random walk, the expected time to get from u to v.
+     Commute Time
+       A parameter of a random walk, the expected time to get from u to v, and
+       back to u.
+     Cover Time
+       The expected time to visit every node starting at node u.
+     Pagerank
+**** Rule Mining and ILP
+     Extracts rules via mining methods and uses these extracted rules to infer
+     new links.
+**** Path Ranking Algorithm
+     PRA - extends the idea of using random walks of bounded lengths for
+     predicting links in multi-relational knowledge graphs.
+
+     Let \pi_L(i,j,k,t) denote a path of length L of the form
+     e_i \rightarrow^{r_1} e_2 \rightarrow^{r_2} e_3 \to ... \rightarrow^{r_L} e_j
+     where t = (r_1, r_2, ..., r_L), i.e. it represents the sequence of edge types
+
+     Let \Pi_L(i,j,k) represent the set of all such paths of length L, ranging over
+     path types t.
+
+     We can compute the probability of following such a path (perhaps by locally
+     scoring the paths by uniformly distributing the weights amongst edges)
+
+     The key idea is to use these path probabilities as features for predicting
+     the probability of missing edges.
+     More precisely:
+     Let \phi_ijk^PRA = [P(\pi) : \pi \in \Pi_L(i,j,k)]
+     We can then predict the edge probabilities using logistic regression.
+*** Model Combinations
+**** Linear Interpolation - Additive Relational Effects
+**** Other Ways of Doing Model Combinations.
+** Comparisons
+*** [KnowledgeVault] showed that PRA > ER-MLP > NTN
+    28 was building the knowledge vault.
+*** [Yih] found that RESCAL worked best on their datasets.
+    95 is actually the redoubtable MSR team of Yang, Yih, Gao and Deng.
+*** [Cohen] showed that it outperformed an ILP based method FOIL
+    116 was working on the NELL dataset.
+*** [Toutanova15] Toutanova and Chen 2015
+**** Observed versus latent features for knowledge base and text inference
+    They compare a simple observed features model in comparison to latent
+    feature models on two benchmarks KBC datasets. FB15K and WN18
+
+    They show that the observed features model is most effective at capturing
+    the information present for entity pairs with textual relations.
+
+    Their work on using textual mentions for knowledge base inference differs
+    from prior work in
+    - the scale and richness of the KB
+    - the scale and richness of the tectual relations
+    - They evaluate the impact of text not only on mentioned entity pairs but on
+      all links.
+    - They represent the KB and textual patterns in a single knowledge graphs,
+      like Lao 2012, and Riedel 2013 but refine the leraning method to treat
+      textual relations differently in the loss function, to maximize predictive
+      performance on the KB relations.
+***** Their Impoverished PRA model uses only features that fire when two entity pairs are related but with slightly different relation.
+      We define features for existing paths of length one for candidate triples.
+      They define indicators of the form I(r' \land r), these fire when the triple
+      e_i, r', r_j exists in the training KB and r' \ne r_k
+***** Heuristics and Importat Variations
+      Their conditional probability is defined a little weird, where there
+      denominator does not consider the positive examples but only a sub
+      sammpled version of the negative ones which are futher filtered by types,
+      where the types are derived from the databse.
+**** Representing Text for Joint Embedding with convnets by Toutanova
+*** References
+    [KnowledgeVault]  Knowledge Vault, Google, Dong, Lao, Murphy.(2014)
+
+    [Yih]  Embeddings entities and Relations for learning and inference, Yih,
+    MSR(2014)
+
+    [Cohen] Random walk inference and learning in a large scale KB, Lao,
+    CMU(2011)
+
+    [Toutanova15] Observed vs Latent features for KB and text inference,
+    Toutanova, MSR(2015)
+
+** Training SRL Models
+*** Objective
+**** Pairwise Loss Training
+***** Heuristics for generating negative examples
+**** Penalized MLE
+*** Model Selection
+    Cross Validation with the AUC-ROC or AUC-PR or MRR are good.
+
+# Local Variables:
+# End:
