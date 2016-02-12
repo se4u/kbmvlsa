@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .DS_Store
 .Rdata
 .Rapp.history
@@ -11,3 +12,9 @@
 *.pdf
 *.html
 tex/auto/
+*submit_grid_stub.sh.o*
+*.pyc
+*~
+\#*
+*.pickle
+no_repo/

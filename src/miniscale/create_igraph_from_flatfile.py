@@ -4,19 +4,18 @@
 | Description : Create an Igraph Object from the flatfile format that Ning provided.
 | Author      : Pushpendre Rastogi
 | Created     : Thu Jan 14 15:59:54 2016 (-0500)
-| Last-Updated: Thu Jan 14 18:15:48 2016 (-0500)
+| Last-Updated: Fri Jan 15 19:29:01 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 40
+|     Update #: 42
 
 The flatfile format used by Ning and Doug is lexically sorted and it has an
-attribute of edge strength. The lexical sorting itself is not a problem since
-we have the "guarantee" (that we assert) that there are no gaps in the integral
-node names.
+attribute of edge strength.
 
 '''
 import rasengan
 import os
 import igraph
+import config
 
 def read_file(fn):
     data = []
@@ -66,10 +65,10 @@ if __name__ == '__main__':
     import argparse
     arg_parser = argparse.ArgumentParser(description='Igraph Creator')
     arg_parser.add_argument(
-        '--fn', default='/home/hltcoe/ngao/miniScale-2016/Enron/contactGraph',
+        '--fn', default=config.flat_enron_contactgraph_fn,
         type=str)
     arg_parser.add_argument(
-        '--outdir', default='/export/projects/prastogi/kbvn/', type=str)
+        '--outdir', default=config.store, type=str)
     arg_parser.add_argument('--outfn', default='enron_contactgraph', type=str)
     # It takes 84.6 s to read the plaintext file on COE.
     # But only 0.1 s for the disk read. Everthing else is consumed by the string
