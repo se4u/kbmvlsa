@@ -1,0 +1,3 @@
+[submodule "src/rescal.py"]
+	path = src/rescal.py
+	url = https://github.com/mnick/rescal.py.git
