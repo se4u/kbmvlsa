@@ -1,5 +1,5 @@
 \documentclass{tufte-handout}
-\usepackage{graphicx,amsmath,amssymb,url,xspace}
+\usepackage{graphicx,amsmath,amssymb,url,xspace,booktabs}
 % tex.stackexchange.com/questions/2291/how-do-i-change-the-enumerate-list-format-to-use-letters-instead-of-the-defaul#comment3172_2294
 \usepackage[shortlabels]{enumitem}
 % tex.stackexchange.com/questions/171803/change-font-size-of-the-verbatim-environment
@@ -15,6 +15,7 @@
 \newcommand{\ie}{i.e.,\xspace}
 \newcommand{\bigie}{I.e.,\xspace}
 \renewcommand{\cite}[1]{\textcolor{red}{#1}}
+\newcommand{\alert}[1]{\textcolor{red}{#1}}
 \newcommand{\remove}[1]{} % Change to {\remove}[0]{} to bring back
 \title{Vertex Classification and Edge Prediction in\\high precision, low recall Graphs}
 \author{Pushpendre Rastogi}
@@ -25,11 +26,11 @@
 \section{Introduction}
 \label{sec:introduction}
 Consider a graph $G$ with ``labeled'' vertices and ``labeled'' edges
-that has been constructed through a ``high precision-low recall'' process. 
+that has been constructed through a ``high precision-low recall'' process.
 In other words,
 the labeled edges present in the graph are highly likely to be correct
-but the abscence of a labeled edge between two vertices is not a definitive 
-indicator of the lack of a relationship between those two vertices. 
+but the abscence of a labeled edge between two vertices is not a definitive
+indicator of the lack of a relationship between those two vertices.
 Similarly, the abscence of a vertex label is not a definitive indicator
 that the vertex is truly unlabeled, it is possible that the label information
 is simply missing.
@@ -37,34 +38,44 @@ is simply missing.
 The following problems commonly need to be solved while doing
 inference over such graphs:
 \begin{description}
-\item[Vertex Label Prediction] Here the goal is to rank the nodes with unobserved 
-  labels such that the nodes with a particular true label appear first in the 
+\item[Vertex Label Prediction] Here the goal is to rank the nodes with unobserved
+  labels such that the nodes with a particular true label appear first in the
   list. This task was called, \textit{Vertex Nomination} by \cite{fishkind2015vertex}
-  \note{Give example.}, \textit{Class(Labeled) Instance Acquisition} by 
-  \cite{talukdar2010experiments,van2008finding}. 
-  A slightly different version of 
-  this task arises if we try to infer the label of 
-  an unlabeled vertex in isolation. 
+  \note{Give example.}, \textit{Class(Labeled) Instance Acquisition} by
+  \cite{talukdar2010experiments,van2008finding}.
+  A slightly different version of
+  this task arises if we try to infer the label of
+  an unlabeled vertex in isolation.
+  It is also called \textit{Collective Classification}~\cite{sen2008collective}.
+  A closely related task is \textit{Link based Clustering}.
 \item[Edge Prediction] Here the goal is to predict what type of edge should two
   vertices be connected with if any. When the dataset is a knowledge graph
-  then this task is commonly termed as knowledge base 
-  completion~\cite{nickel2016review}. This problem is also 
+  then this task is commonly termed as knowledge base
+  completion~\cite{nickel2016review}. This problem is also
   termed~\textit{Link Prediction}~\cite{liben2007link}.
   \todo{Slightly different formulations of the edge prediction task.}
 \end{description}
 As is clear from the plethora of terminology these two types of problem arise in
 many different fields. Importantly, in this paper, these problems have been
 treated completely separately, with a different set of techniques applied for
-solving them. In this paper we show that the two closely problems can in fact be
+solving them.\todo{Not True! \cite{nickel2011three} says, ``Collective
+  classification can be cast as a subtask of link prediction, as the class of
+  an entity can be modelled by introducing a class relation and including the
+  classes as entities in the tensor.''}
+In this paper we show that the two closely problems can in fact be
 reduced to each other. By coming up with a reduction between these two problems
-we automatically gain new algorithms for solving both these problems. 
+we automatically gain new algorithms for solving both these problems.
 In addition we present new bayesian methods for solving the knowledge base
-completion problem based on stochastic block models. 
+completion problem based on stochastic block models.
 
 \section{Background}
 \label{sec:background}
 \subsection{Knowledge Graphs}
 \label{sec:knowledge-graphs}
+\alert{One of the chracteristics of Knowledge graphs is that because of their
+  hierarchical structure they tend to be sparse. For example, the number of
+  edges in a forest can only grow $O(n)$}
+
 \todo{Automated Question Answering, Freebase, Incompleteness of Knowledge Bases, seed based information extraction vs Knowledge Base Completion}
 
 \todo{Algorithms for KBC, class instance acquisition}
@@ -76,27 +87,27 @@ completion problem based on stochastic block models.
 
 \section{Edge Prediction for Vertex Label Prediction}
 \label{sec:edge-for-vertex}
-Consider a simple case where we are given a graph $G = (V, E)$. 
-Let $f$ be a map from $V$ to ${0, 1}$ that is partially observed on $S \sub V$.
-In this simplified case of vertex label prediction we have to rank the vertices in $V\S$
-in such an order that those vertices that $f$ assigns a value of one to, appear higher up in the 
-ranking.\footnote{If $f$ could be arbitrary then any prediction rule that we come up with could be 
+Consider a simple case where we are given a graph $G = (V, E)$.
+Let $f$ be a map from $V$ to ${0, 1}$ that is partially observed on $S \subset V$.
+In this simplified case of vertex label prediction we have to rank the vertices in $V-S$
+in such an order that those vertices that $f$ assigns a value of one to, appear higher up in the
+ranking.\footnote{If $f$ could be arbitrary then any prediction rule that we come up with could be
 forced to have accuracy zero on the test set.}
 
-\newthought{One of the existing methods} for vertex nomination rests on the assumption that $f$ can be 
-modeled through a stochastic block model~\cite{fishkind2015vertex}. 
+\newthought{One of the existing methods} for vertex nomination rests on the assumption that $f$ can be
+modeled through a stochastic block model~\cite{fishkind2015vertex}.
 
-\newthought{The SBM can be exploited} thought the use of a modularity based method. 
-Consider the NG modularity, it can be minimized to get an assignment of vertices to 
+\newthought{The SBM can be exploited} thought the use of a modularity based method.
+Consider the NG modularity, it can be minimized to get an assignment of vertices to
 blocks. Once the block assignments are known then the vertices class connection matrix
 can be estimated and the class connection matrix and the block assignments together
-give us a method to rank vertices. 
+give us a method to rank vertices.
 
-\newthought{Another method for vertex nomination} is MAD~\cite{talukdar2009new}. 
-This algorithm tries to minimize the following objective. 
+\newthought{Another method for vertex nomination} is MAD~\cite{talukdar2009new}.
+This algorithm tries to minimize the following objective.
 \begin{itemize}
 \item For labeled vertices we want the output of the algorithm to be close to a-priori given labels. \ie{} $Y_v \simeq \hat{Y_v}$.
-\item For pairs of vertices that are close according to the input graph, we would like their labeling to be close. \ie{} $\hat{Y}_u \simeq \hat{Y}_v$ if $W_{uv}$ is large. 
+\item For pairs of vertices that are close according to the input graph, we would like their labeling to be close. \ie{} $\hat{Y}_u \simeq \hat{Y}_v$ if $W_{uv}$ is large.
 \item Third we want the output to be as uninformative as possible.
 \end{itemize}
 The objective can be written as:
@@ -104,39 +115,152 @@ $$ \sum_{v} w_v || y_v - \hat{y}_v ||^2 + \sum_l ||\hat{y}_l - R_l ||^2 + \sum_l
 
 \newthought{The RESCAL method for KBC} can be utilized for vertex nomination
 as follows: first we introduce two dummy nodes and connect vertices in $S$
-to these dummy nodes according to the observed labeling. Then we use the RESCAL 
-method to predict how strongly the vertices in $V\S$ are connected to these two
-dummy nodes. We can use the difference between these two affinities to rank the 
-vertices and thereby produce a nomination list. 
+to these dummy nodes according to the observed labeling. Then we use the RESCAL
+method to predict how strongly the vertices in $V-S$ are connected to these two
+dummy nodes. We can use the difference between these two affinities to rank the
+vertices and thereby produce a nomination list.
+
 
 \section{Experiments}
 \label{sec:experiments}
-\subsection{Simple Experiment}
+\subsection{RESCAL Experiment}
 \label{sec:simple-experiment}
-In this experiment we produce a random SBM graph with 100 vertices and 
-2 hidden classes, called $C_0, C_1$. Let $V(C_0) \subset V$ 
-be the vertices belonging to class $C_0$ and let $V(C_1)$ be defined 
-analogously. We select $C_1$ to be the ``desirable class'' 
+In this experiment we produce a random SBM graph with 100 vertices and
+2 hidden classes, called $C_0, C_1$. Let $V(C_0) \subset V$
+be the vertices belonging to class $C_0$ and let $V(C_1)$ be defined
+analogously. We select $C_1$ to be the ``desirable class''
 I.e. the map $f$ outputs $1$ for vertices in $V(C_1)$
 and it outputs $0$ for vertices in $V(C_0)$.
 Then we sample equal number of vertices randomly from $V(C_0)$ and $V(C_1)$
-to create our set $S$ of vertices whose class labels we know. 
-Then we add two dummy nodes $D_0, D_1$ to $G$ and connect 
-the vertices in $V(C_0) \cap S \mapsto D_0$ and 
-vertices in $V(C_1) \cap S \mapsto D_1$. 
+to create our set $S$ of vertices whose class labels we know.
+Then we add two dummy nodes $D_0, D_1$ to $G$ and connect
+the vertices in $V(C_0) \cap S \mapsto D_0$ and
+vertices in $V(C_1) \cap S \mapsto D_1$.
 Then we perform \textit{RESCAL} on this graph.
 For performing \textit{RESCAL} we need to provide the algorithm
-the graph and positive and negative example. 
+the graph and positive and negative example.
 The positive examples are the connections of $V(C_0) \cap S \mapsto D_0$
-and $V(C_1) \cap S \mapsto D_1$. The negative example are the 
+and $V(C_1) \cap S \mapsto D_1$. The negative example are the
 wrong connections $V(C_0) \cap S \mapsto D_1$ and $V(C_1) \cap S \mapsto D_0$.
-After training we can use the method to predict the affinity of vertices 
-in $V/S$ to connect to $D_1$ and $D_0$ and substract these two affinities 
+After training we can use the method to predict the affinity of vertices
+in $V/S$ to connect to $D_1$ and $D_0$ and substract these two affinities
 to get a ranked list.
 
-We would expect that vertices belonging to $C_1$ would mostly appear before the 
-vertices belonging to $C_0$. In this 
+We would expect that vertices belonging to $C_1$ would mostly appear before the
+vertices belonging to $C_0$. To test this we can count the number of times
+members of class $C_1$ appear in the top 50 members in the ranked list.
+\pagebreak
+\begin{table}[htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 29 & 0.0 & 0.4 & 0.5 & 0.6 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 23 & 1.0 & 0.4 & 0.6 & 0.5 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 48 & 1.0 & 1.0 & 0.9 & 1.0 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=0, Directed, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\begin{table}[htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 27 & 1.0 & 0.8 & 0.7 & 0.5 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 31 & 1.0 & 0.8 & 0.8 & 0.6 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 48 & 1.0 & 0.8 & 0.9 & 1.0 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=1234, Directed, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\begin{table}[htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 28 & 0.0 & 0.6 & 0.7 & 0.6 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 35 & 1.0 & 1.0 & 1.0 & 0.7 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 39 & 1.0 & 1.0 & 1.0 & 0.8 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=0, Undirected, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\begin{table}[!htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 29 & 1.0 & 1.0 & 0.8 & 0.6 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 30 & 0.0 & 0.8 & 0.8 & 0.6 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 37 & 1.0 & 1.0 & 1.0 & 0.7 \\
+
+
+  \end{tabular}
+  \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=1234, Undirected, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\pagebreak
+\subsection{MAD Experiment}
+\label{sec:mad-experiment}
+\begin{table}[htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 31 & 1.0 & 0.8 & 0.7 & 0.6 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 30 & 1.0 & 1.0 & 0.8 & 0.6 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 36 & 1.0 & 1.0 & 1.0 & 0.7 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. MAD Algorithm. Seed=0, Directed, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\begin{table}[htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 32 & 1.0 & 0.4 & 0.6 & 0.6 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 35 & 1.0 & 1.0 & 1.0 & 0.7 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 34 & 1.0 & 1.0 & 0.9 & 0.7 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. MAD Algorithm. Seed=1234, Directed, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\begin{table}[htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 27 & 1.0 & 0.8 & 0.8 & 0.5 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 30 & 1.0 & 1.0 & 0.9 & 0.6 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 32 & 1.0 & 0.8 & 0.9 & 0.6 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. MAD Algorithm. Seed=0, Undirected, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+\begin{table}[!htbp]
+  \begin{tabular}{l c c c c c}
+    $B$ & 50 $\times$ P@50 & P@1 & P@5 & P@10 & P@50 \\ \toprule
+  $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 28 & 1.0 & 0.8 & 0.7 & 0.6 \\
+  $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 31 & 0.0 & 0.6 & 0.7 & 0.6 \\
+  $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 32 & 1.0 & 1.0 & 0.9 & 0.6 \\
+  \end{tabular}
+  \caption{Performance vs B Matrix. MAD Algorithm. Seed=1234, Undirected, Training Size=20}
+  \label{tab:perf-vs-b}
+\end{table}
+
+
+
+\subsection{Modularity Experiment}
+\label{sec:modul-exper}
+\alert{TODO}
+
+\section{Future Work}
+\label{sec:future-work}
+A possible analysis of tensor factorization based methods for kbc, in the
+original graph and the label augmented graph for the problem of vertex
+clustering and the problem of edge prediction.
 
 \bibliographystyle{plain}
 \bibliography{vnschemes}
 \end{document}
+
+
+Work.
+1. Implement Metrics. P@K, using precision_at_k with binary relevance values.
+2. Check the performance of the MAD method.
+3. Experiment on more datasets. FB@15K(Bordes), FB2SNAP(Neelakatnan), Presidents(Nickel), UMLS_Nations_Kinships(Kemp,Bordes)

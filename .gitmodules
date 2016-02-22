@@ -1,3 +1,9 @@
-[submodule "src/rescal.py"]
-	path = src/rescal.py
+[submodule "src/lib/junto"]
+	path = src/lib/junto
+	url = https://github.com/parthatalukdar/junto.git
+[submodule "src/lib/SME"]
+	path = src/lib/SME
+	url = https://github.com/glorotxa/SME.git
+[submodule "src/lib/rescal.py"]
+	path = src/lib/rescal.py
 	url = https://github.com/mnick/rescal.py.git
