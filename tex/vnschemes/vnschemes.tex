@@ -243,7 +243,44 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   \label{tab:perf-vs-b}
 \end{table}
 
+\pagebreak
+\subsection{Presidents Collective Classification Dataset}
+\label{sec:pres-coll-class}
+With this dataset our goal is to compare the performance of
+RESCAL, VN and KBC-VN.
 
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l c c c}
+    Method & AUPR & P@1 & P@5 & P@10 \\
+    Rescal & 0.79 \\
+    VN     & \\
+    KBC-VN & \\
+  \end{tabular}
+  \caption{Performance vs Algorithm On the US Presidents Dataset}
+  \label{tab:perf-vs-algo-on-us-president}
+\end{table}
+
+
+\subsection{Talukdar VN Data}
+\label{sec:talukdar-vn-data}
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l c c c}
+    Method & AUPR & P@1 & P@5 & P@10 \\
+    Rescal & \\
+    VN     & \\
+    KBC-VN & \\
+  \end{tabular}
+  \caption{Performance vs Algorithm On Talukdar's Label Acquisition Dataset.}
+  \label{tab:perf-vs-algo-on-label_acquisition}
+\end{table}
+
+
+\subsection{FB15K Experiment}
+\label{sec:fb15k-experiment}
+\note{The Fb15K dataset is an edge completion dataset. We can't really use it compare
+the performance of VN algorithms, without approaching edge prediction as VN.}
 
 \subsection{Modularity Experiment}
 \label{sec:modul-exper}
@@ -264,3 +301,6 @@ Work.
 1. Implement Metrics. P@K, using precision_at_k with binary relevance values.
 2. Check the performance of the MAD method.
 3. Experiment on more datasets. FB@15K(Bordes), FB2SNAP(Neelakatnan), Presidents(Nickel), UMLS_Nations_Kinships(Kemp,Bordes)
+   Presidents(Nickel)
+   Label Acquisition(Talukdar)
+   Kelvin()
