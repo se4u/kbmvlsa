@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Script to setup the packages used for comparing different
-# knowledge base completion and vertex nomination strategies
-# for the task of vertex nomination.
+# Script to setup the packages used for comparing different knowledge base
+# completion and vertex nomination strategies for the task of vertex nomination.
+# ---------------#
+#  Download Code #
+# ---------------#
 cd src/lib
 # Rescal and Scikit Tensor contain an implementation of "Rescal" that is a good
 # baseline method for knowledge base completion.
@@ -18,8 +20,11 @@ git submodule add https://github.com/glorotxa/SME.git
 # Add Rasengan as Submodule
 git submodule add https://github.com/se4u/rasengan.git
 
-# The Presidents Dataset From Nickel et al. ICML 2011
+# ---------------#
+#  Download Data #
+# ---------------#
 cd no_repo/data
+# The Presidents Dataset From Nickel et al. ICML 2011
 wget http://www.cip.ifi.lmu.de/~nickel/data/us-presidents.rdf.bz2
 
 # Download Dataset for Inferring Missing Entity Type Instances for Knowledge
@@ -35,7 +40,6 @@ cd no_repo/data
 curl -o fb15k.tgz https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:fb15k.tgz
 curl -o semantic_matching_wordnet.tar.gz https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:wordnet-mlj12.tar.gz
 curl -o umls_nations_kinships_datasets.tar.gz https://everest.hds.utc.fr/lib/exe/fetch.php?media=en:tensor_factorisation_datasets.tar.gz
-
 
 # Reidel, Sameer, Tim (Universal Schema)
 https://github.com/riedelcastro/riedelcastro.github.com/tree/master/uschema

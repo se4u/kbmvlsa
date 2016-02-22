@@ -4,9 +4,9 @@
 | Description : Compare Three VN Strategies.
 | Author      : Pushpendre Rastogi
 | Created     : Fri Feb 12 02:19:26 2016 (-0500)
-| Last-Updated: Mon Feb 22 06:08:25 2016 (-0500)
+| Last-Updated: Mon Feb 22 14:48:13 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 63
+|     Update #: 66
 There are three VN strategies that we want to compare:
 1. ASE.
 2. VN through KBC.
@@ -21,11 +21,11 @@ from scipy.sparse import lil_matrix
 from rasengan import rank_metrics
 
 
-def predict_rescal_als(T):
+def predict_rescal_als(T, rank=100, lambda_A=10, lambda_R=10):
+    ''' T is a list of sparse 2d lil_matrices.
+    '''
     A, R, _, _, _ = rescal_als(
-        T, 100, init='nvecs', conv=1e-3,
-        lambda_A=10, lambda_R=10
-    )
+        T, rank, init='nvecs', conv=1e-3, lambda_A=lambda_A, lambda_R=lambda_R)
     n = A.shape[0]
     P = np.zeros((n, n, len(R)))
     for k in range(len(R)):
