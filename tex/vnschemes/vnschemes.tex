@@ -247,15 +247,16 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
 \subsection{Presidents Collective Classification Dataset}
 \label{sec:pres-coll-class}
 With this dataset our goal is to compare the performance of
-RESCAL, VN and KBC-VN.
+RESCAL, VN and KBC-VN.\note{In this dataset P@5, P@10 don't make
+a lot of sense since there are only at most 1, 2 or 3 correct answers.}
 
 \begin{table}[htbp]
   \centering
-  \begin{tabular}{l c c c}
-    Method & AUPR & P@1 & P@5 & P@10 \\
-    Rescal & 0.79 \\
-    VN     & \\
-    KBC-VN & \\
+  \begin{tabular}{l c c c c}
+    Method & AUPR & P@1  & \alert{P@5} & \alert{P@10} \\
+    RESCAL &  0.79 & 0.78 & 0.17 & 0.09 \\
+    VN     &  \alert{0.46} \\
+    MAD    &  0.79 & 0.75 & 0.17 & 0.10 \\
   \end{tabular}
   \caption{Performance vs Algorithm On the US Presidents Dataset}
   \label{tab:perf-vs-algo-on-us-president}
@@ -266,7 +267,7 @@ RESCAL, VN and KBC-VN.
 \label{sec:talukdar-vn-data}
 \begin{table}[htbp]
   \centering
-  \begin{tabular}{l c c c}
+  \begin{tabular}{l c c c c}
     Method & AUPR & P@1 & P@5 & P@10 \\
     Rescal & \\
     VN     & \\
