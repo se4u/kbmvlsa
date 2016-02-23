@@ -8,6 +8,7 @@
 \usepackage[acronym]{glossaries}
 \usepackage[]{todonotes} % insert [disable] to disable all notes.
 \newcommand{\note}[1]{\todo[author=Pushpendre,color=blue!40,size=\small,fancyline,inline]{#1}}
+\newcommand{\Todo}[1]{\todo[author=Pushpendre,size=\small,inline]{#1}}
 \newcommand{\eg}{e.g.,\xspace}
 \newcommand{\bigeg}{E.g.,\xspace}
 \newcommand{\etal}{\textit{et~al.\xspace}}
@@ -246,23 +247,72 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
 \pagebreak
 \subsection{Presidents Collective Classification Dataset}
 \label{sec:pres-coll-class}
-With this dataset our goal is to compare the performance of
-RESCAL, VN and KBC-VN.\note{In this dataset P@5, P@10 don't make
-a lot of sense since there are only at most 1, 2 or 3 correct answers.}
+\newthought{The US President Collective Classification Dataset} was
+curated by~\cite{nickel2011three} by selecting US presidents, vice
+presidents and their parties. The graph basically contains an edge
+from vice presidents to presidents and every person is also labeled with
+the political party that they were affiliated with.
+\todo{Some of the persons were affiliated with more than one party
+during their career, so its a multi-label prediction problem and not
+ a vanilla multi-class classification problem. Right now I am just breaking ties
+arbitrarily and removing multiple labels arbitrarily in the hopes that this wouldn't
+be too bad since most people would have only one label. But we need to figure out
+the right way to handle this.}
 
-\begin{table}[htbp]
+\newthought{Our goal with this dataset} is to compare the performance of
+RESCAL, ASE and MAD:
+
+\newthought{The RESCAL algorithm} takes in a series of sparse matrices, where each
+matrix encodes a particular relation. \cite{nickel2011three} did a peculiar encoding
+where they created two separate matrices for the \textit{president} and
+\textit{vice-president} relations. We recreated there method and also compared with
+the more \textit{sensible} approach where we combined these two relations into
+a single matrix. Finally the metric for success was chosen to be Area under Precision-Recall
+Curve. For a multi-label problem, with varying number of correct labels, this is the only reasonable metric.
+P@K does not make sense for large K. We average all these numbers over 10 cross-val folds.
+
+\newthought{The MAD algorithm} was designed for this kind of task and it also performs
+just as well or infact better. \note{the MAD algorithm only allocates a few labels
+to a node and the rest of the label allocations I do randomly. I don't think there
+is any way to improve the situation.}
+
+\newthought{The ASE Algorithm} for vertex nomination works by first embedding the nodes of a
+graph. The training data assigns a few labels to each of these feature vectors, and we need to
+learn a multi-class classifier. The most naive approach simply ignores the multi-label structure
+of the problem, and instead randomly picks one of the labels in case there are multiple labels in
+the training data. At test time, we also only predict one label, this label can be assigned the
+highest rank and the other labels can be assigned ranks arbitrarily. If the test data mostly contains
+nodes that only have one label then this is a reasonable approaximation to begin with.
+\note{Most of the time this is a good assumption, the number of test nodes
+  with multiple labels was 2 in 10 folds crossval.}
+
+What we really want is a general multi-label predictor.
+\begin{margintable}[-3in]
   \centering
   \begin{tabular}{l c c c c}
-    Method & AUPR & P@1  & \alert{P@5} & \alert{P@10} \\
-    RESCAL &  0.79 & 0.78 & 0.17 & 0.09 \\
-    VN     &  \alert{0.46} \\
-    MAD    &  0.79 & 0.75 & 0.17 & 0.10 \\
+    Method & AUPR & Avg-P@1  & \alert{Avg-P@5} & \alert{Avg-P@10} \\\toprule
+    (0) RESCAL &  0.76 & 0.74 & 0.16 & 0.09 \\
+    RESCAL\_SENSIBLE &  0.74 & 0.71 & 0.16 & 0.09 \\
+    \alert{ASE} &  0.44 & 0.37 & 0.10 & 0.07 \\
+    MAD &  0.80 & 0.77 & 0.17 & 0.10 \\
+    RANDOM &  0.26 & 0.14 & 0.07 & 0.08 \\\midrule
+    (1234) RESCAL &  0.79 & 0.77 & 0.17 & 0.09 \\
+    RESCAL\_SENSIBLE &  0.77 & 0.75 & 0.17 & 0.09 \\
+    \alert{ASE} &  0.46 & 0.37 & 0.12 & 0.08 \\
+    MAD &  0.87 & 0.83 & 0.19 & 0.10 \\
+    RANDOM &  0.23 & 0.07 & 0.07 & 0.08 \\\midrule
+    (123) RESCAL &  0.77 & 0.75 & 0.17 & 0.09 \\
+    RESCAL\_SENSIBLE &  0.76 & 0.73 & 0.17 & 0.09 \\
+    \alert{ASE} &  0.47 & 0.38 & 0.12 & 0.08 \\
+    MAD &  0.81 & 0.78 & 0.18 & 0.09 \\
+    RANDOM &  0.22 & 0.07 & 0.07 & 0.08 \\
   \end{tabular}
-  \caption{Performance vs Algorithm On the US Presidents Dataset}
+  \caption{Performance vs Algorithm On the US Presidents Dataset. The two sections are two monte-carlo runs.
+    \alert{In this dataset P@5, P@10 don't make a lot of sense since there are only at most 1, 2 or 3 correct answers.}}
   \label{tab:perf-vs-algo-on-us-president}
-\end{table}
+\end{margintable}
 
-
+\pagebreak
 \subsection{Talukdar VN Data}
 \label{sec:talukdar-vn-data}
 \begin{table}[htbp]
@@ -270,8 +320,8 @@ a lot of sense since there are only at most 1, 2 or 3 correct answers.}
   \begin{tabular}{l c c c c}
     Method & AUPR & P@1 & P@5 & P@10 \\
     Rescal & \\
-    VN     & \\
-    KBC-VN & \\
+    ASE    & \\
+    MAD    & \\
   \end{tabular}
   \caption{Performance vs Algorithm On Talukdar's Label Acquisition Dataset.}
   \label{tab:perf-vs-algo-on-label_acquisition}

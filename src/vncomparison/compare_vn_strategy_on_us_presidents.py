@@ -4,9 +4,9 @@
 | Description : Compare MAD, VN, RESCAL on the US Presidents Dataset.
 | Author      : Pushpendre Rastogi
 | Created     : Mon Feb 22 12:11:33 2016 (-0500)
-| Last-Updated: Tue Feb 23 01:45:39 2016 (-0500)
+| Last-Updated: Tue Feb 23 14:50:26 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 99
+|     Update #: 131
 USAGE: ./compare_vn_strategy_on_us_presidents.py --rank 5 --lambda_A .1 --lambda_R .1
 Compare to the performance with `--rank 50 --lambda_A 10 --lambda_R 10`
 '''
@@ -46,13 +46,152 @@ def calc_metric(yhat, ygold):
 
 def rescal_perf(T, test_node_idx, people_list):
     T_train = np.copy(T)
-    T_train[test_node_idx, :, 2] = 0
+    num_slice = T.shape[2]
+    T_train[test_node_idx, :, num_slice - 1] = 0
     T_pred = predict_rescal_als(
-        [lil_matrix(T_train[:, :, i]) for i in range(3)],
+        [lil_matrix(T_train[:, :, i]) for i in range(num_slice)],
         rank=args.rank, lambda_A=args.lambda_A, lambda_R=args.lambda_R)
     return calc_metric(
-        T_pred[test_node_idx, len(people_list):, 2],
-        T[test_node_idx, len(people_list):, 2])
+        T_pred[test_node_idx, len(people_list):, num_slice - 1],
+        T[test_node_idx, len(people_list):, num_slice - 1])
+
+
+def embed_graph_adjacency(adj_mat):
+    node_strength = adj_mat.sum(axis=1).astype('float64')
+    D = np.diag(node_strength / adj_mat.shape[0])
+    return np.linalg.svd(adj_mat + D, full_matrices=0)
+
+
+def transform_train_features_train_labels(train_features, train_labels):
+    f_list = []
+    l_list = []
+    for f, l in zip(train_features, train_labels):
+        for idx in l.nonzero()[0]:
+            f_list.append(f)
+            l_list.append(idx)
+            rasengan.warn("We are breaking")
+            break
+    f_list = np.array(f_list)
+    l_list = np.array(l_list)
+    return (f_list, l_list)
+
+
+def ase_perf(adj_mat, label_mat, train_node_idx, test_node_idx, dim=50):
+    ''' The method is to first embed the graph.
+    then to train a logistic classifier using the train_node_idx.
+    Then test it on the test_node_idx.
+    '''
+    from sklearn.linear_model import LogisticRegression
+    A_svd = embed_graph_adjacency(adj_mat)
+    V = A_svd[2].T
+    vertex_features = V[:, :dim] * np.sqrt(A_svd[1][:dim])
+    train_labels = label_mat[train_node_idx]
+    train_features = vertex_features[train_node_idx]
+    test_labels = label_mat[test_node_idx]
+    test_features = vertex_features[test_node_idx]
+    model = LogisticRegression(
+        penalty='l2', solver='liblinear', verbose=0, class_weight='balanced', C=0.1)
+    train_features, train_labels = transform_train_features_train_labels(
+        train_features, train_labels)
+    model.fit(train_features, train_labels)
+    # Training Score.
+    # model.score(train_features, train_labels)
+    test_features, test_labels = transform_train_features_train_labels(
+        test_features, test_labels)
+    predicted_labels = model.predict(test_features)
+    aupr = 0.0
+    p_at_k = defaultdict(float)
+    for pred_label_idx, label_relevance in zip(predicted_labels, label_mat[test_node_idx]):
+        pred_label_relevance = [label_relevance[pred_label_idx]]
+        rest_relevance = [label_relevance[idx]
+                          for idx in range(len(label_relevance))
+                          if idx != pred_label_idx]
+        random.shuffle(rest_relevance)
+        relevance = pred_label_relevance + rest_relevance
+        aupr += rasengan.rank_metrics.average_precision(
+            relevance)
+        for k in args.p_at_k:
+            p_at_k[k] += rasengan.rank_metrics.precision_at_k(relevance, k)
+    return [aupr / len(test_node_idx)] + [p_at_k[k] / len(test_node_idx) for k in args.p_at_k]
+
+
+def get_edgelist(g, node_set):
+    edgelist = []
+    for (e1, r, e2) in g:
+        # Edges always go from vicePresident to president.
+        if r == vicePresident:
+            edgelist.append((node_set[e1], node_set[e2]))
+        elif r == president:
+            edgelist.append((node_set[e2], node_set[e1]))
+        else:
+            pass
+    edgelist = list(set(edgelist))
+    return edgelist
+
+
+def mad_rating(node_rating, label_list, test_data):
+    aupr = 0.0
+    p_at_k = defaultdict(float)
+    for node, label_rating in node_rating.items():
+        sorted_label_rating = []
+        for e, _ in sorted(label_rating.items(), key=lambda x: x[1], reverse=True):
+            if e != '__DUMMY__':
+                sorted_label_rating.append(int(e[1:]))
+        remaining_labels = [
+            e for e in label_list if e not in sorted_label_rating]
+        random.shuffle(remaining_labels)
+        relevance = [(1 if (e in test_data and node in test_data[e]) else 0)
+                     for e in sorted_label_rating + remaining_labels]
+        aupr += rasengan.rank_metrics.average_precision(relevance)
+        for k in args.p_at_k:
+            p_at_k[k] += rasengan.rank_metrics.precision_at_k(relevance, k)
+
+    return [aupr / len(node_rating)] + [p_at_k[k] / len(node_rating) for k in args.p_at_k]
+
+
+def get_train_test_data(g, node_set, train_node_idx):
+    train_data = defaultdict(list)
+    test_data = defaultdict(list)
+    for (e1, r, e2) in g:
+        if r == party:
+            if node_set[e1] in train_node_idx:
+                train_data[node_set[e2]].append(node_set[e1])
+            else:
+                test_data[node_set[e2]].append(node_set[e1])
+                pass
+            pass
+        pass
+    return dict(train_data), dict(test_data)
+
+
+def mad_perf(g, node_set, train_node_idx, label_list):
+    edgelist = get_edgelist(g, node_set)
+    from evaluate_mad_on_sbm_graph import MAD
+    madobj = MAD(edgelist)
+    train_data, test_data = get_train_test_data(g, node_set, train_node_idx)
+    madobj.write_train(train_data)
+    madobj.write_test(test_data)
+    madobj.execute()
+    node_rating = madobj.parse_ratings()
+    return mad_rating(node_rating, label_list, test_data)
+
+
+def random_perf(g, node_set, train_node_idx, label_list):
+    _, test_data = get_train_test_data(g, node_set, train_node_idx)
+    # -------------------------------------------------------------------- #
+    # Figure out how many times does a test president/vicepresident really #
+    # has multiple parties/labels? Count this amongst test node in 10 fold #
+    # -------------------------------------------------------------------- #
+    # node2label = defaultdict(list)
+    # for label, nodes in test_data.iteritems():
+    #     for node in nodes:
+    #         node2label[node].append(label)
+    # print "Test Nodes With Multiple Labels", \
+    #     sum((len(labels) > 2) for labels in node2label.values())
+    node_rating = {}
+    for node in rasengan.flatten(test_data.values()):
+        node_rating[node] = {}
+    return mad_rating(node_rating, label_list, test_data)
 
 
 def main():
@@ -81,121 +220,31 @@ def main():
         if r2idx[r] == 2:
             assert node_set[e2] >= len(people_list)
     assert T.shape == (93, 93, 3)
+    RESCAL_T = np.dstack((np.maximum(T[:, :, 0], T[:, :, 1].T), T[:, :, 2]))
     metrics = defaultdict(list)
     for train_node_idx, test_node_idx in rasengan.crossval(len(people_list), 10):
-        metrics["RESCAL"].append(rescal_perf(T, test_node_idx, people_list))
+        metrics["RESCAL"].append(
+            rescal_perf(T, test_node_idx, people_list))
+        metrics["RESCAL_SENSIBLE"].append(
+            rescal_perf(RESCAL_T, test_node_idx, people_list))
         metrics["MAD"].append(
             mad_perf(g, node_set, train_node_idx,
-                     range(len(people_list), len(people_list) + len(party_list))))
-        metrics["VN"].append(vn_perf(
-            np.maximum(T[:, :, 0], T[:, :, 1].T),
-            T[:, len(people_list):, 2],
-            train_node_idx,
-            test_node_idx))
-    print metrics
-    for algo in ["RESCAL", "VN", "MAD"]:
+                     range(len(people_list),
+                           len(people_list) + len(party_list))))
+        metrics["ASE"].append(
+            ase_perf(np.maximum(T[:, :, 0], T[:, :, 1].T),
+                     T[:, len(people_list):, 2],
+                     train_node_idx, test_node_idx))
+        metrics["RANDOM"].append(
+            random_perf(g, node_set, train_node_idx,
+                        range(len(people_list),
+                              len(people_list) + len(party_list))))
+    # print metrics
+    for algo in ["RESCAL", "RESCAL_SENSIBLE", "ASE", "MAD", "RANDOM"]:
         print "%s & " % algo, \
             ' & '.join('%.2f' % e for e in np.array(metrics[algo]).mean(axis=0)), \
             r"\\"
-
-
-def embed_graph_adjacency(adj_mat):
-    node_strength = adj_mat.sum(axis=1).astype('float64')
-    D = np.diag(node_strength / adj_mat.shape[0])
-    return np.linalg.svd(adj_mat + D, full_matrices=0)
-
-
-def transform_train_features_train_labels(train_features, train_labels):
-    f_list = []
-    l_list = []
-    for f, l in zip(train_features, train_labels):
-        for idx in l.nonzero()[0]:
-            f_list.append(f)
-            l_list.append(idx)
-            rasengan.warn("We are breaking")
-            break
-    f_list = np.array(f_list)
-    l_list = np.array(l_list)
-    return (f_list, l_list)
-
-
-def vn_perf(adj_mat, label_mat, train_node_idx, test_node_idx, dim=50):
-    ''' The method is to first embed the graph.
-    then to train a logistic classifier using the train_node_idx.
-    Then test it on the test_node_idx.
-    '''
-    from sklearn.linear_model import LogisticRegression
-    A_svd = embed_graph_adjacency(adj_mat)
-    V = A_svd[2].T
-    vertex_features = V[:, :dim] * np.sqrt(A_svd[1][:dim])
-    train_labels = label_mat[train_node_idx]
-    train_features = vertex_features[train_node_idx]
-    test_labels = label_mat[test_node_idx]
-    test_features = vertex_features[test_node_idx]
-    model = LogisticRegression(
-        penalty='l2', solver='liblinear', verbose=0)
-    train_features, train_labels = transform_train_features_train_labels(
-        train_features, train_labels)
-    model.fit(train_features, train_labels)
-    # Training Score.
-    # model.score(train_features, train_labels)
-    test_features, test_labels = transform_train_features_train_labels(
-        test_features, test_labels)
-    # ("Currently there is a problem that the vertex nomination code does"
-    #  " not gracefully handle multilabels. What would be the right way to"
-    #  " handle it?")
-    return [model.score(test_features, test_labels)]
-
-
-def get_edgelist(g, node_set):
-    edgelist = []
-    for (e1, r, e2) in g:
-        # Edges always go from vicePresident to president.
-        if r == vicePresident:
-            edgelist.append((node_set[e1], node_set[e2]))
-        elif r == president:
-            edgelist.append((node_set[e2], node_set[e1]))
-        else:
-            pass
-    edgelist = list(set(edgelist))
-    return edgelist
-
-
-def mad_perf(g, node_set, train_node_idx, label_list):
-    edgelist = get_edgelist(g, node_set)
-    from evaluate_mad_on_sbm_graph import MAD
-    madobj = MAD(edgelist)
-    train_data = defaultdict(list)
-    test_data = defaultdict(list)
-    for (e1, r, e2) in g:
-        if r == party:
-            if node_set[e1] in train_node_idx:
-                train_data[node_set[e2]].append(node_set[e1])
-            else:
-                test_data[node_set[e2]].append(node_set[e1])
-    test_data = dict(test_data)
-    train_data = dict(train_data)
-    madobj.write_train(train_data)
-    madobj.write_test(test_data)
-    madobj.execute()
-    node_rating = madobj.parse_ratings()
-    aupr = 0.0
-    p_at_k = defaultdict(float)
-    for node, label_rating in node_rating.items():
-        sorted_label_rating = []
-        for e, _ in sorted(label_rating.items(), key=lambda x: x[1], reverse=True):
-            if e != '__DUMMY__':
-                sorted_label_rating.append(int(e[1:]))
-        remaining_labels = [
-            e for e in label_list if e not in sorted_label_rating]
-        random.shuffle(remaining_labels)
-        relevance = [(1 if (e in test_data and node in test_data[e]) else 0)
-                     for e in sorted_label_rating + remaining_labels]
-        aupr += rasengan.rank_metrics.average_precision(relevance)
-        for k in args.p_at_k:
-            p_at_k[k] += rasengan.rank_metrics.precision_at_k(relevance, k)
-
-    return [aupr / len(node_rating)] + [p_at_k[k] / len(node_rating) for k in args.p_at_k]
+    return
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description='')
