@@ -285,7 +285,8 @@ highest rank and the other labels can be assigned ranks arbitrarily. If the test
 nodes that only have one label then this is a reasonable approaximation to begin with.
 \note{Most of the time this is a good assumption, the number of test nodes
   with multiple labels was 2 in 10 folds crossval.}
-
+\note{Spectral method does not work. The graph is sparse, and no connected.
+Clustering on the graph would not work. Dumbells}
 What we really want is a general multi-label predictor.
 \begin{margintable}[-3in]
   \centering
@@ -295,17 +296,20 @@ What we really want is a general multi-label predictor.
     RESCAL\_SENSIBLE &  0.74 & 0.71 & 0.16 & 0.09 \\
     \alert{ASE} &  0.44 & 0.37 & 0.10 & 0.07 \\
     MAD &  0.80 & 0.77 & 0.17 & 0.10 \\
-    RANDOM &  0.26 & 0.14 & 0.07 & 0.08 \\\midrule
+    RANDOM &  0.26 & 0.14 & 0.07 & 0.08 \\
+    RANDOMWALK &  0.79 & 0.76 & 0.18 & 0.11 \\\midrule
     (1234) RESCAL &  0.79 & 0.77 & 0.17 & 0.09 \\
     RESCAL\_SENSIBLE &  0.77 & 0.75 & 0.17 & 0.09 \\
     \alert{ASE} &  0.46 & 0.37 & 0.12 & 0.08 \\
     MAD &  0.87 & 0.83 & 0.19 & 0.10 \\
-    RANDOM &  0.23 & 0.07 & 0.07 & 0.08 \\\midrule
+    RANDOM &  0.23 & 0.07 & 0.07 & 0.08 \\
+    RANDOMWALK &  0.86 & 0.80 & 0.20 & 0.11 \\\midrule
     (123) RESCAL &  0.77 & 0.75 & 0.17 & 0.09 \\
     RESCAL\_SENSIBLE &  0.76 & 0.73 & 0.17 & 0.09 \\
     \alert{ASE} &  0.47 & 0.38 & 0.12 & 0.08 \\
     MAD &  0.81 & 0.78 & 0.18 & 0.09 \\
     RANDOM &  0.22 & 0.07 & 0.07 & 0.08 \\
+    RANDOMWALK &  0.83 & 0.78 & 0.19 & 0.10 \\
   \end{tabular}
   \caption{Performance vs Algorithm On the US Presidents Dataset. The two sections are two monte-carlo runs.
     \alert{In this dataset P@5, P@10 don't make a lot of sense since there are only at most 1, 2 or 3 correct answers.}}
@@ -347,10 +351,8 @@ clustering and the problem of edge prediction.
 \bibliography{vnschemes}
 \end{document}
 
-
 Work.
-1. Implement Metrics. P@K, using precision_at_k with binary relevance values.
-2. Check the performance of the MAD method.
+1. Run Random Walks.
 3. Experiment on more datasets. FB@15K(Bordes), FB2SNAP(Neelakatnan), Presidents(Nickel), UMLS_Nations_Kinships(Kemp,Bordes)
    Presidents(Nickel)
    Label Acquisition(Talukdar)

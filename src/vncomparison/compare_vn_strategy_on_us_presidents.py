@@ -4,9 +4,9 @@
 | Description : Compare MAD, VN, RESCAL on the US Presidents Dataset.
 | Author      : Pushpendre Rastogi
 | Created     : Mon Feb 22 12:11:33 2016 (-0500)
-| Last-Updated: Tue Feb 23 14:50:26 2016 (-0500)
+| Last-Updated: Mon Feb 29 03:07:30 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 131
+|     Update #: 168
 USAGE: ./compare_vn_strategy_on_us_presidents.py --rank 5 --lambda_A .1 --lambda_R .1
 Compare to the performance with `--rank 50 --lambda_A 10 --lambda_R 10`
 '''
@@ -56,10 +56,31 @@ def rescal_perf(T, test_node_idx, people_list):
         T[test_node_idx, len(people_list):, num_slice - 1])
 
 
-def embed_graph_adjacency(adj_mat):
+def embed_graph_adjacency(adj_mat, dim):
     node_strength = adj_mat.sum(axis=1).astype('float64')
     D = np.diag(node_strength / adj_mat.shape[0])
-    return np.linalg.svd(adj_mat + D, full_matrices=0)
+    assert not (args.ase_add_diag and args.ase_add_eps2everything)
+    if args.ase_add_diag:
+        adj_mat = adj_mat + D
+    elif args.ase_add_eps2everything:
+        adj_mat = adj_mat + args.ase_eps_noise
+    else:
+        pass
+    A_svd = np.linalg.svd(adj_mat, full_matrices=0)
+    V = A_svd[2].T
+    # print ' '.join('%.2f' % e for e in A_svd[1])
+    return V[:, :dim] * np.sqrt(A_svd[1][:dim])
+
+
+def embed_graph_laplacian(adj_mat, dim):
+    node_strength = adj_mat.sum(axis=1).astype('float64')
+    D = np.diag(node_strength / adj_mat.shape[0])
+    A_svd = np.linalg.svd(np.dot(np.dot(D, adj_mat), D),
+                          full_matrices=0)
+    if args.ase_add_eps2everything:
+        adj_mat = adj_mat + args.ase_eps_noise
+    V = A_svd[2].T
+    return V[:, :dim]
 
 
 def transform_train_features_train_labels(train_features, train_labels):
@@ -76,15 +97,17 @@ def transform_train_features_train_labels(train_features, train_labels):
     return (f_list, l_list)
 
 
-def ase_perf(adj_mat, label_mat, train_node_idx, test_node_idx, dim=50):
+def ase_perf(adj_mat, label_mat, train_node_idx, test_node_idx, dim):
     ''' The method is to first embed the graph.
     then to train a logistic classifier using the train_node_idx.
     Then test it on the test_node_idx.
     '''
     from sklearn.linear_model import LogisticRegression
-    A_svd = embed_graph_adjacency(adj_mat)
-    V = A_svd[2].T
-    vertex_features = V[:, :dim] * np.sqrt(A_svd[1][:dim])
+    if args.ase_embed_adjacency:
+        vertex_features = embed_graph_adjacency(adj_mat, dim)
+    else:
+        vertex_features = embed_graph_laplacian(adj_mat, dim)
+
     train_labels = label_mat[train_node_idx]
     train_features = vertex_features[train_node_idx]
     test_labels = label_mat[test_node_idx]
@@ -130,13 +153,26 @@ def get_edgelist(g, node_set):
 
 
 def mad_rating(node_rating, label_list, test_data):
+    ''' Node rating maps nodes to label_rating
+    label_rating map label_strings to
+    Params
+    ------
+    node_rating :
+    label_list  :
+    test_data   :
+    Returns
+    -------
+    '''
     aupr = 0.0
     p_at_k = defaultdict(float)
     for node, label_rating in node_rating.items():
         sorted_label_rating = []
         for e, _ in sorted(label_rating.items(), key=lambda x: x[1], reverse=True):
             if e != '__DUMMY__':
-                sorted_label_rating.append(int(e[1:]))
+                if type(e) is str:
+                    sorted_label_rating.append(int(e[1:]))
+                else:
+                    sorted_label_rating.append(e)
         remaining_labels = [
             e for e in label_list if e not in sorted_label_rating]
         random.shuffle(remaining_labels)
@@ -150,6 +186,8 @@ def mad_rating(node_rating, label_list, test_data):
 
 
 def get_train_test_data(g, node_set, train_node_idx):
+    ''' train_data and test_data are maps from vertices to labels.
+    '''
     train_data = defaultdict(list)
     test_data = defaultdict(list)
     for (e1, r, e2) in g:
@@ -194,6 +232,52 @@ def random_perf(g, node_set, train_node_idx, label_list):
     return mad_rating(node_rating, label_list, test_data)
 
 
+def weighted_random_walk(start, adjacent_node_list):
+    path_maxlength = args.rw_length
+    n_runs = args.rw_repeat
+    visit = defaultdict(int)
+    for run in range(n_runs):
+        state = start
+        for steps in range(path_maxlength):
+            adjacent_nodes = adjacent_node_list[state]
+            # if len(adjacent_nodes) > 0:
+            state = int(np.random.choice(adjacent_nodes, 1))
+            visit[state] += 1
+            pass
+        pass
+    return visit
+
+
+def rw_get_label_rating(node, adj_list, vertex_to_label, train_node_idx):
+    visit = weighted_random_walk(node, adj_list)
+    label_score = defaultdict(float)
+    for vertex in visit:
+        if vertex in train_node_idx:
+            for label in vertex_to_label[vertex]:
+                label_score[label] += visit[vertex]
+    return dict(label_score)
+
+
+def randomwalk_perf(adj, labels, train_node_idx,
+                    test_data, label_list):
+    node_rating = {}
+    adj_list = []
+    adj = np.maximum(adj, adj.T)
+    vertex_to_label = []
+    min_label = min(label_list)
+    for row in labels:
+        vertex_to_label.append(list(row.nonzero()[0] + min_label))
+    for row in adj:
+        adj_list.append(list(row.nonzero()[0]))
+    # --------------------------------------------------------------------------- #
+    # For Each query point(test vertex) Create a ranked list of potential labels. #
+    # --------------------------------------------------------------------------- #
+    for node in rasengan.flatten(test_data.values()):
+        node_rating[node] = rw_get_label_rating(
+            node, adj_list, vertex_to_label, train_node_idx)
+    return mad_rating(node_rating, label_list, test_data)
+
+
 def main():
     g = rdflib.Graph()
     g.parse(config.us_president_fn, format="xml")
@@ -219,28 +303,59 @@ def main():
         T[node_set[e1], node_set[e2], r2idx[r]] = 1
         if r2idx[r] == 2:
             assert node_set[e2] >= len(people_list)
+        else:
+            assert node_set[e2] < len(people_list)
+            assert node_set[e1] < len(people_list)
     assert T.shape == (93, 93, 3)
     RESCAL_T = np.dstack((np.maximum(T[:, :, 0], T[:, :, 1].T), T[:, :, 2]))
     metrics = defaultdict(list)
+
+    '''
+    g - A list of RDF triples.
+    T - A 93 x 93 x 3 tensor
+    train_node_idx - A list of indices of vertices whose labels are known.
+    test_node_idx  - A list of indices of vertices whose labels are unknown.
+    people_list    - A list of 79 people.
+    party_list     - A list of 14 parties.
+    Every perf function returns AUPR and P@K for k in args.args.p_at_k
+    '''
+    label_list = range(len(people_list), len(people_list) + len(party_list))
     for train_node_idx, test_node_idx in rasengan.crossval(len(people_list), 10):
         metrics["RESCAL"].append(
             rescal_perf(T, test_node_idx, people_list))
         metrics["RESCAL_SENSIBLE"].append(
             rescal_perf(RESCAL_T, test_node_idx, people_list))
         metrics["MAD"].append(
-            mad_perf(g, node_set, train_node_idx,
-                     range(len(people_list),
-                           len(people_list) + len(party_list))))
+            mad_perf(g, node_set, train_node_idx, label_list))
         metrics["ASE"].append(
             ase_perf(np.maximum(T[:, :, 0], T[:, :, 1].T),
                      T[:, len(people_list):, 2],
-                     train_node_idx, test_node_idx))
+                     train_node_idx, test_node_idx,
+                     args.ase_dim))
         metrics["RANDOM"].append(
-            random_perf(g, node_set, train_node_idx,
-                        range(len(people_list),
-                              len(people_list) + len(party_list))))
+            random_perf(g, node_set, train_node_idx, label_list))
+        # assert rasengan.flatten(
+        #     get_train_test_data(g, node_set, train_node_idx)[1].values()) == test_node_idx
+        # It turns out that node 63. actually does not have a party in the
+        # database.
+        # [ (e1, r, e2) for (e1, r, e2) in g if node_set[e2] == 63]
+        # [(rdflib.term.URIRef(u'http://dbpedia.org/resource/Hubert_Humphrey'),
+        # rdflib.term.URIRef(u'http://dbpedia.org/ontology/president'),
+        # rdflib.term.URIRef(u'http://dbpedia.org/resource/James_Eastland'))]
+        metrics["RANDOMWALK"].append(
+            randomwalk_perf(
+                np.maximum(
+                    T[:len(people_list), :len(people_list), 0],
+                    T[:len(people_list), :len(people_list), 1].T),  # president
+                T[:, len(people_list):, 2],  # Party
+                # The people whose labels we use after  walking.
+                train_node_idx,
+                get_train_test_data(g, node_set, train_node_idx)[1],
+                label_list,
+            )
+        )
     # print metrics
-    for algo in ["RESCAL", "RESCAL_SENSIBLE", "ASE", "MAD", "RANDOM"]:
+    for algo in ["RESCAL", "RESCAL_SENSIBLE", "ASE", "MAD", "RANDOM", "RANDOMWALK"]:
         print "%s & " % algo, \
             ' & '.join('%.2f' % e for e in np.array(metrics[algo]).mean(axis=0)), \
             r"\\"
@@ -248,7 +363,8 @@ def main():
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description='')
-    arg_parser.add_argument('--seed', default=0, type=int, help='Default={0}')
+    arg_parser.add_argument(
+        '--seed', default=0, type=int, help='Default={0}')
     arg_parser.add_argument(
         '--rank', default=5, type=int, help='Default={90}')
     arg_parser.add_argument(
@@ -257,6 +373,20 @@ if __name__ == '__main__':
         '--lambda_R', default=.1, type=float, help='Default={10}')
     arg_parser.add_argument(
         '--p_at_k', default=(1, 5, 10), type=tuple, help='Default={(1, 5, 10)}')
+    arg_parser.add_argument(
+        '--ase_dim', default=50, type=int, help='Default={50}')
+    arg_parser.add_argument(
+        '--ase_add_diag', default=1, type=int, help='Default={1}')
+    arg_parser.add_argument(
+        '--ase_add_eps2everything', default=0, type=int, help='Default={0}')
+    arg_parser.add_argument(
+        '--ase_eps_noise', default=1e-2, type=float, help='Default={1e-2}')
+    arg_parser.add_argument(
+        '--ase_embed_adjacency', default=1, type=int, help='Default={1}')
+    arg_parser.add_argument(
+        '--rw_length', default=2, type=int, help='Default={2}')
+    arg_parser.add_argument(
+        '--rw_repeat', default=5, type=int, help='Default={5}')
     args = arg_parser.parse_args()
     import random
     random.seed(args.seed)
