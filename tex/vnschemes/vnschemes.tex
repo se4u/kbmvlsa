@@ -86,6 +86,28 @@ completion problem based on stochastic block models.
 
 \todo{SBM based methods.}
 
+
+\subsection{Web Ontology Language (OWL)}
+\label{sec:web-ontol-lang}
+
+
+\section{Task Definition}
+\subsection{sec:task}
+A detailed knowledge graph about events, entities and relations amongst those
+entities, such as that produced by the Rich ERE annotations, can be a useful
+dataset. The challenge, after we have produced such a dataset, is that what can
+we do with it?
+
+In order to guide ourselves to more relevant and interesting research we need to first make hypotheses about the use cases for such a dataset. One of the most important use cases for such a dataset is that we can create ``infoboxes'' about entities and events using such databases. Selecting what should go into those infoboxes is a difficult problem. A structured database can also be useful for testing the validity of assertions. For example we may want to ascertain the probability of truth of a statement like, ``Osama bin laden lives in pakistan''. We can use methods similar to PRA to determine whether
+OBL really lives in pakistan based on the path between OBL and pakistan and check whether a path like that exists between other entities and locations that they reside in.
+In order to figure out what
+
+One basic question of this type would be what is the ``canonicalString'' of a
+\begin{enumerate}
+\item
+\end{enumerate}
+
+
 \section{Edge Prediction for Vertex Label Prediction}
 \label{sec:edge-for-vertex}
 Consider a simple case where we are given a graph $G = (V, E)$.
@@ -341,6 +363,105 @@ the performance of VN algorithms, without approaching edge prediction as VN.}
 \label{sec:modul-exper}
 \alert{TODO}
 
+\clearpage
+\subsection{Adept Experiment}
+\label{sec:adept-experiment}
+The Adept Dataset contained the following raw files.
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l rcl l }
+    File Name  & Type      &    & Count     &                                                               \\\toprule
+    Base       & (356004,  & 26 & , 389515) & (\alert{Event/Entity?}, attribute, attribute of event/entity) \\
+    Ont-Type   & (356004,  & 1  & , 42)     & (\alert{Event/Entity?}, type, Event/Entity Type)              \\
+    Metadata   & (352902,  & 1  & , 47796)  & (\alert{Event/Entity?}, appearsInDocument, docid)             \\
+    Confidence & (1058707, & 5  & , 574678) & (XXX, XXX, XXX)                                               \\
+    Other      & (1062276, & 14 & , 452)    & (XXX, XXX, XXX)                                               \\\bottomrule
+  \end{tabular}
+  \caption{The Adept Batch Dump.}
+  \label{tab:adept-data}
+\end{table}
+
+Following is a map of entity type counts to the variant types. This map helped
+my figure out what the columns in the RDF tables corresponded to.
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{r l}
+    26 & argument, canonicalMention, canonicalString, thing, timex2String, \\
+       &  xsdDate, affiliatedEntity, child, crime, defendant, employeeMember, \\
+       &  entity, founder, investorShareholder, leader, location, member, \\
+       &  organization, parent, person, place, role, studentAlumni, \\
+       &  subOrganization, time, url \\\midrule
+    42 & base\#Date, base\#Entity, base\#Event, base\#GenericThing, \\
+       &  base\#PredicateArgument, base\#Relation, base\#Thing, BeBorn,\\
+       &  BusinessEvent, ChargeIndict, Crime, Die, EmploymentMembership,\\
+       &  EndOrganization, FamilyRelationship, Founder, GeoPoliticalEntity,\\
+       &  InterpersonalRelationship, InvestorShareholder, JusticeEvent,\\
+       &  Leadership, LifeEvent, MemberOriginReligionEthnicity, Membership,\\
+       &  Organization, OrganizationalAffiliation, OrganizationWebsite,\\
+       &  OrgHeadquarter, Origin, ParentChildRelationship, PartWhole, Person,\\
+       &  PhysicalLocation, Resident, Role, SiblingRelationship,\\
+       &  SpousalRelationship, StartOrganization, StudentAlum,Subsidiary, Title,\\
+       &  URL \\\midrule
+    5  & confidence, object, predicate, subject, type \\\midrule
+    14 & 22-rdf-syntax-ns\#type, rdf-schema\#domain, rdf-schema\#range,\\
+       &  rdf-schema\#subClassOf, rdf-schema\#subPropertyOf, owl\#allValuesFrom,\\
+       &  owl\#equivalentProperty, owl\#imports, owl\#maxQualifiedCardinality,\\
+       &  owl\#minQualifiedCardinality, owl\#onClass, owl\#onDataRange,\\
+       &  owl\#onProperty, owl\#qualifiedCardinality
+  \end{tabular}
+  \caption{Count to Variant Map}
+  \label{tab:count-to-variant}
+\end{table}
+
+\subsection{Experiments on the Adept Data}
+\label{sec:exper-adept-data}
+The Adept dataset contains 4 very
+
+\subsection{Questions About the Adept Data}
+\label{sec:quest-about-adept}
+
+\alert{Based on the above data the following questions come up}:
+\begin{enumerate}
+\item What is the first column in the files Base and Ont-Type? Do they contain
+  the same type of things? Does it contain Event/Entity mentions in documents?
+\item What is the first column on the Metadata table? If it is an
+  \alert{Event/Entity} then why are there only $352902$ of them and not
+  $356004$.
+\item What does the confidence table contains?
+\begin{verbatim}
+$head -1 bbn_2016-02-23_13-09-09-confidence.nq
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://www.w3.org/1999/02/22-rd\
+f-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+\end{verbatim}
+\alert{Why is \texttt{predicate} a \texttt{type} of \texttt{property}?}
+\item What are the millions of enties in Confidence and Other tables?
+\item Is it correct that the 3rd column of Other is just an expanded version of
+  3rd column of Ont-Type?
+\item What do the 2nd and 3rd columns of Other table signify ? More specifically
+  what do the following combinations mean? What is subClassOf versus
+  subPropertyOf? What is onClass versus onProperty?
+\begin{verbatim}
+</2000/01/rdf-schema#domain> </adept-base#Date>
+</2000/01/rdf-schema#domain> </adept-base#ExternalID>
+</2000/01/rdf-schema#domain> </1999/02/22-rdf-syntax-ns#List>
+</2000/01/rdf-schema#domain> </1999/02/22-rdf-syntax-ns#Property>
+</2000/01/rdf-schema#subClassOf> _:BX2D2ba1746fX3A152f52fd333X3AX2D7ee9
+</2000/01/rdf-schema#subClassOf> _:BX2D2ba1746fX3A152f52fd333X3AX2D7eea
+</2000/01/rdf-schema#subClassOf> </adept-core#Fine>
+</2000/01/rdf-schema#subClassOf> </adept-core#Founder>
+</2000/01/rdf-schema#subPropertyOf> </adept-core#destination>
+</2000/01/rdf-schema#subPropertyOf> </adept-core#employeeMember>
+</2002/07/owl#onClass> </adept-base#Entity>
+</2002/07/owl#onClass> </adept-base#PredicateArgument>
+</2002/07/owl#onProperty> </adept-core#crime>
+</2002/07/owl#onProperty> </adept-core#defendant>
+</2002/07/owl#qualifiedCardinality> "1"^^</2001/XMLSchema#integer>
+\end{verbatim}
+
+\end{enumerate}
+
+
+\clearpage
 \section{Future Work}
 \label{sec:future-work}
 A possible analysis of tensor factorization based methods for kbc, in the
@@ -357,3 +478,14 @@ Work.
    Presidents(Nickel)
    Label Acquisition(Talukdar)
    Kelvin()
+
+We have to tie the procedure used to the graph.
+FILL in the table, Talukdar and AdeptKB.
+
+Do the Cohen's thing.
+
+
+Random walk inference and learning in
+
+We show that a soft inference procedure based on a combination of constrained
+weighted, random walks.

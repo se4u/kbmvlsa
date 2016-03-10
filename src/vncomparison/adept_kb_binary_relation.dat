@@ -1,0 +1,17 @@
+core#EmploymentMembership    core#organization     core#employeeMember
+core#Founder                 core#organization     core#founder
+core#InvestorShareholder     core#organization     core#investorShareholder
+core#Leadership              core#leader           core#affiliatedEntity
+core#OrgHeadquarter          core#location         core#organization
+core#OrganizationWebsite     core#organization     core#url
+core#Origin                  core#affiliatedEntity core#person
+core#Resident                core#location         core#person
+core#Role                    core#person           core#role
+core#StudentAlum             core#organization     core#studentAlumni
+core#BeBorn                  core#place            core#person
+core#EndOrganization         core#place            core#organization
+core#ParentChildRelationship core#parent           core#child
+core#Membership              core#organization     core#member
+core#StartOrganization       core#organization     core#agent
+core#ChargeIndict            core#defendant        core#crime
+core#Die                     core#victim           core#agent
