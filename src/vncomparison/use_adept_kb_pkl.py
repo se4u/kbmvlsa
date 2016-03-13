@@ -4,9 +4,9 @@
 | Description : Vertex Nomination Experiments on the Adept KB
 | Author      : Pushpendre Rastogi
 | Created     : Thu Mar 10 22:41:16 2016 (-0500)
-| Last-Updated: Sat Mar 12 19:37:26 2016 (-0500)
+| Last-Updated: Sat Mar 12 23:44:37 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 81
+|     Update #: 129
 '''
 import argparse
 arg_parser = argparse.ArgumentParser(description='')
@@ -64,10 +64,44 @@ data_dict = data['data_dict']
 idx_to_name = dict((idx, entity_to_name[e])
                    for e, idx in entity_to_int_map.iteritems())
 dv = data_dict.values()
+edge_to_label_map = {}
+for label, edges in data_dict.iteritems():
+    for v1, v2 in edges:
+        edge_to_label_map[(v1, v2)] = label
+        edge_to_label_map[(v2, v1)] = label + '_inv'
+
 all_nodes = set(rasengan.flatten(dv))
 all_edges = reduce(lambda x, y: x + y, dv)
 set_all_edges = set(tuple(e) for e in all_edges)
-g = igraph.Graph(n=220603, edges=list(set_all_edges), directed=False)
+
+
+def shortest_path(g, v1, v2):
+    d = {}
+    v = None
+    pv = None
+    for v, dist, pv in g.bfsiter(v1, advanced=True):
+        v = v.index
+        if pv is not None:
+            pv = pv.index
+        d[v] = pv
+        if v == v2:
+            break
+    if v != v2:
+        raise ValueError("No path from %d to %d" % (v1, v2))
+    path = [v]
+    for _ in range(dist):
+        path.insert(0, pv)
+        pv = d[pv]
+
+    pth = []
+    for idx in range(1, len(path)):
+        pth.append((path[idx - 1], path[idx]))
+    return pth
+
+g = igraph.Graph(
+    n=220603, edges=list(set_all_edges), directed=False).simplify()
+assert not any(g.is_multiple())
+
 all_cmp = g.components()
 cmp_bigger_than_1 = [e for e in all_cmp if len(e) > 1]
 for e in cmp_bigger_than_1:
@@ -136,11 +170,12 @@ for o, el in org_to_employees_dict.iteritems():
 
 # print 'Degree distribution', sorted(Counter(g.degree()).items(), key=lambda x: x[0])
 # print [idx_to_name[e] for e in range(g.vcount()) if g.degree(e) > 1000]
+
 sp_list = []
 print 'Org Size, Member Removal Factor, Success Upper Bound'
 for org_size in filter(lambda x: x >= args.min_org_size, sorted(size_to_org_dict.keys())[::5]):
-    for p in args.p_removal:
-        m_prime = int(org_size * p)
+    for p_removal in args.p_removal:
+        m_prime = int(org_size * p_removal)
         assert m_prime != 0
         avg_success = 0.0
         for org in size_to_org_dict[org_size][:args.orgcount_inhibitor]:
@@ -169,9 +204,18 @@ for org_size in filter(lambda x: x >= args.min_org_size, sorted(size_to_org_dict
                                 in employees_to_remove])
                 gsp = rasengan.flatten(
                     g.shortest_paths(org, employees_to_remove))
+                assert 1 not in gsp
                 sp_list.extend(gsp)
                 print >> sys.stderr, ('        Shortest path b/w org and employee AFTER deletion: ' +
                                       str(gsp))
+                for e in employees_to_remove:
+                    print '          ', idx_to_name[org],
+                    try:
+                        path = shortest_path(g, org, e)
+                        print ' -> '.join([edge_to_label_map[pth] for pth in path]),
+                    except ValueError:
+                        print ' NO_PATH ',
+                    print idx_to_name[e]
                 # Do a random walk.
                 # Now I want to do a random walk on this graph.
                 vertex_hits = Counter(
@@ -192,7 +236,7 @@ for org_size in filter(lambda x: x >= args.min_org_size, sorted(size_to_org_dict
             pass
         avg_success /= len(size_to_org_dict[org_size]
                            [:args.orgcount_inhibitor])
-        print '%-2d %.2f %.2f ' % (org_size, p, avg_success), 'ORG Count:', \
+        print '%-2d %.2f %.2f ' % (org_size, p_removal, avg_success), 'ORG Count:', \
             len(size_to_org_dict[org_size][:args.orgcount_inhibitor])
 
 print Counter(sp_list)
