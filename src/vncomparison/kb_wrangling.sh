@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 
+# grep canonicalString bbn_2016-02-23_13-09-09-base.nq \
+#     | sort  \
+#     | awk '{print substr($1, 37, 36), substr($0, 128, length($0) - 128)}' > entities_with_canonical_strings_and_their_strings
+
 # ---------------------- #
 # Test for superProperty #
 # ---------------------- #
-# $IFS=$'\n'; for f in $(grep 'subOrganization' bbn_2016-02-23_13-09-09-base.nq | head -20 ); do grep "$( echo $f | sed 's#subOrgan
+# $IFS=$'\n';
+# for f in $(grep 'subOrganization' bbn_2016-02-23_13-09-09-base.nq | head -20 );
+# do grep "$( echo $f | sed 's#subOrgan
 
 # ------------------------- #
 # Extract Views From the KB #
 # ------------------------- #
-# while read a b c ; do histog $a $b $c ; done < ~/projects/kbvn/src/vncomparison/adept_kb_binary_relation.dat
+# while read a b c ;
+# do
+#     histog $a $b $c ;
+# done < ~/projects/kbvn/src/vncomparison/adept_kb_binary_relation.dat
 
 # ---------------- #
 # Download Dataset #
@@ -22,7 +31,11 @@
 # ----------------- #
 # Test All Datasets #
 # ----------------- #
-# while read a b c ; do  tepcs histog_dir/${a}_events_${b} ; tepcs histog_dir/${a}_events_${c} ; done < /home/hltcoe/prastogi/projects/kbvn/src/vncomparison/adept_kb_binary_relation.dat
+# while read a b c ;
+# do
+#     tepcs histog_dir/${a}_events_${b} ;
+#     tepcs histog_dir/${a}_events_${c} ;
+# done < /home/hltcoe/prastogi/projects/kbvn/src/vncomparison/adept_kb_binary_relation.dat
 
 # Get google url
 gog () {
