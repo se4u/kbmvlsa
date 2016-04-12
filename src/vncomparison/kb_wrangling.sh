@@ -31,11 +31,16 @@ gog () {
     echo;
 } ;
 
+# Get canonical string
+gca () {
+    grep $1 bbn_2016-02-23_13-09-09-base.nq | grep canonicalString ;
+}
+
 # Get all named entities in a document.
 docx () {
     for e in $( grep $1 bbn_2016-02-23_13-09-09-metadata.nt | awk '{print $1}' | sort -u | cut -c 37-  | rev | cut -c 2- | rev  );
     do
-        gca $e ;
+        gca $e | sed 's#http://adept-kb.bbn.com/adept-##g';
     done;
 }
 
@@ -51,10 +56,6 @@ gbbn () {
     grep $1 bbn_2016-02-23_13-09-09-* | sed 's#http://adept-kb.bbn.com##g' | sed 's#http://www.w3.org/1999/02/22-rdf-syntax-ns##g' ;
 }
 
-# Get canonical string
-gca () {
-    grep $1 bbn_2016-02-23_13-09-09-base.nq | grep canonicalString ;
-}
 
 gont () {
     gbbn $1 | grep ont-type ;
