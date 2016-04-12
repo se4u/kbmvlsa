@@ -1,12 +1,37 @@
 \documentclass{tufte-handout}
-\usepackage{graphicx,amsmath,amssymb,url,xspace,booktabs}
-% tex.stackexchange.com/questions/2291/how-do-i-change-the-enumerate-list-format-to-use-letters-instead-of-the-defaul#comment3172_2294
+% -------- %
+% Packages %
+% -------- %
+% \usepackage[T1]{fontenc}
+\usepackage{graphicx,amsmath,amssymb,url,xspace,booktabs,xcolor}
+% tex.stackexchange.com/questions/2291/
+% how-do-i-change-the-enumerate-list-format-to-use-letters-instead-of-the-defaul#comment3172_2294
 \usepackage[shortlabels]{enumitem}
-% tex.stackexchange.com/questions/171803/change-font-size-of-the-verbatim-environment
+% tex.stackexchange.com/questions/171803/
+% change-font-size-of-the-verbatim-environment
 \usepackage{fancyvrb}
 \usepackage{microtype}
 \usepackage[acronym]{glossaries}
 \usepackage[]{todonotes} % insert [disable] to disable all notes.
+\usepackage{array}
+
+% http://tex.stackexchange.com/questions/121601
+% automatically-wrap-the-text-in-verbatim
+\usepackage{listings}
+\lstset{basicstyle=\small\ttfamily,%
+  columns=flexible,%
+  breaklines=true,%
+  linewidth=17cm,%
+  xleftmargin=-1cm,%
+  xrightmargin=-1cm}
+\newcolumntype{C}{>{$}c<{$}}
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+% -------- %
+% Commands %
+% -------- %
+% Color Me Red
+\newcommand{\cmr}[1]{{\color{red} #1}}
 \newcommand{\note}[1]{\todo[author=Pushpendre,color=blue!40,size=\small,fancyline,inline]{#1}}
 \newcommand{\Todo}[1]{\todo[author=Pushpendre,size=\small,inline]{#1}}
 \newcommand{\eg}{e.g.,\xspace}
@@ -18,10 +43,28 @@
 \renewcommand{\cite}[1]{\textcolor{red}{#1}}
 \newcommand{\alert}[1]{\textcolor{red}{#1}}
 \newcommand{\remove}[1]{} % Change to {\remove}[0]{} to bring back
-\title{Vertex Classification and Edge Prediction in\\high precision, low recall Graphs}
+\title{Vertex Classification and Edge Prediction in high precision, low recall Graphs}
 \author{Pushpendre Rastogi}
+% ----------------------- %
+% Document Class Settings %
+% ----------------------- %
 \IfFileExists{bergamo.sty}{\usepackage[osf]{bergamo}}{}% Bembo
 \IfFileExists{chantill.sty}{\usepackage{chantill}}{}% Gill Sans
+\setcaptionfont{%
+\color{blue}% <-- set color here
+}
+% --------------------------------------- %
+% Reset the table and figure environments %
+% --------------------------------------- %
+\makeatletter
+\renewenvironment{figure}[1][htbp]{%
+\@tufte@orig@float{figure}[#1]}{%
+\@tufte@orig@endfloat}%
+\renewenvironment{table}[1][htbp]{%
+\@tufte@orig@float{table}[#1]}{%
+\@tufte@orig@endfloat}%
+\makeatother
+
 \begin{document}
 \maketitle
 \section{Introduction}
@@ -181,7 +224,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 48 & 1.0 & 1.0 & 0.9 & 1.0 \\
   \end{tabular}
   \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=0, Directed, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-1}
 \end{table}
 
 \begin{table}[htbp]
@@ -192,7 +235,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 48 & 1.0 & 0.8 & 0.9 & 1.0 \\
   \end{tabular}
   \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=1234, Directed, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-2}
 \end{table}
 
 \begin{table}[htbp]
@@ -203,7 +246,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 39 & 1.0 & 1.0 & 1.0 & 0.8 \\
   \end{tabular}
   \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=0, Undirected, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-3}
 \end{table}
 
 \begin{table}[!htbp]
@@ -212,11 +255,9 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.55 & 0.50 \\0.50 &0.55 \end{bmatrix}$ & 29 & 1.0 & 1.0 & 0.8 & 0.6 \\
   $\begin{bmatrix} 0.60 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 30 & 0.0 & 0.8 & 0.8 & 0.6 \\
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 37 & 1.0 & 1.0 & 1.0 & 0.7 \\
-
-
   \end{tabular}
-  \caption{Performance vs B Matrix. RESCAL Algorithm. Seed=1234, Undirected, Training Size=20}
-  \label{tab:perf-vs-b}
+\caption{Performance vs B Matrix. RESCAL Algorithm. Seed=1234, Undirected, Training Size=20}
+\label{tab:perf-vs-b}
 \end{table}
 
 \pagebreak
@@ -230,7 +271,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 36 & 1.0 & 1.0 & 1.0 & 0.7 \\
   \end{tabular}
   \caption{Performance vs B Matrix. MAD Algorithm. Seed=0, Directed, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-4}
 \end{table}
 
 \begin{table}[htbp]
@@ -241,7 +282,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 34 & 1.0 & 1.0 & 0.9 & 0.7 \\
   \end{tabular}
   \caption{Performance vs B Matrix. MAD Algorithm. Seed=1234, Directed, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-5}
 \end{table}
 
 \begin{table}[htbp]
@@ -252,7 +293,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 32 & 1.0 & 0.8 & 0.9 & 0.6 \\
   \end{tabular}
   \caption{Performance vs B Matrix. MAD Algorithm. Seed=0, Undirected, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-6}
 \end{table}
 
 \begin{table}[!htbp]
@@ -263,7 +304,7 @@ members of class $C_1$ appear in the top 50 members in the ranked list.
   $\begin{bmatrix} 0.70 & 0.50 \\0.50 &0.60 \end{bmatrix}$ & 32 & 1.0 & 1.0 & 0.9 & 0.6 \\
   \end{tabular}
   \caption{Performance vs B Matrix. MAD Algorithm. Seed=1234, Undirected, Training Size=20}
-  \label{tab:perf-vs-b}
+  \label{tab:perf-vs-b-7}
 \end{table}
 
 \pagebreak
@@ -310,33 +351,33 @@ nodes that only have one label then this is a reasonable approaximation to begin
 \note{Spectral method does not work. The graph is sparse, and no connected.
 Clustering on the graph would not work. Dumbells}
 What we really want is a general multi-label predictor.
-\begin{margintable}[-3in]
+\begin{table}
   \centering
   \begin{tabular}{l c c c c}
-    Method & AUPR & Avg-P@1  & \alert{Avg-P@5} & \alert{Avg-P@10} \\\toprule
-    (0) RESCAL &  0.76 & 0.74 & 0.16 & 0.09 \\
-    RESCAL\_SENSIBLE &  0.74 & 0.71 & 0.16 & 0.09 \\
-    \alert{ASE} &  0.44 & 0.37 & 0.10 & 0.07 \\
-    MAD &  0.80 & 0.77 & 0.17 & 0.10 \\
-    RANDOM &  0.26 & 0.14 & 0.07 & 0.08 \\
-    RANDOMWALK &  0.79 & 0.76 & 0.18 & 0.11 \\\midrule
-    (1234) RESCAL &  0.79 & 0.77 & 0.17 & 0.09 \\
-    RESCAL\_SENSIBLE &  0.77 & 0.75 & 0.17 & 0.09 \\
-    \alert{ASE} &  0.46 & 0.37 & 0.12 & 0.08 \\
-    MAD &  0.87 & 0.83 & 0.19 & 0.10 \\
-    RANDOM &  0.23 & 0.07 & 0.07 & 0.08 \\
-    RANDOMWALK &  0.86 & 0.80 & 0.20 & 0.11 \\\midrule
-    (123) RESCAL &  0.77 & 0.75 & 0.17 & 0.09 \\
-    RESCAL\_SENSIBLE &  0.76 & 0.73 & 0.17 & 0.09 \\
-    \alert{ASE} &  0.47 & 0.38 & 0.12 & 0.08 \\
-    MAD &  0.81 & 0.78 & 0.18 & 0.09 \\
-    RANDOM &  0.22 & 0.07 & 0.07 & 0.08 \\
-    RANDOMWALK &  0.83 & 0.78 & 0.19 & 0.10 \\
+    Method           & AUPR & Avg-P@1 & \alert{Avg-P@5} & \alert{Avg-P@10} \\\toprule
+    (0) RESCAL       & 0.76 & 0.74    & 0.16            & 0.09             \\
+    RESCAL\_SENSIBLE & 0.74 & 0.71    & 0.16            & 0.09             \\
+    \alert{ASE}      & 0.44 & 0.37    & 0.10            & 0.07             \\
+    MAD              & 0.80 & 0.77    & 0.17            & 0.10             \\
+    RANDOM           & 0.26 & 0.14    & 0.07            & 0.08             \\
+    RANDOMWALK       & 0.79 & 0.76    & 0.18            & 0.11             \\\midrule
+    (1234) RESCAL    & 0.79 & 0.77    & 0.17            & 0.09             \\
+    RESCAL\_SENSIBLE & 0.77 & 0.75    & 0.17            & 0.09             \\
+    \alert{ASE}      & 0.46 & 0.37    & 0.12            & 0.08             \\
+    MAD              & 0.87 & 0.83    & 0.19            & 0.10             \\
+    RANDOM           & 0.23 & 0.07    & 0.07            & 0.08             \\
+    RANDOMWALK       & 0.86 & 0.80    & 0.20            & 0.11             \\\midrule
+    (123) RESCAL     & 0.77 & 0.75    & 0.17            & 0.09             \\
+    RESCAL\_SENSIBLE & 0.76 & 0.73    & 0.17            & 0.09             \\
+    \alert{ASE}      & 0.47 & 0.38    & 0.12            & 0.08             \\
+    MAD              & 0.81 & 0.78    & 0.18            & 0.09             \\
+    RANDOM           & 0.22 & 0.07    & 0.07            & 0.08             \\
+    RANDOMWALK       & 0.83 & 0.78    & 0.19            & 0.10             \\
   \end{tabular}
   \caption{Performance vs Algorithm On the US Presidents Dataset. The two sections are two monte-carlo runs.
     \alert{In this dataset P@5, P@10 don't make a lot of sense since there are only at most 1, 2 or 3 correct answers.}}
   \label{tab:perf-vs-algo-on-us-president}
-\end{margintable}
+\end{table}
 
 \pagebreak
 \subsection{Talukdar VN Data}
@@ -413,9 +454,295 @@ my figure out what the columns in the RDF tables corresponded to.
   \label{tab:count-to-variant}
 \end{table}
 
+The edges and nodes in the Adept dataset can be classified into the following
+categories
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l}
+    \textbf{Types of Entities}\\\toprule
+    Title\\
+    URL\\
+    Crime\\
+    Person\\
+    GeoPoliticalEntity\\
+    Organization\\
+  \end{tabular}
+  \caption{Adept Node Types}
+  \label{tab:adept-node-types}
+\end{table}
+
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l l l}
+ \textbf{Args} & \textbf{Relation/Event}       & \textbf{Argument Name}                            \\\toprule
+ 0             & OrganizationalAffiliation     &                                                   \\
+ 0             & PartWhole                     &                                                   \\
+ 1             & FamilyRelationship            & person (3508 = 417 + 1317 + 1774)                 \\
+ 1             & InterpersonalRelationship     & person (45999 = 3508 + 0 + 42491)                 \\
+ 1             & PhysicalLocation              & location (23530 = 0 + 7242 + 0 + 16288) \\
+ 2             & MemberOriginReligionEthnicity & person affiliatedEntity (2764 = 0 + 2764) \\
+ 2             & Subsidiary                    & parent subOrganization                            \\
+ 3             & BusinessEvent                 & time organization place                           \\
+ 3             & JusticeEvent                  & time crime place                                  \\
+ 3             & LifeEvent                     & time person place                                 \\\midrule
+ 1             & SiblingRelationship           & person (417)                                      \\
+ 1             & SpousalRelationship           & person (1317)                                     \\
+ 3             & BeBorn                        & time person place (1261)                          \\
+ 3             & EndOrganization               & time organization place (33)                      \\
+ 4             & StartOrganization             & agent time organization place (374)               \\
+ 6             & Die                           & victim time agent person instrument place (1612)  \\
+               & \textbf{Total Unaccounted}    & $\mathbf{5014}$\\\midrule
+ 2             & EmploymentMembership          & employeeMember organization                       \\
+ 2             & Founder                       & founder organization                              \\
+ 2             & InvestorShareholder           & investorShareholder organization                  \\
+ 2             & Leadership                    & leader affiliatedEntity                           \\
+ 2             & OrganizationWebsite           & url organization                                  \\
+ 2             & OrgHeadquarter                & organization location                             \\
+ 2             & Origin                        & person affiliatedEntity                           \\
+ 2             & Resident                      & person location                                   \\
+ 2             & Role                          & role person                                       \\
+ 2             & StudentAlum                   & organization studentAlumni                        \\
+ 3             & ParentChildRelationship       & \textbf{parent} \textbf{child} \cmr{person}                               \\
+ 4             & Membership                    & \cmr{parent} \textbf{member} \textbf{organization} \cmr{subOrganization}        \\
+ 6             & ChargeIndict                  & \cmr{time} \textbf{defendant} \textbf{crime} \cmr{prosecutor} \cmr{adjudicator} \cmr{place} \\\bottomrule
+  \end{tabular}
+  \caption{Adept Dataset Categorization}
+  \label{tab:adept-dataset-categ}
+\end{table}
+
+Out of the total data I only extracted the following:
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l l l l }
+    \textbf{ID} & \textbf{Relation Name}  & \textbf{Arguments}                         & \textbf{Occurrence} \\\toprule
+    1           & InvestorShareholder     & organization $\mapsto$ investorShareholder & $530$               \\
+    2           & Origin                  & affiliatedEntity $\mapsto$ person          & $2764$              \\
+    3           & EmploymentMembership    & organization $\mapsto$ employeeMember      & $36631$             \\
+    4           & Membership              & organization $\mapsto$ member              & $369$               \\
+    5           & OrgHeadquarter          & location $\mapsto$ organization            & $7242$              \\
+    6           & Resident                & location $\mapsto$ person                  & $16288$             \\
+    7           & OrganizationWebsite     & organization $\mapsto$ url                 & $200$               \\
+    8           & ChargeIndict            & defendant $\mapsto$ crime                  & $387$               \\
+    9           & Founder                 & organization $\mapsto$ founder             & $1281$              \\
+    10          & Leadership              & leader $\mapsto$ affiliatedEntity          & $9600$              \\
+    11          & Role                    & person $\mapsto$ role                      & $42491$             \\
+    12          & StudentAlum             & organization $\mapsto$ studentAlumni       & $1306$              \\
+    13          & ParentChildRelationship & parent $\mapsto$ child                     & $1774$              \\\midrule
+                & \textbf{Total Nodes}          &                                            & $220603$ \\
+                & \textbf{Total Edges}          &                                            & $120863$ \\\bottomrule
+  \end{tabular}
+  \caption{Extracted Nodes Summary}
+  \label{tab:extraction-summary}
+\end{table}
+
+
 \subsection{Experiments on the Adept Data}
 \label{sec:exper-adept-data}
-The Adept dataset contains 4 very
+The Adept Dataset contains 13 types of relations that connect 6 types of
+entities. Unlike FreeBase this graph has been completely automatically
+created and this. A processed version of this dataset contains 220603 nodes
+and 120863 edges.
+
+One of the problems with this dataset is that it is highly disconnected.
+For example, the total number of components in this dataset are $150,338$
+but in comparison the total number of nodes is only $220,603$. This suggests
+that there are a large number of singleton edges in the KB and indeed we observe the following distribution of component sizes to number of components:
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l l l l}
+\textbf{Component Size} & \textbf{Num Components} & \textbf{Node} & \\\toprule
+1                       & 144832       &  144832 & 144832         \\
+2                       & 4779         &  9558   & 154390         \\
+3                       & 544          &  1632   & 156022         \\
+4                       & 119          &  476    & 156498         \\
+5                       & 30           &  150    & 156648         \\
+6                       & 23           &  138    & 156786         \\
+7                       & 8            &  56     & 156842         \\
+10                      & 2            &  20     & 156862         \\
+63741                   & 1            &  63741  & 220603 \\\bottomrule
+  \end{tabular}
+  \caption{Histogram of component sizes to number of components.}
+\label{tab:hist-comp-size}
+\end{table}
+This distribution shows that $12,030$ vertices reside in clusters of sizes between
+$10$ and $2$ and the rest of them lie inside a giant cluster of size $63,741$.
+
+\newthought{Experiment Details:} Given the above described graph we will
+perform the following experiment.
+Consider a particular organization, say $O$. Say it contains $m$ members.
+Pick $k = 5$ random subsets of size $m' = \lceil{m * p}$ where
+$p \in [0.25, 0.5]$. Remove the edges connecting those $m'$ members to
+$O$ but keep those $m'$ vertices in the graph and maintain their other edges.
+This is a specific observation model where only the relations around one of
+the members is missing.
+
+Now rank the vertices $\mathcal{V}$ where $\mathcal{V}$ are the
+vertices in the giant component and compute the rank of $m'$ members
+amongst nodes that are people after removing the $\{m\} \setminus \{m'\}$
+members from the ranking list. The goal is that the MRR and P@K of the $m'$
+members should be high.
+
+The methds of ranking the vertices are:
+\begin{enumerate}
+\item \textsc{Random Walk} In the random walk method, we perform
+  $w$ random walks starting
+  from the $\{m\} \setminus \{m'\}$ vertices of length $l$ and count how many
+  times the random walks visit the vertices in the graph. We then assign the
+  highest score to that node that was visited most often. The intuition is that
+  vertices that are ``heavily'' connected to other vertices that have a particular
+  label would also have that label.
+  However in this KB, where \textit{type} connections abound the following happens:
+  \begin{lstlisting}
+    Organization:  "BART"
+    Employees Removed "Jim Allison"
+    Employees Kept "Alicia Trost" "Thomas Hock" "Tom Radulovich" "James K. Allison" "Rick Rice"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "BART" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "Jim Allison"
+            Most common hit "BART" "Tom Radulovich" "president" "Richard" "John Schlesinger"
+    Employees Removed "Jim Allison"
+    Employees Kept "Alicia Trost" "Thomas Hock" "Tom Radulovich" "James K. Allison" "Rick Rice"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "BART" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "Jim Allison"
+            Most common hit "BART" "Charles Johnston" "CNN" "Chris Danielsen" "Rick Rice"
+    Employees Removed "James K. Allison"
+    Employees Kept "Alicia Trost" "Thomas Hock" "Tom Radulovich" "Jim Allison" "Rick Rice"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "BART" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "James K. Allison"
+            Most common hit "BART" "analyst" "spokesman" "Germany" "Dieter Laser"
+    Employees Removed "James K. Allison"
+    Employees Kept "Alicia Trost" "Thomas Hock" "Tom Radulovich" "Jim Allison" "Rick Rice"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "BART" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "James K. Allison"
+            Most common hit "spokeswoman" "BART" "Alicia Trost" "Ford W. Bell" "Board"
+    Employees Removed "Rick Rice"
+    Employees Kept "Alicia Trost" "Thomas Hock" "Tom Radulovich" "Jim Allison" "James K. Allison"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "BART" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "Rick Rice"
+            Most common hit "Bay Area Rapid Transit" "MD Anderson Cancer Center" "BART" "James Strickland" "Thomas Hock"
+
+
+  Organization:  "Arab League"
+    Employees Removed "Kofi Annan"
+    Employees Kept "Ken Paulson" "Nabil al- Araby" "Amr Moussa" "Lakhdar Brahimi" "Abdullah"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "Arab League" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "Kofi Annan"
+            Most common hit "Arab League" "journalist" "Oxford" "Chelsea Clinton" "Mom"
+    Employees Removed "Lakhdar Brahimi"
+    Employees Kept "Ken Paulson" "Nabil al- Araby" "Kofi Annan" "Amr Moussa" "Abdullah"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "Arab League" EmploymentMembership_organization_to_employeeMember -> Role_person_to_role -> Role_person_to_role_inv "Lakhdar Brahimi"
+            Most common hit "Arab League" "Bill de Blasio" "American University" "Columbia" "Cairo"
+    Employees Removed "Ken Paulson"
+    Employees Kept "Nabil al- Araby" "Kofi Annan" "Amr Moussa" "Lakhdar Brahimi" "Abdullah"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [4]
+           "Arab League" OrgHeadquarter_location_to_organization_inv -> Resident_location_to_person -> Role_person_to_role -> Role_person_to_role_inv "Ken Paulson"
+            Most common hit "Russian" "Arab League" "Jordan" "Scott Lively" "Kofi Annan"
+    Employees Removed "Abdullah"
+    Employees Kept "Ken Paulson" "Nabil al- Araby" "Kofi Annan" "Amr Moussa" "Lakhdar Brahimi"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "Arab League" Leadership_leader_to_affiliatedEntity_inv -> Origin_affiliatedEntity_to_person_inv -> Origin_affiliatedEntity_to_person "Abdullah"
+            Most common hit "Arab League" "Queen" "Turkey" "Saken Zhasuzakov" "Hasan Emre Musluoglu"
+    Employees Removed "Amr Moussa"
+    Employees Kept "Ken Paulson" "Nabil al- Araby" "Kofi Annan" "Lakhdar Brahimi" "Abdullah"
+        Shortest path b/w org and employee BEFORE deletion: [[1]]
+        Shortest path b/w org and employee AFTER deletion: [3]
+           "Arab League" Leadership_leader_to_affiliatedEntity_inv -> Role_person_to_role -> Role_person_to_role_inv "Amr Moussa"
+            Most common hit "Arab League" "Syrian" "Dan Barwick" "President" "Jordan"
+\end{lstlisting}
+
+The following is the degree distribution of the graph:
+\begin{verbatim}
+[(0, 144832), (1, 41984), (2, 17535), (3, 6526), (4, 3222), (5, 1656),
+ (6, 995), (7, 687), (8, 567), (9, 394), (10, 281), (11, 226),
+ (12, 205), (13, 149), (14, 131), (15, 114), (16, 84), (17, 82),
+ (18, 60), (19, 48), (20, 41), (21, 41), (22, 37), (23, 37),
+ (24, 35), (25, 29), (26, 22), (27, 27), (28, 21), (29, 16),
+ (30, 25), (31, 18), (32, 17), (33, 15), (34, 6), (35, 21),
+ (36, 14), (37, 11), (38, 10), (39, 12), (40, 4), (41, 4),
+ (42, 9), (43, 9), (44, 8), (45, 13), (46, 10), (47, 6),
+ (48, 9), (49, 6), (50, 9), (51, 8), (52, 12), (53, 5),
+ (54, 6), (55, 6), (56, 8), (57, 12), (58, 6), (59, 4),
+ (60, 2), (61, 3), (62, 5), (63, 5), (64, 9), (65, 1),
+ (67, 7), (68, 4), (69, 6), (71, 1), (72, 5), (73, 1),
+ (74, 4), (75, 3), (76, 4), (77, 1), (78, 3), (79, 1),
+ (80, 2), (81, 3), (82, 1), (84, 1), (85, 3), (86, 2),
+ (87, 2), (88, 1), (89, 2), (92, 3), (93, 1), (94, 3),
+ (95, 2), (96, 1), (97, 3), (98, 1), (99, 4), (101, 2),
+ (102, 1), (103, 2), (104, 1), (105, 3), (106, 4), (108, 1),
+ (109, 1), (110, 2), (111, 1), (112, 1), (113, 2), (114, 2),
+ (116, 2), (117, 2), (118, 1), (121, 1), (123, 1), (124, 1),
+ (126, 1), (127, 2), (128, 1), (129, 1), (132, 1), (133, 1),
+ (135, 1), (136, 1), (137, 1), (138, 1), (139, 2), (141, 2),
+ (143, 1), (149, 1), (150, 2), (159, 1), (160, 1), (164, 1),
+ (173, 1), (174, 1), (179, 1), (187, 1), (195, 1), (203, 1),
+ (204, 1), (206, 1), (215, 1), (219, 1), (220, 2), (221, 1),
+ (224, 1), (228, 1), (232, 1), (236, 1), (239, 1), (243, 1),
+ (245, 1), (249, 1), (251, 1), (261, 1), (267, 1), (281, 1),
+ (282, 1), (291, 1), (294, 1), (298, 1), (300, 1), (305, 1),
+ (335, 2), (340, 1), (351, 1), (359, 1), (364, 1), (369, 1),
+ (378, 1), (403, 1), (416, 1), (451, 1), (458, 1), (475, 2),
+ (520, 1), (524, 1), (562, 2), (579, 1), (594, 1), (606, 1),
+ (630, 1), (714, 1), (717, 1), (743, 1), (818, 1), (861, 1),
+ (902, 1), (905, 1), (1102, 1), (1906, 1), (2253, 1)]
+\end{verbatim}
+
+The most common generic types are:
+\begin{verbatim}
+director, president, professor
+\end{verbatim}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{L L R L L L L L}
+    &      & \multicolumn{5}{ c }{\text{Success Upper Bound}} & \\
+ m  & p    & l=10  & l=30 & l=60 & l=120 & \text{ORGS Sampled} \\
+ 6  & 0.25 & 0.00  & 0.02 & 0.02 & 0.02 & 10 \\
+ 6  & 0.50 & 0.02  & 0.00 & 0.00 & 0.00 & 10 \\
+ 11 & 0.25 & 0.04  & 0.04 & 0.04 & 0.04 & 10 \\
+ 11 & 0.50 & 0.04  & 0.10 & 0.10 & 0.10 & 10 \\
+ 16 & 0.25 & 0.02  & 0.00 & 0.00 & 0.00 & 10 \\
+ 16 & 0.50 & 0.08  & 0.08 & 0.08 & 0.08 & 10 \\
+ 21 & 0.25 & 0.00  & 0.08 & 0.08 & 0.08 & 10 \\
+ 21 & 0.50 & 0.04  & 0.10 & 0.10 & 0.10 & 10 \\
+ 26 & 0.25 & 0.08  & 0.05 & 0.05 & 0.05 & 8  \\
+ 26 & 0.50 & 0.00  & 0.05 & 0.05 & 0.05 & 8  \\
+ 31 & 0.25 & 0.00  & 0.27 & 0.27 & 0.27 & 3  \\
+ 31 & 0.50 & 0.07  & 0.07 & 0.07 & 0.07 & 3  \\
+ 36 & 0.25 & 0.07  & 0.13 & 0.13 & 0.13 & 3  \\
+ 36 & 0.50 & 0.20  & 0.13 & 0.13 & 0.13 & 3  \\
+ 41 & 0.25 & 0.00  & 0.00 & 0.00 & 0.00 & 4  \\
+ 41 & 0.50 & 0.15  & 0.05 & 0.05 & 0.05 & 4  \\
+ 46 & 0.25 & 0.10  & 0.10 & 0.10 & 0.10 & 2  \\
+ 46 & 0.50 & 0.00  & 0.10 & 0.10 & 0.10 & 2  \\
+  \end{tabular}
+  \caption{caption}
+  \label{tab:rw-performance}
+\end{table}
+
+Another discouraging fact is the histogram of shortest paths between employees
+and their organizations after removal of the direct edge between them:
+\begin{verbatim}
+{2: 187, 3: 2654, 4: 292, 5: 575, 6: 5, 7: 11, 8: 3, 9: 1, inf: 607}
+\end{verbatim}
+\item \textsc{Rescal} \alert{TODO}
+\item \textsc{Random Baseline} \alert{TODO}
+\item \textsc{MAD} \alert{TODO}
+\item \textsc{Ase} \alert{TODO}
+\end{enumerate}
+
+\alert{One interesting thing that pops out is the possibility to figure out
+  common types by zoning in on the highly connected members of the KB}
+\clearpage
 
 \subsection{Questions About the Adept Data}
 \label{sec:quest-about-adept}
@@ -430,8 +757,7 @@ The Adept dataset contains 4 very
 \item What does the confidence table contains?
 \begin{verbatim}
 $head -1 bbn_2016-02-23_13-09-09-confidence.nq
-<http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://www.w3.org/1999/02/22-rd\
-f-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
 \end{verbatim}
 \alert{Why is \texttt{predicate} a \texttt{type} of \texttt{property}?}
 \item What are the millions of enties in Confidence and Other tables?
