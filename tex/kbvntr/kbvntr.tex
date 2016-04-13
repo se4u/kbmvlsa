@@ -1,0 +1,368 @@
+\documentclass[paper=a4,fontsize=11pt]{scrartcl}
+\usepackage{underscore,changepage,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage[protrusion=true,expansion=true]{microtype}
+\usepackage{amsmath,amsfonts,amsthm,url,xspace}
+\usepackage[pdftex]{graphicx}
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\bigeg}{E.g.,\xspace}
+\newcommand{\etal}{\textit{et~al.\xspace}}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\bigie}{I.e.,\xspace}
+%%% Custom sectioning
+\usepackage{sectsty}
+\allsectionsfont{\centering\normalfont\scshape}
+%%% Custom headers/footers (fancyhdr package)
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead{}                        % No page header
+\fancyfoot[L]{}                     % Empty
+\fancyfoot[C]{}                     % Empty
+\fancyfoot[R]{\thepage}             % Pagenumbering
+\renewcommand{\headrulewidth}{0pt}  % Remove header underlines
+\renewcommand{\footrulewidth}{0pt}  % Remove footer underlines
+\setlength{\headheight}{13.6pt}
+%%% Equation and float numbering
+\numberwithin{equation}{section}    % Equationnumbering: section.eq#
+\numberwithin{figure}{section}      % Figurenumbering: section.fig#
+\numberwithin{table}{section}       % Tablenumbering: section.tab#
+%%% Institution and Authors
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}}     % Horizontal rule
+\title{
+  % \vspace{-1in}
+  \usefont{OT1}{bch}{b}{n}
+  \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\[25pt]
+  \horrule{0.5pt}\\[0.4cm]
+  \huge Vertex Nomination on the Cold Start Knowledge Graph\\
+  \horrule{2pt}\\[0.5cm]
+}
+\author{
+  \normalfont\normalsize
+  Pushpendre Rastogi\\
+  %[-3pt]\normalsize\today%%Optional Date
+}
+\date{}
+\begin{document}
+\maketitle
+\section{Introduction}
+Natural language text is one of the most difficult and interesting 
+information  sources for data mining and information extraction.
+Beneath large corpora of natural language text, lie vast pools of information
+such as the location, travel plans and affiliations of people of interest
+or the interaction between medicines and genes or the proofs of mathematical 
+theorems. It was realized early on that knowledge acquistion from text can fuel 
+automated reasoning and inference and concerted efforts have been made to 
+extract information from raw text since at least the 1970s~\cite{1970TechReports}. 
+Despite almost 50 years of work information extraction from unstructured text has
+still not been perfected as state of the art systems, including DeepDive, 
+still preform at half the level of human annotators on the Knowledge
+Base Population task~\cite{Surdenaue}.
+% and recent successes such as the near human
+% performance of the DeepDive system in augmenting an existing repository of 
+% scientific knowledge from facts automatically extracted from english language
+% scientific papers
+
+Typically in real world applications the construction of a Knowledge Base
+is only the beginning of the process. The final applications
+typically use the knowledge base so constructed for answering questions and
+facilitating analysis and reporting. For example: 
+\begin{enumerate}
+\item One may be interested in querying the 
+knowledge base for all the medicines that are known to have an adverse 
+reaction or side-effect with other medicines. 
+To answer this question a knowledge base of medicines and their side effects may be 
+manually or automatically built from journal papers.
+\item  An airline company may be interested in finding out all 
+persons aged above 25 who have a spouse and who travelled from city ``B''
+to city ``C'' more than 2 times in the last one year using a car.
+This information could be gleaned from social media announcements by constructing a
+knowledge base of people with attributes for people such as spouses, age, 
+travel information and car ownership.
+
+\item  An analyst may be interested in a small set of persons, 
+  $\mathcal{P}$ and may wish to find other persons who are most similar to the people in $\mathcal{P}$. 
+  The analyst may or may not be able to a-priori express the salient common features 
+  amongst the members of $\mathcal{P}$. For example an analyst might provide
+  ``Jawaharlal Nehru'' and ``Lal Bahadur Shastri'' as people of interest and
+  may be interested in finding out other prime ministers of India.
+
+If our database contains  membership  information for the organizations of the
+``Indian National Congress'' and information about ``prime ministers of India''
+then simple heuristics like unigram scoring models for clauses or
+discrete algorithms for simplifying clauses
+can be used to estimate the logic for ranking the other members of the database.
+We may suggest \textit{members of ``Indian National Congress''} and 
+\textit{Prime ministers of India} as relevant filters to the analyst.
+
+However if the database does not contain a way to express the clause of interest
+then the analyst would not be able to exactly formulate an appropriate 
+filter on the database to retrieve the people of interest. 
+But the unigram based heuristic above can still be 
+used to rank the entities in the database. Note that the this usage of the
+KB is exactly the usage of a \textit{Content-Based Recommendation System}. 
+A content-based recommendation system attempts to recommend new ``items'' 
+that are similar to the ones that were selected by a user.
+\end{enumerate} 
+
+This is ``Faceted Search''. Lucene, Solr, ElasticSearch,
+GeoQuery, . 
+
+Note that Example 1 and 2 above are examples where the interaction between the 
+users of the KB and the KB is through a query language. The query
+is used to filter the knowledge base just like Datalog or SQL. 
+Such interaction is suitable in scenarios where the KB is primarily
+used to provide answers to queries that can be precisely expressed as a logical statement
+about the properties of the entities and the relations extracted between them.
+If the schema of the KB and the query language are expressive enough, 
+and it is easy enough for the user to express her queries, 
+or satisfactory approximations to her queries, in the 
+query language then the above mode of interaction may be most desirable.
+
+Example 3 describes a different type of interaction between a KB and its users.
+Here it may be very difficult or even impossible to model the query that the user 
+has in the language of logic. The user may not only be able to model the query 
+very crudely in terms of the query language because of the KB 
+is not expressive enough to express the query. Such a situation is possible 
+if the queries that the users wants to ask are very different from the 
+ontology that the KB was originally built with. For example, in Example 2
+if the KB does not contain age information then the user would not be 
+able to express her query. Such a scenario is very likely in case of
+automatic information extraction from natural language text, since natural 
+language text contains a lot of information and it might not be possible to anticipate 
+the types of queries that an analyst might need to perform. 
+
+It may be easier to annotate a number of examples 
+
+ interested in precise
+answers to complicated queries and express the set of  
+quantities that they are interested in as the result 
+ is not sufficient since the filters that we are applying are complicated.
+ And these situations assume that no supervision is available from the user
+ beforehand. However a system that is built without user supervision would not
+ have the right ontology. So the process of creating the right schema is an 
+ iterative process. Here we assume that the feedback is a complete black box and
+ the part of feedback is just that the user may be specify a schema and after 
+ receiving the knowledge base built using that schema they may alter the schema.
+ But the assumption is that we don't need to optimize the schema while building 
+ the knowledge base.
+
+Situation 3 is ``content based'' recommendation. Here we assume that subsets of 
+ vertices are available as supervision. We assume that we can leverage this
+ supervision to learn the right ontology which would be useful for the downstream
+ ``content based'' recommender. The supervision may include both positive and 
+ negative examples or it may only include the negative examples.
+
+In Situation 3, assuming that we may have a large corpus of small subsets of 
+people of interest, we may need to figure out why these people are
+of interest to us. If the primary reason we are interested in a certain set 
+of people is because of attributes that they share, then the retrieval is 
+primarily attribute based where we need to figure out the best verbal indicators
+that indicate the prescence or abscence of certain relations. On the other hand 
+if the primary reason that we are interested in a certain set of people is because 
+they share certain relations with each other that do not necessarily 
+have anything to do with attributes then such relations cannot be decomposed.
+For example, we may find that the relation of visiting ``Hackerman Hall'' may 
+be a more readily expressed albeit noisier indicator of the property that someone is
+an employee of Johns Hopkins University. If in our ontology we never try to 
+extract this relation then we would miss this clue. To overcome this problem
+we could either increase the size of our ontology and extract all relations 
+or we could use the visit to hackerman hall as a noisy feature for being employed 
+at Johns Hopkins University. 
+
+In situation 3, we would like to partially-automate and computationally assist in
+ this part of the feature 
+engineering process and discover cues for a particular relation 
+in a data driven manner. Distant supervision may miss these type of features or 
+it may not be able to correctly prioritize the right features, since it is completely
+unsupervised and it does not take into account the amount of signal that is available
+in different types of corpora.
+
+Going back to the problem of figuring out why certain people are of interest to us, 
+we can tabulate all possible relations that they share, such as that they are male, 
+or that they are all above age 30, or that they are professors of computer science
+at Johns Hopkins University, one way of finding out what the salient relations are is
+to ask analysts to list these relations. However eliciting such fine grained reasons is 
+typically time consuming and difficult for analysts. We would like to assist in this
+aspect of the problem. We can do so as follows:
+
+\begin{itemize}
+\item Through vertex nomination on the knowledge graph.
+\item Through enhanced vertex nomination.
+\item Through Linear Weighting for enhanced vertex nomination.
+\item Through edge similarity based vertex nomination.
+\item Through edge feature based vertex nomination.
+\end{itemize}
+
+The first step in analyzing the performance of existing vertex nomination 
+algorithms on certain types of community based queries. Let's say we want to 
+retrieve all employees of JHU then we would need a way to evaluate the performance
+of the union of all edges. And then what happens when we keep only the role edges.
+and then when we add a few edges and run the VN algorithm again?
+Which type of queries are amenable to be answered?
+
+The second step is how to fuse information from multiple edge types for 
+vertex nomination?
+
+The edges are either attributive, that is the edges are independent attributes
+of entities that need to be ranked. or the edges may correlate the entities that 
+need to be ranked.
+
+Now to fuse the information from multiple edge types we may need to handle the 
+attributive edges differently from the correlative edges. 
+We think of attributive edges as vertex features. 
+I.e. attributive edges are just vertex features.
+These are edges between persons and non-persons.
+
+We think of correlative edges as featured edges. 
+These are edges between two persons. 
+
+
+
+As an easy extension we may wish to handle unsupervised information about 
+correlation between attributes. If I know that some attributes tend to co-occur
+then if I am interested in a person with a particular attribute A, then I 
+may be interested in another perform with another attribute that co-occurs with A.
+
+\begin{itemize}
+\item Take union of all the edges.
+\item Take union of a subset of the edges.
+\item Take a weighted average of the edges.
+\item Assign the edges a similarity score.
+\item 
+\end{itemize}
+
+
+The third is how to leverage unsupervised information for vertex nomination?
+such as attribute correlations.
+
+
+\section{Background}
+\label{sec:background}
+
+Since 2009, the TAC workshop has evaluated the performance of
+competing Knowledge Base Population (KBP) systems on the tasks of Slot Filling,
+Entity linking and Cold Start Knowledge Base Population.
+The Cold Start KBP task at the TAC workshop benchmarks the state-of-the-art
+on the task of constructing a knowledge base (KB) using a predefined KB schema, 
+from a raw text collection scraped from the web. 
+The task is challenging because input text is often from informal domains
+where the quality of automatic parsing and coref systems drops significantly.
+Other than the main task of creating a knowledge base from scratch
+the Cold Start KBP track also provides two
+diagnostic tasks: Entity Discovery (ED) and Slot Filling (SF).
+For the ED task competing systems have to create a KB node for each Person
+(PER), Organization (ORG), and Geopolitical Entity (GPE) entity mentioned
+in the raw text and for the SF task they have to search the documents to
+extract the related attributes or \textit{slotfillers} for some given entities.
+
+
+\subsection{Vertex Nomination}
+\label{sec:vertex-nomination}
+
+
+\section{Vertex Nomination On Knowledge Graph}
+\label{sec:vert-nomin-knowl}
+Our first subsection describes the KB that we received and performed 
+vertex nomination on.
+
+In this section we present the results of performing vertex nomination on
+an automatically created KB that we obtained from BBN. The KB that we used
+was the best performing KB on the TAC Cold Start-KBP 2015 Cold Start Task.
+
+\subsection{Data Description}
+\label{sec:data-description}
+Since the ratio of average degrees which we show in the last column is close to 1
+for most of the relations therefore most of the relations are not suitable for
+vertex nomination type efforts.
+
+\newcommand{\club}{\cmidrule(l{1cm}r{3cm}){1-4}}
+\begin{table}[htbp]
+\vspace{-1cm}
+\centering
+\begin{adjustwidth}{-2.5cm}{}
+\resizebox{1.3\textwidth}{!}{
+\begin{tabular}{r l l l l}
+1  & per:employee_or_member_of           & \{org,gpe\}:employees_or_members      & 36631 EmploymentMembership   &  1.419 \\
+2  & per:cities_of_residence             & gpe:residents_of_city                 & 16288 Resident               &  1.790 \\
+3  & per:statesorprovinces_of_residence  & gpe:residents_of_stateorprovince                                              \\
+4  & per:countries_of_residence          & gpe:residents_of_country                                                      \\
+\club{}
+5  & org:top_members_employees           & per:top_member_employee_of            & 9600 Leadership              &  1.155 \\
+6  & org:parents                         & \{org,gpe\}:subsidiaries              & 8705 Subsidiary                       \\
+7  & org:city_of_headquarters            & gpe:headquarters_in_city              & 7242 OrgHeadquarter          &  2.135 \\
+8  & org:stateorprovince_of_headquarters & gpe:headquarters_in_stateorprovince                                           \\
+9  & org:country_of_headquarters         & gpe:headquarters_in_country*                                                  \\
+\club{}
+10 & per:city_of_death                   & gpe:deaths_in_city                    & 1612 Die (348 places)        &        \\
+11 & per:stateorprovince_of_death        & gpe:deaths_in_stateorprovince                                                 \\
+12 & per:country_of_death                & gpe:deaths_in_country                                                         \\
+\club{}
+13 & per:schools_attended                & org:students                          & 1306 StudentAlum             &  1.273 \\
+17 & org:founded_by                      & \{per,org,gpe\}:organizations_founded & 1281 Founder                 &  1.045 \\
+14 & per:city_of_birth                   & gpe:births_in_city                    & 1261 BeBorn (814 Places)     &  2.216 \\
+15 & per:stateorprovince_of_birth        & gpe:births_in_stateorprovince                                                 \\
+16 & per:country_of_birth                & gpe:births_in_country                                                         \\
+\club{}
+18 & org:shareholders                    & \{per,org,gpe\}:holds_shares_in       & 530 InvestorShareholder      &  1.073 \\
+19 & \{org,gpe\}:member_of               & org:members                           & 369 Membership               &  1.110 \\
+\midrule
+\midrule
+21 & per:children                        & per:parents                           & 1774 ParentChildRelationship &  1.022 \\
+25 & per:spouse                          & per:spouse                            & 1317 SpousalRelationship              \\
+24 & per:siblings                        & per:siblings                          & 417 SiblingRelationship              \\
+22 & per:other_family                    & per:other_family                      & 0                                    \\
+\end{tabular}}
+\caption{List of entity valued slots divided into two categories of
+    \textit{hub-slots} and \textit{nonhub-slots}.}
+\label{tab:slots}
+\end{adjustwidth}
+\end{table}
+\begin{table}[htbp]
+\centering
+\begin{adjustwidth}{0}{}
+\begin{tabular}{rl l l}
+23 & per:title                           & 42491 Role (with 1761 Title)           & 17.16 \\
+24 & per:origin                          & 2764 Origin                            & 5.924 \\
+25 & per:date_of_death                   & 1612 Die (1264 Places)                         \\
+27 & per:charges                         & 387 ChargeIndict                       & 1.061 \\
+28 & org:date_founded                    & 374 StartOrganization                          \\
+29 & org:website                         & 200 OrganizationWebsite (with 189 URL)         \\
+30 & org:date_dissolved                  & 33 EndOrganization                             \\
+26 & per:cause_of_death                  & 1612 Die (0 Instruments)                       \\
+31 & per:religion                        &                                                \\
+32 & org:political_religious_affiliation &                                                \\
+33 & per:date_of_birth                   &                                                \\
+34 & per:age                                                                              \\
+35 & org:number_of_employees_members                                                      \\
+36 & per:alternate_names                 &                                                \\
+37 & org:alternate_names                                                                  \\
+\end{tabular}
+\caption{List of string valued slots divided into \textit{hub-slots} and \textit{nonhub-slots}}
+\label{tab:string-valued-slots}
+\end{adjustwidth}
+\end{table}
+
+\subsection{Vertex Nomination Strategies}
+\label{sec:vertex-nomination-strategies}
+There are a number of ways to perform vertex nomination.
+
+\paragraph{Vertex Nomination on Binary Edges}
+
+\paragraph{Vertex Nomination on Multiple Edge Types}
+Think of edge as 
+
+\paragraph{Vertex Nomination via Knowledge Base Completion}
+
+\paragraph{Vertex Nomination via Matrix Factorization}
+
+\paragraph{Vertex Nomination via Stochastic Block Modeling}
+
+\subsection{Evaluation}
+\label{sec:eval-strat}
+
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
+\end{document}

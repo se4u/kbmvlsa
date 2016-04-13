@@ -1,0 +1,29 @@
+| pdfdir/1104.3216.pdf                     | Tuffy: Scaling up Statistical Inference in Markov Logic Networks using an RDBMS         |
+| pdfdir/1307.7973.pdf                     | Connecting Language and Knowledge Bases with Embedding Models                           |
+| pdfdir/1403.7550v3.pdf                   | DimmWitted: A Study of Main-Memory Statistical Analytics                                |
+| pdfdir/1407.6439v3.pdf                   | Feature Engineering for Knowledge Base Construction                                     |
+| pdfdir/1504.04343v2.pdf                  | Caffe con Troll: Shallow Ideas to Speed Up Deep Learning                                |
+| pdfdir/1510.00756v1.pdf                  | Rapidly Mixing Gibbs Sampling for a Class of Factor Graphs Using                        |
+| pdfdir/200.pdf                           | A Framework for Incorporating General Domain Knowledge into LDA using first order logic |
+| pdfdir/2015angeli-openie.pdf             | Leveraging Linguistic Structure For Open Domain Information Extraction                  |
+| pdfdir/261.full.pdf                      | Advances in natural language processing, Christopher Manning                            |
+| pdfdir/D12-1042.pdf                      | Multi-instance Multi-label Learning for Relation Extraction .                           |
+| pdfdir/D12-1094.pdf                      | Ensemble Semantics for Large-scale Unsupervised Relation Extraction                     |
+| pdfdir/EMNLP2014164.pdf                  | Combining Distant and Partial Supervision for Relation Extraction                       |
+| pdfdir/KBP2013_Slot_Filling_overview.pdf | Overview of the TAC2013 Knowledge Base Population Evaluation:                           |
+| pdfdir/Paleo_Deepdive_journal.pdf        | A Machine Reading System for Assembling Synthetic Paleontological Databases             |
+| pdfdir/aist-final.pdf                    | Review of Relation Extraction Methods: What is New Out There?                           |
+| pdfdir/akbc2014_submission_10.pdf        | Knowledge Base Completion using Compositional Vector Space Models                       |
+| pdfdir/angeli2014-emnlp-naturalli.pdf    | NaturalLI: Natural Logic Inference for Common Sense Reasoning                           |
+| pdfdir/coli_a_00220.pdf                  | Efﬁcient Global Learning of Entailment Graphs.                                          |
+| pdfdir/distant.supervision.pdf           | Distant supervision for relation extraction without labeled data.                       |
+| pdfdir/fze-kdd14.pdf                     | Open Question Answering Over Curated and Extracted Knowledge Bases                      |
+| pdfdir/kbp2014_draft.pdf                 | Overview of the English Slot Filling Track.                                             |
+| pdfdir/kbp2015edl_taskspec_v1.1.pdf      | TAC KBP2015 Entity Discovery and Linking Task Description                               |
+| pdfdir/p101.pdf                          | StatSnowball : a Statistical Approach to Extracting Entity                              |
+| pdfdir/ringo-sigmod15.pdf                | Ringo: Interactive Graph Analytics                                                      |
+| pdfdir/thesis_finale_fassung.pdf         | Effective Distant Supervision for End-To-End Knowledge Base Population Systems          |
+| pdfdir/tmpBHI1Wq.pdf                     | Learning 5000 Relational Extractors                                                     |
+| pdfdir/unary_akbc13.pdf                  | Universal Schema for Entity Type Prediction.                                            |
+| pdfdir/webre-ijswis.pdf                  | Towards Large-Scale Unsupervised Relation Extraction.                                   |
+| pdfdir/zhang.thesis.pdf                  | DeepDive: A Data Management System for Automatic Knowledge Base Construction            |

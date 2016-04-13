@@ -1,0 +1,124 @@
+% adept-core#OrgHeadquarter
+% 	adept-core#location
+% 	adept-core#organization
+% adept-core#Subsidiary
+% 	adept-core#parent
+% 	adept-core#subOrganization
+% adept-core#Membership
+% 	adept-core#member
+% 	adept-core#organization
+% adept-core#EndOrganization
+% 	adept-core#organization
+% 	adept-core#time
+% adept-core#StartOrganization
+% 	adept-core#organization
+% 	adept-core#time
+% % start comments
+% ~ starts templates
+% @ denotes template susbstitution
+% : means look up into the key ns and add value as feature
+% ! Denotes pkey if exactly one pkey, rest are features.
+% No ! means both are pkey
+
+~person_features:
+	confidence:confidence
+	adept-base#canonicalString
+
+~location_features:
+	confidence:confidence
+	type:type
+	adept-base#canonicalString
+
+~organization_features:
+	confidence:confidence
+	adept-base#canonicalString
+	adept-core#url
+		adept-base#canonicalString
+	adept-core#location
+		@location_features
+	orgHeadQuarter:headquarter
+
+adept-core#SpousalRelationship
+	adept-core#person
+		@person_features
+	adept-core#person
+		@person_features
+	confidence:confidence
+adept-core#ParentChildRelationship
+	adept-core#child
+		@person_features
+	adept-core#parent
+		@person_features
+	confidence:confidence
+adept-core#SiblingRelationship
+	adept-core#person
+		@person_features
+	adept-core#person
+		@person_features
+	confidence:confidence
+adept-core#Resident
+	!adept-core#person
+		@person_features
+	adept-core#location
+		@location_features
+	confidence:confidence
+adept-core#Role
+	!adept-core#person
+		@person_features
+	adept-core#role
+		@person_features
+	confidence:confidence
+adept-core#EmploymentMembership
+	!adept-core#employeeMember
+		@person_features
+	adept-core#organization
+		@organization_features
+	confidence:confidence
+adept-core#StudentAlum
+	!adept-core#studentAlumni
+		@person_features
+	adept-core#organization
+		@organization_features
+	confidence:confidence
+adept-core#Leadership
+	!adept-core#leader
+		@person_features
+	adept-core#affiliatedEntity
+		@organization_features
+	confidence:confidence
+adept-core#Founder
+	!adept-core#founder
+		@person_features
+	adept-core#organization
+		@organization_features
+	confidence:confidence
+adept-core#InvestorShareholder
+	!adept-core#investorShareholder
+		@person_features
+	adept-core#organization
+		@organization_features
+	confidence:confidence
+adept-core#Origin
+	!adept-core#person
+		@person_features
+	adept-core#affiliatedEntity
+		@location_features
+	confidence:confidence
+adept-core#BeBorn
+	!adept-core#person
+		@person_features
+	adept-core#time
+		adept-base#xsdDate
+		adept-base#timex2String
+	confidence:confidence
+adept-core#Die
+	!adept-core#person
+		@person_features
+	adept-core#place
+		@location_features
+	confidence:confidence
+adept-core#ChargeIndict
+	!adept-core#defendant
+		@person_features
+	adept-core#crime
+		adept-base#canonicalString

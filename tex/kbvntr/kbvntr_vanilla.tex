@@ -1,0 +1,127 @@
+\documentclass[paper=a4,fontsize=11pt]{scrartcl}
+\usepackage{underscore,changepage,booktabs,xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage[protrusion=true,expansion=true]{microtype}
+\usepackage{amsmath,amsfonts,amsthm,url,xspace}
+\usepackage[pdftex]{graphicx}
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\bigeg}{E.g.,\xspace}
+\newcommand{\etal}{\textit{et~al.\xspace}}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\bigie}{I.e.,\xspace}
+\newcommand{\secref}[1]{section~\ref{#1}}
+\newcommand{\Secref}[1]{Section~\ref{#1}}
+%%% Custom sectioning
+\usepackage{sectsty}
+\allsectionsfont{\centering\normalfont\scshape}
+%%% Custom headers/footers (fancyhdr package)
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhead{}                        % No page header
+\fancyfoot[L]{}                     % Empty
+\fancyfoot[C]{}                     % Empty
+\fancyfoot[R]{\thepage}             % Pagenumbering
+\renewcommand{\headrulewidth}{0pt}  % Remove header underlines
+\renewcommand{\footrulewidth}{0pt}  % Remove footer underlines
+\setlength{\headheight}{13.6pt}
+%%% Equation and float numbering
+\numberwithin{equation}{section}    % Equationnumbering: section.eq#
+\numberwithin{figure}{section}      % Figurenumbering: section.fig#
+\numberwithin{table}{section}       % Tablenumbering: section.tab#
+%%% Institution and Authors
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}}     % Horizontal rule
+\title{
+  % \vspace{-1in}
+  \usefont{OT1}{bch}{b}{n}
+  \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\[25pt]
+  \horrule{0.5pt}\\[0.4cm]
+  \huge Vertex Nomination on the Cold Start Knowledge Graph\\
+  \horrule{2pt}\\[0.5cm]
+}
+\author{
+  \normalfont\normalsize
+  Pushpendre Rastogi\\
+  %[-3pt]\normalsize\today%%Optional Date
+}
+\date{}
+
+% -------------- %
+% Talking Points %
+% -------------- %
+% Surdenaue says that there are 41 relations. but there doesn't seem
+% to be 41 relations.
+\newcommand{\newrel}{41} 
+\renewcommand{\cite}[1]{\textcolor{red}{#1}}
+\renewcommand{\r}[1]{\textcolor{red}{#1}}
+\begin{document}
+\maketitle
+\section{Introduction}
+\label{sec:introduction}
+The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized by
+NIST to evaluate systems that can build a knowledge base (KB) from raw natural
+language text~\cite{TAC-KBP-DESC}. 
+At the beginning of the task the participants
+are provided a KB schema and a set of documents 
+from which they have to automatically extract entities and their relations and
+populate a KB. The KB should be an accurate representation of the information 
+in the text documents. The competing systems 
+extract three types of entities: \textsc{PER, ORG, LOC}
+\footnote{PER, ORG and LOC are abbreviations of Person, Organization and
+  Location respectively.}
+and a larger number of relations between those entities.\footnote{
+Relations are also called slots in prior work. In CS-KBP 2015 task
+the number of regular relations was 41. Out of these 41 relations, 
+26 were entity-valued, that is their arguments were themselves entities.
+Each slot has atleast one inverse slot, which may or may not be a pre-existing
+slot. For example \texttt{org:shareholders} has three inverse slots
+\texttt{\{per,org,gpe\}:holds_shares_in}. All \texttt{gpe:*} slots are inverse
+slots that did not exist previously. The total
+number of inverse slot that did not previously exist is 22. So the total
+number of slots is 63.}
+
+BBN participated in the CS-KBP task in 2015 and it was the top performing
+participant in terms of precision and overall F1 according to the official 
+results as of November 2015~\cite{BBN-System}. In order to assess the 
+feasibility of performing \textsc{vertex nomination} on KBs built with a
+fixed ontology of a small number of relations we accessed BBN's \texttt{BBN2} 
+submission to the CS-KBP task and performed vertex nomination experiments on 
+the \texttt{BBN2} database. \Secref{sec:data} describes the \texttt{BBN2} KB.
+
+
+\section{Data}
+\label{sec:data}
+
+\subsection{Data Cleaning}
+\label{sec:data-cleaning}
+
+\section{Experiments}
+\label{sec:experiments}
+
+
+\subsection{Query Types}
+\label{sec:query-types}
+
+\subsection{Evaluation Metrics}
+\label{sec:evaluation-metrics}
+
+\subsection{Unary Heuristic}
+\label{sec:unary_heuristic}
+
+\subsection{Using Matrix Factorization}
+\label{sec:using-matr-fact}
+
+\subsection{VN as KBC}
+\label{sec:vn-as-kbc}
+
+\subsection{VN through MAD}
+\label{sec:vn-through-mad}
+
+\subsection{VN with Semi-Supervised Information}
+\label{sec:vn-with-semi}
+
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
+\end{document}

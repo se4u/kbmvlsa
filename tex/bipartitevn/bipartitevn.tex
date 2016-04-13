@@ -1,0 +1,131 @@
+\documentclass{tufte-handout}
+% -------- %
+% Packages %
+% -------- %
+% \usepackage[T1]{fontenc}
+\usepackage{graphicx,amsmath,amssymb,url,xspace,booktabs,xcolor}
+\usepackage[]{hyperref}
+\hypersetup{colorlinks,%
+linkcolor={red!50!black},%
+citecolor={blue!50!black},%
+urlcolor={blue!80!black}%
+}
+% tex.stackexchange.com/questions/2291/
+% how-do-i-change-the-enumerate-list-format-to-use-letters-instead-of-the-defaul#comment3172_2294
+\usepackage[shortlabels]{enumitem}
+% tex.stackexchange.com/questions/171803/
+% change-font-size-of-the-verbatim-environment
+\usepackage{fancyvrb}
+\usepackage{microtype}
+\usepackage[acronym]{glossaries}
+\usepackage[]{todonotes} % insert [disable] to disable all notes.
+\usepackage{array}
+
+% http://tex.stackexchange.com/questions/121601
+% automatically-wrap-the-text-in-verbatim
+\usepackage{listings}
+\lstset{basicstyle=\small\ttfamily,%
+  columns=flexible,%
+  breaklines=true,%
+  linewidth=17cm,%
+  xleftmargin=-1cm,%
+  xrightmargin=-1cm}
+\newcolumntype{C}{>{$}c<{$}}
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+% -------- %
+% Commands %
+% -------- %
+% Color Me Red
+\newcommand{\cmr}[1]{{\color{red} #1}}
+\newcommand{\note}[1]{\todo[author=Pushpendre,color=blue!40,size=\small,fancyline,inline]{#1}}
+\newcommand{\Todo}[1]{\todo[author=Pushpendre,size=\small,inline]{#1}}
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\bigeg}{E.g.,\xspace}
+\newcommand{\etal}{\textit{et~al.\xspace}}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\bigie}{I.e.,\xspace}
+\renewcommand{\cite}[1]{\textcolor{red}{#1}}
+\newcommand{\alert}[1]{\textcolor{red}{#1}}
+\newcommand{\remove}[1]{} % Change to {\remove}[0]{} to bring back
+\newcommand{\zset}{\left\{ 0 \right\}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\thref}[1]{Theorem~\ref{#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+
+\title{2 Models for Vertex Nomination--Recommendations--Single Instance Multi
+  Labeling in bipartite graphs.}
+\author{PR, VL, BVD}
+% ----------------------- %
+% Document Class Settings %
+% ----------------------- %
+\IfFileExists{bergamo.sty}{\usepackage[osf]{bergamo}}{}% Bembo
+\IfFileExists{chantill.sty}{\usepackage{chantill}}{}% Gill Sans
+\setcaptionfont{%
+\color{blue}% <-- set color here
+}
+% --------------------------------------- %
+% Reset the table and figure environments %
+% --------------------------------------- %
+\makeatletter
+\renewenvironment{figure}[1][htbp]{%
+\@tufte@orig@float{figure}[#1]}{%
+\@tufte@orig@endfloat}%
+\renewenvironment{table}[1][htbp]{%
+\@tufte@orig@float{table}[#1]}{%
+\@tufte@orig@endfloat}%
+\makeatother
+
+\begin{document}
+\maketitle
+\section{Introduction}
+\label{sec:introduction}
+Cold start Knowledge base population is an existing/important information extraction task. 
+
+The information that is most commonly expressed in business/intelligence type documents is 
+information about people, locations and organizations. Specifically things are place of birth,
+nationality, employer, ethnicity, titles, occupations, business lines etc. are important. 
+
+Considerable progress has been made in natural language processing of clean/grammatical text.
+In fact automatically generated paleontology knowledge
+bases made by parsing research papers now have the same precision as human created ones on some measures\cite{paleodeepdive}.
+OTOH, automatica information extraction from noisy web text is still much more imprecise than human performance.
+The performance is low enough to warrant annual NIST evaluations and they have consistenly found for the last two years
+that the performance is at 50\% of humans\cite{surdenaue-tackbp-overviews}. 
+\todo{mihael's TACKBP overview of 2015 is not out yet}. However the performance of relation extractors varies by a lot.
+For example extracting the \textbf{roles} (or occupations) of a person from appositives is a fairly 
+high precision task.
+
+In this paper we address the following future-looking question: Once we have extracted certain 
+labels for people, locations and entities from a text collection what inferences can we draw from 
+those facts? As a concrete example, let's say that we extract the type of information that is present 
+in wikipedia infoboxes about people, locations and organizations, such as their date of births, their 
+nationality, their employers and their role in society, or their occupation. Now assume that 
+an analyst selects some of people as \textit{people of interest}. How should we rank/nominate/recommend 
+other people as people of interest?
+
+This paper presents two models of such data and experimentally compares them to previous related work.
+
+\newthought{Model 1} Embeddings based models that represent labels. See \figref{fig:tmp}
+\newthought{Model 2} Vertex nomination \cite{lyzinski} specialized to bipartite
+graphs.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1.7\linewidth]{tmp.jpg}
+  \caption{Temporary Figure to describe Two possible models for vertex
+    nomination in bipartite graphs.}
+  \label{fig:tmp}
+\end{figure}
+
+\clearpage
+\section{Extensions}
+\label{sec:extensions}
+Ascertaining whether two people are likely to be friends based on their common labels.
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
