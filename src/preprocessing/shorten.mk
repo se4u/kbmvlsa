@@ -1,12 +1,29 @@
 #!/usr/bin/make -f
+SHELL := /bin/bash
 DIR := $(HOME)/data/tackbp2015bbn2
 .SECONDARY:
 
+relational_bbn2.pkl:
+	./relationalize_base_graph.py
 
+#  .53M  orgToHeadquerter
 #   44M  confidence_only
-#   61M  appearsInDocument    
+#   61M  appearsInDocument
 #   20M  leaf_type
 #  132M  sort_base
+
+# Test orgToHeadquerter
+test:
+	echo 'Test that each grep returns one line'; \
+	grep 'f5355f8a-b26c-44e2-b824-76bf5b8102af 738e0227-0c60-4165-a2a7-f8430e0d5b55' $(DIR)/orgToHeadquarter; \
+	grep '0d963ed5-c1a6-4cb9-8e5e-142b3c534227 67a32b19-f408-43c0-aee4-5351acfee273' $(DIR)/orgToHeadquarter
+
+$(DIR)/orgToHeadquarter: $(DIR)/leaf_type $(DIR)/sort_base
+	join -2 1 <( grep 'adept-core#OrgHeadquarter' $< | awk '{print $$1}' | sort ) $(word 2,$+) \
+	  | fgrep -e location -e organization \
+	  | sort -k1,2 -r \
+	  | awk '{printf "%s ", $$3; if(NR % 2 == 0){printf "\n";}}' \
+	  | sort -k 1 > $@
 
 $(DIR)/confidence_only: $(DIR)/confidence
 	grep 'adept-base#confidence' $< | awk '{print $$1, $$3}' | sort -k 1 > $@
