@@ -6,7 +6,7 @@ SHELL := /bin/bash
 DIR := $(HOME)/data/tackbp2015bbn2
 .SECONDARY:
 
-$(DIR)/relational_bbn2.pkl: $(DIR)/bbn2_cache.pkl $(DIR)/leaf_type
+$(DIR)/relational_bbn2.pkl: $(DIR)/bbn2_cache.pkl $(DIR)/leaf_type relationalize_base_graph.py
 	./relationalize_base_graph.py \
 	  --out_fn $@ \
 	  --cache_fn $< \

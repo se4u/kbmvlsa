@@ -1,24 +1,3 @@
-# adept-core#OrgHeadquarter
-#     adept-core#location
-#     adept-core#organization
-# adept-core#Subsidiary
-#     adept-core#parent
-#     adept-core#subOrganization
-# adept-core#Membership
-#     adept-core#member
-#     adept-core#organization
-# adept-core#EndOrganization
-#     adept-core#organization
-#     adept-core#time
-# adept-core#StartOrganization
-#     adept-core#organization
-#     adept-core#time
-#
-# person are the persons.
-# Following are foreign namespaces
-# confidence, type, appearsInDocument, headquarter
-# If the key starts with _ then the edge is not directed.
-
 # Templates.
 person_features: &person_features
     confidence: confidence

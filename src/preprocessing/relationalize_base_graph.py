@@ -4,9 +4,9 @@
 | Description : Convert the data in sort_base into a relational format with people as pkey and features
 | Author      : Pushpendre Rastogi
 | Created     : Wed Apr 13 18:52:57 2016 (-0400)
-| Last-Updated: Thu Apr 14 20:45:10 2016 (-0400)
+| Last-Updated: Fri Apr 15 01:04:59 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 98
+|     Update #: 109
 '''
 import yaml
 import rasengan
@@ -16,6 +16,7 @@ import os
 import sys
 import collections
 import argparse
+from entity import Entity
 # --------------- #
 # Parse Arguments #
 # --------------- #
@@ -106,7 +107,7 @@ def extract(guid, type, path, feat_pfx):
 
 
 def main():
-    vertex_dict = collections.defaultdict(dict)
+    vertex_dict = {}
     edgelist = []
     for row in open(args.leaf_fn):
         guid, type = row.strip().split()
@@ -114,24 +115,35 @@ def main():
             feature_template = CFG.features[type]
             path_list = feature_path(feature_template)
             # We extract features using the (guid, type, path_list)
-            person_guid = person_name = person_confidence = None
-            person_feat = {}
+            person_guid = None
+            person_feat = dict(type=type)
             for path in path_list:
-                if path[0] == 'person' and person_guid is None:
-                    person_guid = BASE_NS[(guid, path[1])]
-                    person_feat['name'] = BASE_NS[
-                        (person_guid, 'adept-base#canonicalString')]
-                    person_feat['confidence'] = FOREIGN_NS[
-                        'confidence'][person_guid]
-                try:
-                    feat_name, feat_val = extract(guid, type, path, '')
-                    person_feat[feat_name] = feat_val
-                except MissingFeature as e:
-                    # print >> sys.stderr, e, path
+                if path[0] == 'person':
+                    if person_guid is None:
+                        person_guid = BASE_NS[(guid, path[1])]
+                        if person_guid not in vertex_dict:
+                            person_name = BASE_NS[
+                                (person_guid, 'adept-base#canonicalString')]
+                            person_confidence = FOREIGN_NS[
+                                'confidence'][person_guid]
+                            vertex_dict[person_guid] = Entity(
+                                person_guid, person_name, person_confidence)
+                            pass
+                        pass
+                    else:
+                        pass
+                else:
+                    try:
+                        feat_name, feat_val = extract(guid, type, path, '')
+                        person_feat[feat_name] = feat_val
+                    except MissingFeature as e:
+                        # print >> sys.stderr, e, path
+                        pass
                     pass
+                pass
             assert person_guid is not None
             assert len(person_feat) > 0
-            vertex_dict[person_guid].update(person_feat)
+            vertex_dict[person_guid].append(person_feat)
         elif type in CFG.edges:
             confidence = FOREIGN_NS['confidence'][guid]
             a = BASE_NS[(guid, CFG.edges[type][0])]
@@ -140,7 +152,7 @@ def main():
             edgelist.append(edge)
         else:
             assert (type in ORG_TYPES) or (type in NONRELATIONAL_TYPES)
-    return [dict(vertex_dict), edgelist]
+    return [vertex_dict, edgelist]
 
 if __name__ == '__main__':
     import ipdb as pdb
