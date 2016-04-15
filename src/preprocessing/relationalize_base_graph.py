@@ -4,9 +4,9 @@
 | Description : Convert the data in sort_base into a relational format with people as pkey and features
 | Author      : Pushpendre Rastogi
 | Created     : Wed Apr 13 18:52:57 2016 (-0400)
-| Last-Updated: Thu Apr 14 20:41:27 2016 (-0400)
+| Last-Updated: Thu Apr 14 20:45:10 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 97
+|     Update #: 98
 '''
 import yaml
 import rasengan
@@ -140,7 +140,7 @@ def main():
             edgelist.append(edge)
         else:
             assert (type in ORG_TYPES) or (type in NONRELATIONAL_TYPES)
-    return [vertex_dict, edgelist]
+    return [dict(vertex_dict), edgelist]
 
 if __name__ == '__main__':
     import ipdb as pdb
