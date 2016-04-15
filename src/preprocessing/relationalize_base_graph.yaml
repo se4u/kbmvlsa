@@ -19,48 +19,35 @@
 # confidence, type, appearsInDocument, headquarter
 # If the key starts with _ then the edge is not directed.
 
-templates:
-    &person_features person_features:
-        confidence: confidence
-        name:       adept-base#canonicalString
-        document:   document
-    &location_features location_features:
-        confidence: confidence
-        type:       type
-        name:       adept-base#canonicalString
-    &organization_features organization_features:
-        confidence: confidence
-        name:       adept-base#canonicalString
-        url:
-            adept-core#url: adept-base#canonicalString
-        location:
-            adept-core#location: *location_features
-        headquarter:
-            type: type
-            name: adept-base#canonicalString
+# Templates.
+person_features: &person_features
+    confidence: confidence
+    name:       adept-base#canonicalString
+location_features: &location_features
+    confidence: confidence
+    type:       type
+    name:       adept-base#canonicalString
+organization_features: &organization_features
+    confidence: confidence
+    name:       adept-base#canonicalString
+    url:
+        adept-core#url: adept-base#canonicalString
+    location:
+        adept-core#location: *location_features
+    headquarter:
+        type: type
+        name: adept-base#canonicalString
 
 edges:
-    spouse:
-        adept-core#SpousalRelationship:
-            _a:
-                adept-core#person: *person_features
-            _b:
-                adept-core#person: *person_features
-        confidence: confidence
-    parent:
-        adept-core#ParentChildRelationship:
-            parent:
-                adept-core#parent: *person_features
-            child:
-                adept-core#child: *person_features
-        confidence: confidence
-    sibling:
-        adept-core#SiblingRelationship:
-            _a:
-                adept-core#person: *person_features
-            _b:
-                adept-core#person: *person_features
-        confidence: confidence
+    adept-core#SpousalRelationship:
+        - _a
+        - _b
+    adept-core#ParentChildRelationship:
+        - adept-core#parent
+        - adept-core#child
+    adept-core#SiblingRelationship:
+        - _a
+        - _b
 
 features:
     adept-core#Resident:
@@ -69,62 +56,74 @@ features:
         location:
             adept-core#location: *location_features
         confidence: confidence
+        document:   document
     adept-core#Role:
         person:
             adept-core#person: *person_features
         role:
             adept-core#role: *person_features
         confidence: confidence
+        document:   document
     adept-core#EmploymentMembership:
         person:
             adept-core#employeeMember: *person_features
         employer:
             adept-core#organization: *organization_features
         confidence: confidence
+        document:   document
     adept-core#StudentAlum:
         person:
             adept-core#studentAlumni: *person_features
         almamater:
             adept-core#organization: *organization_features
         confidence: confidence
+        document:   document
     adept-core#Leadership:
         person:
             adept-core#leader: *person_features
         subject_org:
             adept-core#affiliatedEntity: *organization_features
         confidence: confidence
+        document:   document
     adept-core#Founder:
         person:
             adept-core#founder: *person_features
         founded_org:
             adept-core#organization: *organization_features
         confidence: confidence
+        document:   document
     adept-core#InvestorShareholder:
         person:
             adept-core#investorShareholder: *person_features
         invested_org:
             adept-core#organization: *organization_features
         confidence: confidence
+        document:   document
     adept-core#Origin:
         person:
             adept-core#person: *person_features
         origin:
             adept-core#affiliatedEntity: *location_features
         confidence: confidence
+        document:   document
     adept-core#BeBorn:
         person:
             adept-core#person: *person_features
         time:
             adept-core#time: adept-base#xsdDate
         confidence: confidence
+        document:   document
     adept-core#Die:
         person:
             adept-core#person: *person_features
         pod:
             adept-core#place: *location_features
         confidence: confidence
+        document:   document
     adept-core#ChargeIndict:
         person:
             adept-core#defendant: *person_features
         crime:
             adept-core#crime: adept-base#canonicalString
+        confidence: confidence
+        document:   document

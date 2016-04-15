@@ -3,8 +3,11 @@ SHELL := /bin/bash
 DIR := $(HOME)/data/tackbp2015bbn2
 .SECONDARY:
 
-relational_bbn2.pkl:
-	./relationalize_base_graph.py
+$(DIR)/relational_bbn2.pkl: $(DIR)/bbn2_cache.pkl $(DIR)/leaf_type
+	./relationalize_base_graph.py \
+	  --out_fn $@ \
+	  --cache_fn $< \
+	  --leaf_fn $(word 2,$+)
 
 #  .53M  orgToHeadquerter
 #   44M  confidence_only
@@ -17,6 +20,12 @@ test:
 	echo 'Test that each grep returns one line'; \
 	grep 'f5355f8a-b26c-44e2-b824-76bf5b8102af 738e0227-0c60-4165-a2a7-f8430e0d5b55' $(DIR)/orgToHeadquarter; \
 	grep '0d963ed5-c1a6-4cb9-8e5e-142b3c534227 67a32b19-f408-43c0-aee4-5351acfee273' $(DIR)/orgToHeadquarter
+
+
+FILES:= orgToHeadquarter confidence_only appearsInDocument leaf_type sort_base
+BBN_CACHE_DEP := $(foreach var,$(FILES),$(DIR)/$(var) )
+$(DIR)/bbn2_cache.pkl: $(BBN_CACHE_DEP)
+	./bbn2_cache.py $@ $+
 
 $(DIR)/orgToHeadquarter: $(DIR)/leaf_type $(DIR)/sort_base
 	join -2 1 <( grep 'adept-core#OrgHeadquarter' $< | awk '{print $$1}' | sort ) $(word 2,$+) \
