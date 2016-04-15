@@ -1,4 +1,7 @@
 #!/usr/bin/make -f
+# USAGE: ./shorten.mk
+# This .mk script extracts features from the tackbp bbn2 database specified in
+# $(DIR) using the feature \ edge schema specified in `relationalize_base_graph.yaml`
 SHELL := /bin/bash
 DIR := $(HOME)/data/tackbp2015bbn2
 .SECONDARY:
