@@ -4,8 +4,49 @@
 # $(DIR) using the feature \ edge schema specified in `relationalize_base_graph.yaml`
 SHELL := /bin/bash
 DIR := $(HOME)/data/tackbp2015bbn2
+SCRATCH := $(PWD)/../../scratch
 .SECONDARY:
+.ONESHELL:
 
+../../scratch/mad_basic_featurization_relational_bbn2.txt: ./mad_basic_featurization_relational_bbn2.py
+	./$< | tee $@
+
+../../scratch/eval_basic_featurization_bbn2.txt: eval_basic_featurization_relational_bbn2.py
+	./$< | tee $@
+
+# ----------------------------------------------------------------------------- #
+# Process the relational_bbn2.pkl file and get vector features for each entity. #
+# ----------------------------------------------------------------------------- #
+$(DIR)/basicfeaturization_relational_bbn2.pkl: $(DIR)/relational_bbn2.pkl
+	./basic_featurization_relational_bbn2.py --in_fn $< --out_fn $@
+
+# ----------------------------------------------------------- #
+# Create a sorted table of relation (Used in the tech report) #
+# ----------------------------------------------------------- #
+define TABULATE_CMD
+import yaml;
+from rasengan import deep_namespacer, flatten;
+data = deep_namespacer(yaml.load(open('relationalize_base_graph.yaml')));
+l1 = [flatten(e) for e in data.edges.items()]
+l2 = [flatten((e[0],
+               flatten([_[1].keys()
+                        for _ in e[1].items()
+                        if hasattr(_[1], 'keys')])))
+      for e in data.features.items()]
+for e in ([' '.join(e) for e in l1 + l2]):
+    print e
+endef
+export TABULATE_CMD
+
+tabulate:
+	join -a 1 -o 1.1,1.2,2.2,2.3 -1 2 -2 1 \
+	    <( cut -f 2 -d' ' $(DIR)/leaf_type | sort | uniq -c | sort -k 2  ) \
+	    <( python -c "$$TABULATE_CMD" | sort -k 1 ) \
+	  | sort -k 1 -n -r
+
+# ----------------------------------------------------------- #
+# Extract features from graph and store in dictionary format. #
+# ----------------------------------------------------------- #
 $(DIR)/relational_bbn2.pkl: $(DIR)/bbn2_cache.pkl $(DIR)/leaf_type relationalize_base_graph.py
 	./relationalize_base_graph.py \
 	  --out_fn $@ \

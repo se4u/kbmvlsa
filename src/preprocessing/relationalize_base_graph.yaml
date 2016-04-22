@@ -14,7 +14,6 @@ organization_features: &organization_features
     location:
         adept-core#location: *location_features
     headquarter:
-        type: type
         name: adept-base#canonicalString
 
 edges:
