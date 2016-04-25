@@ -1,23 +1,19 @@
 \documentclass[paper=a4,fontsize=11pt]{scrartcl}
 \usepackage{underscore,changepage,booktabs,xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{framed}
+\definecolor{shadecolor}{rgb}{1.0,0.8,0.3}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel} % English language/hyphenation
 \usepackage[protrusion=true,expansion=true]{microtype}
-\usepackage{amsmath,amsfonts,amsthm,url,xspace}
+\usepackage{amsmath,amsfonts,amsthm,url,xspace,amssymb,mathrsfs}
 \usepackage[pdftex]{graphicx}
-\newcommand{\eg}{e.g.,\xspace}
-\newcommand{\bigeg}{E.g.,\xspace}
-\newcommand{\etal}{\textit{et~al.\xspace}}
-\newcommand{\etc}{etc.\@\xspace}
-\newcommand{\ie}{i.e.,\xspace}
-\newcommand{\bigie}{I.e.,\xspace}
-\newcommand{\secref}[1]{section~\ref{#1}}
-\newcommand{\Secref}[1]{Section~\ref{#1}}
 %%% Custom sectioning
 \usepackage{sectsty}
 \allsectionsfont{\centering\normalfont\scshape}
 %%% Custom headers/footers (fancyhdr package)
 \usepackage{fancyhdr}
+\usepackage[disable]{todonotes} % insert [disable] to disable all notes.
 \pagestyle{fancyplain}
 \fancyhead{}                        % No page header
 \fancyfoot[L]{}                     % Empty
@@ -26,6 +22,28 @@
 \renewcommand{\headrulewidth}{0pt}  % Remove header underlines
 \renewcommand{\footrulewidth}{0pt}  % Remove footer underlines
 \setlength{\headheight}{13.6pt}
+%%% Define a custome column type.
+\usepackage{dcolumn}
+\newcolumntype{H}{>{\setbox0=\hbox\bgroup}c<{\egroup}@{}}
+
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\Eg}{E.g.,\xspace}
+\newcommand{\etal}{\textit{et~al.\xspace}}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\Ie}{I.e.,\xspace}
+\newcommand{\secref}[1]{section~\ref{#1}}
+\newcommand{\Secref}[1]{Section~\ref{#1}}
+\newcommand{\tabref}[1]{table~\ref{#1}}
+\newcommand{\Tabref}[1]{Table~\ref{#1}}
+\newcommand{\exref}[1]{example~\ref{#1}}
+\newcommand{\Exref}[1]{Example~\ref{#1}}
+\newcommand{\argmax}[1]{\underset{#1}{\operatorname*{argmax}}}
+\newcommand{\note}[1]{\todo[author=PR,color=blue!40,size=\small,fancyline,inline]{Note: #1}}
+\newcommand{\Todo}[1]{\todo[author=PR,size=\small,inline]{Todo: #1}}
+\newcommand{\FW}[1]{\todo[author=PR,color=pink!20,size=\small,inline]{Future Work: #1}}
+\newtheorem{example}{Example}
+
 %%% Equation and float numbering
 \numberwithin{equation}{section}    % Equationnumbering: section.eq#
 \numberwithin{figure}{section}      % Figurenumbering: section.fig#
@@ -37,7 +55,7 @@
   \usefont{OT1}{bch}{b}{n}
   \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\[25pt]
   \horrule{0.5pt}\\[0.4cm]
-  \huge Vertex Nomination on the Cold Start Knowledge Graph\\
+  \huge Entity recommendations on a Cold Start Knowledge Graph\\
   \horrule{2pt}\\[0.5cm]
 }
 \author{
@@ -47,81 +65,621 @@
 }
 \date{}
 
-% -------------- %
-% Talking Points %
-% -------------- %
-% Surdenaue says that there are 41 relations. but there doesn't seem
-% to be 41 relations.
-\newcommand{\newrel}{41} 
+\newcommand{\newrel}{41}
 \renewcommand{\cite}[1]{\textcolor{red}{#1}}
 \renewcommand{\r}[1]{\textcolor{red}{#1}}
+\newcommand{\dataset}[0]{\texttt{BBN2} KBP dataset.}
+\newcommand{\ontology}{\textsc{BBN Adept Ontology}}
+\newcommand{\task}{CS-KBP 2015 task}
+\newcommand{\dg}{$^\dagger$}
+\newcommand{\ddg}{$^\ddagger$}
+\newcommand{\OPTION}[0]{\textcolor{red}{OPTION}}
+\newcommand{\PK}{P\@K}
+
+%%% Commands for arcs and states.
+\def\overstrike#1#2{{\setbox0\hbox{$#2$}\hbox to \wd0{\hss$#1$\hss}\kern-\wd0\box0}}
+\newcommand{\bigstaten}[1]{\overstrike{\protect\raisebox{1pt}{\mbox{\scriptsize #1}}}{\mbox{\Large $\bigcirc$}}}
+\newcommand{\shortarc}[1]{\protect\raisebox{-1pt}{$\stackrel{#1}{\longrightarrow}$}}
+
+% --------------------------------------------------- %
+% Globally Override the special status of # character %
+% --------------------------------------------------- %
+\catcode`#=12
+
 \begin{document}
 \maketitle
 \section{Introduction}
 \label{sec:introduction}
-The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized by
-NIST to evaluate systems that can build a knowledge base (KB) from raw natural
-language text~\cite{TAC-KBP-DESC}. 
-At the beginning of the task the participants
-are provided a KB schema and a set of documents 
-from which they have to automatically extract entities and their relations and
-populate a KB. The KB should be an accurate representation of the information 
-in the text documents. The competing systems 
-extract three types of entities: \textsc{PER, ORG, LOC}
-\footnote{PER, ORG and LOC are abbreviations of Person, Organization and
-  Location respectively.}
-and a larger number of relations between those entities.\footnote{
-Relations are also called slots in prior work. In CS-KBP 2015 task
-the number of regular relations was 41. Out of these 41 relations, 
-26 were entity-valued, that is their arguments were themselves entities.
-Each slot has atleast one inverse slot, which may or may not be a pre-existing
-slot. For example \texttt{org:shareholders} has three inverse slots
-\texttt{\{per,org,gpe\}:holds_shares_in}. All \texttt{gpe:*} slots are inverse
-slots that did not exist previously. The total
-number of inverse slot that did not previously exist is 22. So the total
-number of slots is 63.}
+The archetypical usage for knowledge graphs is as stores of knowledge that
+support evaluation of queries for information retrieval (IR). For example, a
+knowledge graph may be stored as RDF triples or as XML or inside a graph database
+and subsequently queried using a graph query language
+\footnote{Two popular graph query languages are Cypher or Gremlin},
+or through RDF query languages
+\footnote{The defacto standard for querying RDF databases is SPARQL}
+or even through XML querying languages such as XPath.
+In general, a pattern matching technique can be used to filter and select
+a parts of the graph that match the query.
 
-BBN participated in the CS-KBP task in 2015 and it was the top performing
-participant in terms of precision and overall F1 according to the official 
-results as of November 2015~\cite{BBN-System}. In order to assess the 
-feasibility of performing \textsc{vertex nomination} on KBs built with a
-fixed ontology of a small number of relations we accessed BBN's \texttt{BBN2} 
-submission to the CS-KBP task and performed vertex nomination experiments on 
-the \texttt{BBN2} database. \Secref{sec:data} describes the \texttt{BBN2} KB.
+An information retrieval paradigm that is very different from query execution by
+pattern matching
+is the paradigm of recommender systems, where the goal is not to retrieve a
+subgraph that matches a pattern but rather to rank the entities in a knowledge graph
+according to their relevance to the user.
 
+Our focus in this work is on benchmarking the performance of various recommendation
+methods on knowledge graphs built automatically according to the \ontology.
+By formulating the problem in multiple ways
+we show how a number of algorithms can be applied to this task.
+Specifically we benchmark the following algorithms
+\begin{snugshade}
+\begin{enumerate}
+\item Feature Based Recommendation.
+\item Label Propagation through Modified Adsorption.
+\item Feature Based Recommendation via Naive Bayes
+\item Feature Based Recommendation via the Naive Bayes model
+  generalized through Block Modelling.
+\end{enumerate}
+\end{snugshade}
+
+In order to meaningfully evaluate the performance of the above algorithms on a real dataset
+we use a state of the art automatically generated knowledge base that was submitted by BBN in
+the \task. \Secref{sec:evaluation} details our evaluation protocol and
+ \secref{sec:er-algorithms} the algorithms that we applied and
+their results.
+
+\section{Background}
+\label{sec:background}
+The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized
+by NIST to evaluate systems that build a knowledge base (KB) from raw natural
+language text~\cite{TAC-KBP-DESC}.  At the beginning of the task the
+participants are provided natural language documents,
+some guidelines and examples about valid and invalid entities,
+and a schema of relationships and their examples.
+The systems have to extract entities and relations
+based on textual clues present in the documents and
+then populate a KB. The overarching goal is that the automatically
+created KB should be
+an accurate representation of the information available in the text
+documents. Specifically, the
+competing systems have to extract three types of entities: \textsc{PER, ORG, LOC}
+\footnote{PER, ORG and LOC are abbreviations of Person, Organization
+  and Location respectively.}  and a small, fixed set of relations
+\footnote{Note that relations are sometimes called \textit{slots} in prior work.}
+between those entities. {In \task
+  the number of regular relations was 41. Each relation
+had atleast one inverse relations, which may or may not be a regular relation.
+In total the number of relations was 63.}
 
 \section{Data}
 \label{sec:data}
+BBN participated in the \task where it was the top performing
+participant in terms of precision and overall F1 according to the official
+results as of November 2015~\cite{BBN-System}. To assess the feasibility of
+ranking potentially similar entities using KBs built with an ontology of a small
+number of relations we accessed BBN's \texttt{BBN2} submission to the CS-KBP
+task and performed entity recommendation experiments on the \texttt{BBN2}
+database.
+
+The \dataset is a knowledge graph built according to the \ontology.
+Although the \ontology defines a large number of
+relations the \dataset contains instantiations for only a small
+number of the total possible relationships.
+The reason is that the entities and relations
+were extracted from approximately $50,000$ web pages by BBN for their
+\texttt{BBN2} submission for the TAC CS-KBP task. That task has its own set
+of 41 important relations and 3 entity types which were mapped to the \ontology
+and converted into rdf triples that we accessed.
+Further more the observations for different relations follow a power law
+and the highest occurring relation accounts for $30\%$ of the total
+observations.
+% The reason for this skew is that the
+% natural language text itself has a strong bias about the type of relations that are
+% reported explicitly and that bias is reflected in the distribution of textual mentions
+% of relations.
+
+We define a named entity to be a unique entity that has either a canonical string
+or a canonical time attached to it.\footnote{
+We note that this is a non-standard usage of the term named entities which usually refers only to
+names of people, locations and organizations but not their titles or dates.}
+The \dataset contains 5 types of named entities. See \tabref{tab:type}.
+For example, the identifier $9dd1d8d3-9a1f-4ec2-a45b-64cce788eb01$ in the dataset has
+the type \texttt{adept-core\#Title}
+and the canonical string associated with it is \texttt{Almighty King}.
+ Because of the errors made
+during automatic relation extraction and because of the lack of post-processing there can be multiple
+\texttt{adept-core\#Title} identifiers that have the same, or roughly the same, canonical string.
+See \exref{ex:title-cap}.
+\begin{example}
+\label{ex:title-cap}
+The identifiers $e3ac2b1e-cd3b-4cf8-a1fb-b1f71db123df$ and
+$234f3110-c8ca-49aa-ba7b-a45bb5467c38$ have canonical strings \textit{professor} and
+\textit{Professor} respectively which differ only in their capitalization.
+\end{example}
+
+As \tabref{tab:type} shows, the \texttt{adept-core\#Person} category is the highest occurring
+category with $125$K instantiations
+and it is slightly less than double the next largest category of \texttt{adept-core\#Organization}.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{r l l}
+    Instantiations & Type                          & Property                   \\
+    125022         & adept-core\#Person             & adept-base\#canonicalString \\
+    69544          & adept-core\#Organization       & adept-base\#canonicalString \\
+    23754          & adept-core\#GeoPoliticalEntity & adept-base\#canonicalString \\
+    1761           & adept-core\#Title              & adept-base\#canonicalString \\
+    819            & adept-base\#Date               & adept-base\#xsdDate         \\
+    333            & adept-core\#Crime              & adept-base\#canonicalString \\
+    189            & adept-core\#URL                & adept-base\#canonicalString \\
+  \end{tabular}
+  \caption{Observation Counts for Named Entities}
+  \label{tab:type}
+\end{table}
+
+\Tabref{tab:relation} tabulates statistics about the relations contained in the \dataset.
+Every instance of a relation has a unique id, and it relates two named entities.
+For example the id $001ae391-3a55-43d1-8d3e-0557bdd943d1$ refers to a relation of the
+type \texttt{adept-core\#Resident} which connects its named attribute \texttt{adept-core\#person}
+which must have the type \texttt{adept-core\#Person}
+with its \texttt{adept-core\#location} attribute which must be of type
+\texttt{adept-core\#Geopoliticalentity}.
+\Tabref{tab:relation} shows that the \texttt{adept-core\#Role} relation,
+that relates a person to his/her title, occurs most often.
+Note that the \texttt{adept-core\#Role} is not a relation between two people, but rather
+it is a relation between a person and an attribute.
+In this sense, the \texttt{adept-core\#Role} relation can be considered as a feature of a person
+instead of a relation, since the \texttt{adept-core\#Role} for one person can be
+independent of the Role of another person.
+We note that 11 out of 20 relations including the top four most observed relations,
+can be thought of as features of persons.
+Only 3 relations out of the total of 20 relate two persons and
+only 6 relations relate organization to other organizations or to locations.
+These observations indicate that for recommending persons based on other persons of interest
+it might be enough to model the knowledge graphs in the more traditional supervised machine
+learning setting where the people are modeled as bags of features and the goal of the
+recommendation algorithm is to rank the people based on the features of the people
+that were already selected.
+% See \cite{TAC-SLOT-DESCRIPTION,BBN-DESCR} for details about the CS-KBP task, the
+% slot types and the \dataset.
+
+\begin{table}[htbp]
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{r l l l}
+\textbf{Instances} & \textbf{Relation}                  & \textbf{Attribute 1}           & \textbf{Attribute 1}        \\
+42490              & adept-core\#Role                    & adept-core\#person              & adept-core\#role             \\
+36631              & adept-core\#EmploymentMembership    & adept-core\#employeeMember      & adept-core\#organization     \\
+16288              & adept-core\#Resident                & adept-core\#person              & adept-core\#location         \\
+9600               & adept-core\#Leadership              & adept-core\#leader              & adept-core\#affiliatedEntity \\
+8705               & adept-core\#Subsidiary\dg           & adept-core\#organization        & adept-core\#subOrganization  \\
+7242               & adept-core\#OrgHeadquarter\dg       & adept-core\#organization        & adept-core\#location         \\
+2764               & adept-core\#Origin                  & adept-core\#person              & adept-core\#affiliatedEntity \\
+1774               & adept-core\#ParentChildRelationship\ddg & adept-core\#parent          & adept-core\#child            \\
+1612               & adept-core\#Die                     & adept-core\#person              & adept-core\#place            \\
+1317               & adept-core\#SpousalRelationship\ddg & adept-core\#person              & adept-core\#person           \\
+1306               & adept-core\#StudentAlum             & adept-core\#studentAlumni       & adept-core\#organization     \\
+1281               & adept-core\#Founder                 & adept-core\#founder             & adept-core\#organization     \\
+1261               & adept-core\#BeBorn                  & adept-core\#person              & adept-core\#time             \\
+530                & adept-core\#InvestorShareholder     & adept-core\#investorShareholder & adept-core\#organization     \\
+417                & adept-core\#SiblingRelationship\ddg & adept-core\#person              & adept-core\#person           \\
+387                & adept-core\#ChargeIndict            & adept-core\#defendant           & adept-core\#crime            \\
+374                & adept-core\#StartOrganization\dg    & adept-core\#organization        & adept-core\#time             \\
+369                & adept-core\#Membership\dg           & adept-core\#organization        & adept-core\#member           \\
+200                & adept-core\#OrganizationWebsite\dg  & adept-core\#organization        & adept-core\#url              \\
+33                 & adept-core\#EndOrganization\dg      & adept-core\#organization        & adept-core\#time             \\
+\end{tabular}}
+  \caption{Relations Types and their attributes. \dg indicates relations for
+    which neither of the arguments are of the type
+    \texttt{adept-core\#Person}. \ddg indicates relations for which both of the
+    arguments have the type \texttt{adept-core\#Person}.}
+  \label{tab:relation}
+\end{table}
 
 \subsection{Data Cleaning}
 \label{sec:data-cleaning}
+\Todo{As~\exref{ex:title-cap} illustrated some of the titles in the \dataset
+  only differ from each other by their capitalization.
+  During the task of vertex nomination matching such fragments can help in reducing sparsity.
+  but data cleaning can be handled more flexibly (though perhaps less efficiently)
+  as a similarity metric between the fragments.}
 
-\section{Experiments}
-\label{sec:experiments}
+\section{Entity Recommendation}
+\label{sec:entity-recommendation}
+Let us introduce some notation to explain the task of Entity Recommendation.
+Let $\mathcal{V}$ be a finite set and let
+$\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
+$\mathcal{V}$ denotes the set of all entities, $\mathcal{I}$ denotes the set
+of \textit{entities of interest} and $\mathcal{O}$ denotes those entities for
+which it is known that they are elements of $\mathcal{I}$. The task of entity
+recommendation is to produce a ranking $\pi$ of the vertices in
+$\mathcal{O}^C = \mathcal{V} \setminus \mathcal{O}$
+such that vertices belonging to $\mathcal{T} = \mathcal{I} - \mathcal{O}$ are
+ranked higher than the vertices in $\mathcal{V} - \mathcal{I}$.
+
+\section{Evaluation}
+\label{sec:evaluation}
+The task of ranking objects inside recommender systems and information retrieval systems
+are well researched in Machine Learning and Information Retrieval.
+Two standard evaluation metrics
+for these tasks are the {Precision\@K}(\PK) metric and the
+{Area Under Precision Recall Curve}(AUPR) metric and
+we would report the performance of the systems
+on these two metrics and compare them to a random baseline.
+
+To evaluate a recommendation system we minimally need a predicate function to
+label whether an entity is an entity of interest or not and
+for training a recommender system we need examples of
+entities for which the predicate function is true and preferably some examples
+for which the predicate function is false as well. Since we don't have access
+to gold standard queries, we create some example queries of interest by using
+the prescence of a feature as a predicate function.
+During training and testing we remove this feature from the training data and
+only present labeled examples of entities for which the predicate function is
+true and a few negative examples.
+\FW{Should all features form the document that contained
+  the training relations that were used as the criteria of relevance be removed?}
+At test time the recommender systems rank the entities from a separate test set
+with the goal that the
+entities for which the predicate function is true should be ranked higher.
+Using the
+true predicate function and the ranking produced by the recommendation system we
+can measure the \PK and AUPR metrics. In order to increase the interpretability of the
+model we enforce the constraint that both the train and the test sets are balanced, \ie
+they contain an equal number of positive and negative examples.
+
+To simulate plausible recommendation criterion we made the following assumptions about
+the predicate functions:
+\begin{enumerate}
+\item We assume that a user of the knowledge graph recommendation system is only
+  interested in ranking the \textsc{PER} entities, therefore the predicate function
+  only needs to be able to label the \textsc{PER} entities.
+\item We
+  impose the constraint that the predicate functions can only be constructed from pre-existing entity features.
+  For example, a user of the recommendation system may mark certain employees of the
+  ``White\_House'' as people of interest and based on these examples the recommendation
+  system needs to assign a high rank to the remaining employees of the ``White\_House'' and
+  a low rank to the persons. Note that the recommendation system does not receive the
+  feature that the person was the employee of the ``White\_House'' during operation
+  and it has to make a guess on the basis of other persons and their features.
+  Consider a second example, where a predicate function may mark people who are
+  ``authors'' as people of interest and request the recommendation system to find more
+  people who are ``authors''. \tabref{tab:pred-func} lists the 6 Relations types that we
+  use to create a 12 predicate functions which we use for performance evaluation.
+\end{enumerate}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{r l | c c}
+    Relation                        & Attribute    & Value 1    & Value 2      \\\hline
+    adept-core#EmploymentMembership & employer     & Army       & White\_House \\
+    adept-core#Leadership           & subject\_org & Democratic & Parliament   \\
+    adept-core#Origin               & origin       & American   & Russia       \\
+    adept-core#Resident             & location     & Chinese    & Texas        \\
+    adept-core#Role                 & role         & author     & director     \\
+    adept-core#StudentAlum          & almamater    & Harvard    & Stanford     \\
+  \end{tabular}
+  \caption{Table of Predicate Functions}
+  \label{tab:pred-func}
+\end{table}
+
+\FW{levarage unsupervised label co-occurrence data such as certain
+  labels tend to occur with each other.}
+
+\section{Methods for Entity Recommentation on Knowledge Graphs}
+\label{sec:er-algorithms}
+
+\subsection{Entity Recommendation based on Entity Features}
+\label{sec:er-feature}
+
+Recall the discussion about \tabref{tab:relation} in \secref{sec:data}.
+We showed that a large number of relations in the KB could be considered to
+be features of \textsc{PER} entities instead of relations.
+
+This suggests the following simple model for performing entity recommendations:
+Represent the labeled examples
+as a bag of features and train a linear SVM based classifier to discriminate
+between the positive and negative training examples. Subsequently use the
+signed distance from the linear classifier's decision hyperplane as a way to
+rank the entities in the test set.
+\FW{Learn from the SVM's performance to guide your search amongst models.
+  The goal is not to try all of them. The goal is to wisely choose
+  amongst the various model based on the performance of existing methods.
+  Use Naive Bayes, thresholded NB and other variants of models.\\
+  Logistic Regression - L2 regularized linear classifier with log-loss.
+  With or Without thresholded features. Thresholded labels.\\
+  Linear SVM - L2 regularized linear classifier with hinge loss.
+  With or Without thresholded features. Thresholded labels.\\
+  Ranking SVM - Utilizing the confidence values as gold standard
+  for ranking the known \textit{EOI}.
+  With or Without thresholded features. Dont threshold labels.\\
+  Linear Regression - L1 - L2 regularized on the confidence values.
+  Without thresholding features. Without thresholded labels.\\
+  Treat the confidence scores as probabilities, or other bounded real
+  values features.\\
+  Threshold the confidence score to convert them to binary features.}
+\FW{We can create back-off features. We can create feature conjunctions.}
+
+The following table shows the performance of the methods on the 12 types of relations,
+when the method are given 10 training examples for 5 runs:
+
+% ------------------------------------------------------------------ %
+% Clipped Linear Classifier Performance on Limited Balanced Test Set %
+% ------------------------------------------------------------------ %
+% \begin{table}[htbp]
+%   \centering
+%   \resizebox{\textwidth}{!}{
+%   \begin{tabular}{l l l | H H H c c c}
+% Relation                        & Attribute    & Value           & \multicolumn{3}{H}{P\@10}     & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
+%                                 &              &                 & w/o doc & w/ doc & random     & w/o doc & w/ doc & random \\
+% adept-core#EmploymentMembership & employer     & Army            & $0.940 \pm 0.052$  & $0.940 \pm 0.052$  & $0.560 \pm 0.091$  & $0.822 \pm 0.056$  & $0.853 \pm 0.036$  & $0.544 \pm 0.059$   \\
+% adept-core#EmploymentMembership & employer     & White\_House    & $0.860 \pm 0.128$  & $0.820 \pm 0.104$  & $0.490 \pm 0.100$  & $0.775 \pm 0.073$  & $0.737 \pm 0.080$  & $0.538 \pm 0.033$   \\
+% adept-core#Leadership           & subject\_org & Democratic      & $0.640 \pm 0.052$  & $0.660 \pm 0.052$  & $0.510 \pm 0.043$  & $0.909 \pm 0.060$  & $0.932 \pm 0.023$  & $0.626 \pm 0.071$   \\
+% adept-core#Leadership           & subject\_org & Parliament      & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.960 \pm 0.052$  & $0.942 \pm 0.082$  & $0.676 \pm 0.114$   \\
+% adept-core#Origin               & origin       & American        & $0.720 \pm 0.265$  & $0.820 \pm 0.141$  & $0.500 \pm 0.067$  & $0.681 \pm 0.162$  & $0.748 \pm 0.082$  & $0.551 \pm 0.043$   \\
+% adept-core#Origin               & origin       & Russia          & $1.000 \pm 0.000$  & $0.980 \pm 0.043$  & $0.450 \pm 0.074$  & $0.963 \pm 0.022$  & $0.919 \pm 0.057$  & $0.530 \pm 0.055$   \\
+% adept-core#Resident             & location     & Chinese         & $0.920 \pm 0.171$  & $0.920 \pm 0.171$  & $0.500 \pm 0.095$  & $0.806 \pm 0.113$  & $0.820 \pm 0.119$  & $0.535 \pm 0.029$   \\
+% adept-core#Resident             & location     & Texas           & $0.780 \pm 0.124$  & $0.760 \pm 0.160$  & $0.440 \pm 0.056$  & $0.691 \pm 0.067$  & $0.661 \pm 0.114$  & $0.499 \pm 0.027$   \\
+% adept-core#Role                 & role         & author          & $0.620 \pm 0.124$  & $0.480 \pm 0.141$  & $0.600 \pm 0.077$  & $0.588 \pm 0.074$  & $0.508 \pm 0.060$  & $0.569 \pm 0.043$   \\
+% adept-core#Role                 & role         & director        & $0.580 \pm 0.171$  & $0.600 \pm 0.178$  & $0.600 \pm 0.109$  & $0.567 \pm 0.090$  & $0.552 \pm 0.067$  & $0.581 \pm 0.050$   \\
+% adept-core#StudentAlum          & almamater    & Harvard         & $0.940 \pm 0.085$  & $0.940 \pm 0.085$  & $0.520 \pm 0.112$  & $0.961 \pm 0.028$  & $0.936 \pm 0.063$  & $0.546 \pm 0.043$   \\
+% adept-core#StudentAlum          & almamater    & Stanford        & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.993 \pm 0.014$  & $0.985 \pm 0.031$  & $0.697 \pm 0.128$   \\
+% \end{tabular}}
+%   \caption{Performance with a feature based ranker. The intervals are 90\% confidence intervals.}
+%   \label{tab:perf-feat}
+% \end{table}
+
+% ----------------------------------------------------------- %
+% Clipped Linear Classifier Performance on Unlimited Test Set %
+% ----------------------------------------------------------- %
+\begin{table}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{l l l | H H H c c c}
+Relation                        & Attribute    & Value           & \multicolumn{3}{H}{P\@10}     & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
+                                &              &                 & w/o doc            & w/ doc             & random             & w/o doc            & w/ doc             & random \\
+adept-core#EmploymentMembership & employer     & Army            & $0.320 \pm 0.247 $ & $0.220 \pm 0.207 $ & $0.000 \pm 0.000 $ & $0.077 \pm 0.055 $ & $0.066 \pm 0.043 $ & $0.002 \pm 0.000 $  \\
+adept-core#EmploymentMembership & employer     & White\_House    & $0.280 \pm 0.124 $ & $0.220 \pm 0.171 $ & $0.010 \pm 0.018 $ & $0.044 \pm 0.020 $ & $0.038 \pm 0.017 $ & $0.004 \pm 0.001 $  \\
+adept-core#Leadership           & subject\_org & Democratic      & $0.220 \pm 0.080 $ & $0.100 \pm 0.117 $ & $0.000 \pm 0.000 $ & $0.171 \pm 0.111 $ & $0.095 \pm 0.122 $ & $0.000 \pm 0.000 $  \\
+adept-core#Leadership           & subject\_org & Parliament      & $0.140 \pm 0.085 $ & $0.080 \pm 0.043 $ & $0.000 \pm 0.000 $ & $0.124 \pm 0.087 $ & $0.070 \pm 0.037 $ & $0.000 \pm 0.000 $  \\
+adept-core#Origin               & origin       & American        & $0.220 \pm 0.256 $ & $0.260 \pm 0.173 $ & $0.000 \pm 0.000 $ & $0.073 \pm 0.041 $ & $0.082 \pm 0.031 $ & $0.014 \pm 0.000 $  \\
+adept-core#Origin               & origin       & Russia          & $0.180 \pm 0.157 $ & $0.160 \pm 0.085 $ & $0.000 \pm 0.000 $ & $0.091 \pm 0.067 $ & $0.082 \pm 0.065 $ & $0.001 \pm 0.000 $  \\
+adept-core#Resident             & location     & Chinese         & $0.260 \pm 0.145 $ & $0.180 \pm 0.104 $ & $0.000 \pm 0.000 $ & $0.066 \pm 0.032 $ & $0.079 \pm 0.042 $ & $0.004 \pm 0.000 $  \\
+adept-core#Resident             & location     & Texas           & $0.200 \pm 0.202 $ & $0.120 \pm 0.124 $ & $0.000 \pm 0.000 $ & $0.036 \pm 0.018 $ & $0.027 \pm 0.018 $ & $0.003 \pm 0.000 $  \\
+adept-core#Role                 & role         & author          & $0.040 \pm 0.085 $ & $0.020 \pm 0.043 $ & $0.050 \pm 0.041 $ & $0.025 \pm 0.007 $ & $0.024 \pm 0.005 $ & $0.021 \pm 0.000 $  \\
+adept-core#Role                 & role         & director        & $0.180 \pm 0.104 $ & $0.140 \pm 0.128 $ & $0.030 \pm 0.028 $ & $0.054 \pm 0.002 $ & $0.054 \pm 0.001 $ & $0.052 \pm 0.001 $  \\
+adept-core#StudentAlum          & almamater    & Harvard         & $0.460 \pm 0.313 $ & $0.160 \pm 0.052 $ & $0.000 \pm 0.000 $ & $0.277 \pm 0.301 $ & $0.100 \pm 0.077 $ & $0.001 \pm 0.000 $  \\
+adept-core#StudentAlum          & almamater    & Stanford        & $0.040 \pm 0.052 $ & $0.060 \pm 0.052 $ & $0.000 \pm 0.000 $ & $0.052 \pm 0.074 $ & $0.041 \pm 0.040 $ & $0.000 \pm 0.000 $  \\
+\end{tabular}}
+  \caption{Performance with a feature based ranker. The intervals are 90\% confidence intervals.}
+  \label{tab:perf-feat}
+\end{table}
+\Todo{
+Add Backoff features. Perform entity ranking only through backoff features.}
+
+\subsection{Entity Recommendation Through Label Propagation}
+\label{sec:er-lp}
+\FW{Remember that for all these models, there's a way to model them more compositionally by decomposing the model over the edge types and the vertices.}
+There are two ways of interpreting the graph.
+Either we can interpret the relations to be different types of edges,
+or equivalently as edge attributes,
+or we can interpret the combination of an
+edge type and edge value to be different vertices.
+
+For example let, $\bigstaten{$i$,s}$,
+$\bigstaten{$a$} \shortarc{r} \bigstaten{$b$}$
+be an arc of type $r$ going from vertex $\bigstaten{$a$}$
+to $\bigstaten{$b$}$. We can model the arc non-compositionally
+and consider the $\shortarc{r} \bigstaten{$b$}$ to be a single vertex
+or we can model the graph compositionally and
+consider the arc type to be a feature of the edge.
+
+For sake of simplicity we would first implement the non-compositional
+method. The non-compositional method has the ideal property that
+there are no longer different types of edges. All edges are of the same
+type. The downside is that now there are a much larger number of vertices.
+and they can not share parameters.
+
+Using the modified adsorption algorithm we obtain the following result:
+% ---------------------------------------------- %
+% MAD Performance with Limited Balanced Test Set %
+% ---------------------------------------------- %
+% \begin{table}[htbp]
+%   \centering
+%   \resizebox{\textwidth}{!}{
+%   \begin{tabular}{l l l | c c c}
+% Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
+%                                 &              &                 & w/o doc & w/ doc & random \\
+% adept-core#EmploymentMembership & employer     & Army            &  $0.909 \pm 0.046$   &  $0.909 \pm 0.046$   &  $0.539 \pm 0.064$  \\
+% adept-core#EmploymentMembership & employer     & White\_House    &  $0.810 \pm 0.052$   &  $0.810 \pm 0.052$   &  $0.545 \pm 0.055$  \\
+% adept-core#Leadership           & subject\_org & Democratic      &  $0.925 \pm 0.102$   &  $0.925 \pm 0.102$   &  $0.567 \pm 0.116$  \\
+% adept-core#Leadership           & subject\_org & Parliament      &  $0.975 \pm 0.052$   &  $0.975 \pm 0.052$   &  $0.604 \pm 0.101$  \\
+% adept-core#Origin               & origin       & American        &  $0.752 \pm 0.111$   &  $0.752 \pm 0.111$   &  $0.559 \pm 0.083$  \\
+% adept-core#Origin               & origin       & Russia          &  $0.968 \pm 0.040$   &  $0.968 \pm 0.040$   &  $0.558 \pm 0.063$  \\
+% adept-core#Resident             & location     & Chinese         &  $0.931 \pm 0.076$   &  $0.931 \pm 0.076$   &  $0.553 \pm 0.058$  \\
+% adept-core#Resident             & location     & Texas           &  $0.795 \pm 0.065$   &  $0.795 \pm 0.065$   &  $0.491 \pm 0.069$  \\
+% adept-core#Role                 & role         & author          &  $0.540 \pm 0.113$   &  $0.540 \pm 0.113$   &  $0.538 \pm 0.120$  \\
+% adept-core#Role                 & role         & director        &  $0.517 \pm 0.069$   &  $0.517 \pm 0.069$   &  $0.536 \pm 0.066$  \\
+% adept-core#StudentAlum          & almamater    & Harvard         &  $0.986 \pm 0.016$   &  $0.986 \pm 0.016$   &  $0.520 \pm 0.073$  \\
+% adept-core#StudentAlum          & almamater    & Stanford        &  $1.000 \pm 0.000$   &  $1.000 \pm 0.000$   &  $0.628 \pm 0.196$  \\
+% \end{tabular}}
+%   \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
+%   \label{tab:perf-feat}
+% \end{table}
+
+% --------------------------------------- %
+% MAD Performance with Unlimited Test Set %
+% --------------------------------------- %
+\begin{table}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{l l l | c c c}
+Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
+                                &              &                 & w/o doc & w/ doc & random \\
+adept-core#EmploymentMembership & employer     & Army            & $0.106 \pm 0.087 $ & $0.097 \pm 0.057 $ & $0.003 \pm 0.000 $\\
+adept-core#EmploymentMembership & employer     & White\_House    & $0.025 \pm 0.006 $ & $0.025 \pm 0.008 $ & $0.004 \pm 0.000 $\\
+adept-core#Leadership           & subject\_org & Democratic      & $0.009 \pm 0.002 $ & $0.004 \pm 0.001 $ & $0.000 \pm 0.000 $\\
+adept-core#Leadership           & subject\_org & Parliament      & $0.044 \pm 0.010 $ & $0.018 \pm 0.003 $ & $0.000 \pm 0.000 $\\
+adept-core#Origin               & origin       & American        & $0.086 \pm 0.043 $ & $0.073 \pm 0.031 $ & $0.014 \pm 0.000 $\\
+adept-core#Origin               & origin       & Russia          & $0.069 \pm 0.018 $ & $0.056 \pm 0.012 $ & $0.001 \pm 0.000 $\\
+adept-core#Resident             & location     & Chinese         & $0.147 \pm 0.069 $ & $0.126 \pm 0.044 $ & $0.004 \pm 0.000 $\\
+adept-core#Resident             & location     & Texas           & $0.054 \pm 0.028 $ & $0.032 \pm 0.012 $ & $0.003 \pm 0.000 $\\
+adept-core#Role                 & role         & author          & $0.028 \pm 0.009 $ & $0.026 \pm 0.005 $ & $0.022 \pm 0.001 $\\
+adept-core#Role                 & role         & director        & $0.056 \pm 0.004 $ & $0.051 \pm 0.002 $ & $0.054 \pm 0.000 $\\
+adept-core#StudentAlum          & almamater    & Harvard         & $0.168 \pm 0.044 $ & $0.112 \pm 0.034 $ & $0.002 \pm 0.000 $\\
+adept-core#StudentAlum          & almamater    & Stanford        & $0.050 \pm 0.012 $ & $0.032 \pm 0.011 $ & $0.000 \pm 0.000 $\\
+\end{tabular}}
+  \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
+  \label{tab:perf-label-prop}
+\end{table}
 
 
-\subsection{Query Types}
-\label{sec:query-types}
+Although many other methods can be used on this bipartite graph which has a single edge type
+such as other variants of label propagation or variants of matrix factorization. All of those
+methods would have the drawback that the vertices would remain non-compositional.
+\FW{Add the performance of MAD when we remove edge attributes all together. (through a union)
+  Add the performance of unbiased RW with and without edge attributes.
+  Add the performance of RESCAL with and without edge attributes.
+  Add the performance of matrix factorization.}
+\Todo{
+Add Backoff features. Perform entity ranking only through backoff features.}
 
-\subsection{Evaluation Metrics}
-\label{sec:evaluation-metrics}
+\subsection{Entity Recommendation Through the Naive Bayes Model}
+\label{sec:er-nb}
+Consider a set of observations $\{(x^i, f^i, y^i) | i \in [N]\}$. Here $y^i$ is the label assigned to $x^i$.
+$f^i$ are binary features representing $x^i$. Let $y^i \in \mathcal{Y}$ where $\mathcal{Y}$ is the set of all labels.
+Let $f^i$ is a vector of features of length $K$. We denote the $k_{\mathrm{th}}$ element of $f$ as $f[k]$.
 
-\subsection{Unary Heuristic}
-\label{sec:unary_heuristic}
+Traditionally Naive Bayes models specify the probability of $(x, f, y)$ through the following decomposition:
 
-\subsection{Using Matrix Factorization}
-\label{sec:using-matr-fact}
+\begin{align}
+  p(x, f, y) = p(y) p(x, f, | y) = p(y) \prod_{k=1}^K p(f[k] | y)
+\end{align}
 
-\subsection{VN as KBC}
-\label{sec:vn-as-kbc}
+The functional form of $p(f[k] | y)$ can vary but for purposes of this paper we restrict ourselves to the bernoulli probability distribution.
 
-\subsection{VN through MAD}
-\label{sec:vn-through-mad}
+The goal of the narive bayes classifier is to chose the most likely class given $f$ using the bayes rule.
+Let $\hat{y}_{\mathrm{NB}}$ denote the estimate produced by the naive bayes
+model.
 
-\subsection{VN with Semi-Supervised Information}
-\label{sec:vn-with-semi}
+\begin{align}
+  \hat{y}_{\mathrm{NB}} = \argmax{y \in \mathcal{Y}} p(y | x, f) = \argmax{y \in \mathcal{Y}} p(y) p(x, f | y)
+\end{align}
+
+The training of the naive bayes models is done by maximizing the log probability of the entire corpus, where the log probability of the corpus is given by
+\begin{align}
+  \sum_{i=1}^N \log(p(x^i, f^i, y^i)) = \sum_{i=1}^N \log(p(y^i)) + \sum_{i=1}^N \log(p(x^i, f^i | y^i))
+\end{align}
+
+As in previous sections we model the combination of an arc type and a label as a single new label,
+and we perform vertex nomination by training a naive bayes model
+and then ranking the rest of the instances according to the posterior probability of them belonging to the positive class.
+Instead of performing experiments with and withour documents, we instead perform an experiments with , only backoff features,
+only conjunctive features, a combination of backoff features and conjunctive features.
+\begin{table}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{l l l | c c c c}
+Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
+                                &              &                 & Only backoff & Only Conjunctive & Combination & Random \\
+adept-core#EmploymentMembership & employer     & Army            & $0.041 \pm 0.017 $ & $0.070 \pm 0.033 $ & $0.057 \pm 0.022 $ & $0.002 \pm 0.000 $\\
+adept-core#EmploymentMembership & employer     & White\_House    & $0.046 \pm 0.024 $ & $0.050 \pm 0.021 $ & $0.051 \pm 0.024 $ & $0.005 \pm 0.001 $\\
+adept-core#Leadership           & subject\_org & Democratic      & $0.230 \pm 0.064 $ & $0.225 \pm 0.061 $ & $0.235 \pm 0.063 $ & $0.001 \pm 0.002 $\\
+adept-core#Leadership           & subject\_org & Parliament      & $0.143 \pm 0.073 $ & $0.163 \pm 0.086 $ & $0.152 \pm 0.078 $ & $0.000 \pm 0.000 $\\
+adept-core#Origin               & origin       & American        & $0.034 \pm 0.016 $ & $0.076 \pm 0.024 $ & $0.053 \pm 0.019 $ & $0.014 \pm 0.001 $\\
+adept-core#Origin               & origin       & Russia          & $0.120 \pm 0.043 $ & $0.113 \pm 0.041 $ & $0.124 \pm 0.047 $ & $0.001 \pm 0.000 $\\
+adept-core#Resident             & location     & Chinese         & $0.018 \pm 0.008 $ & $0.083 \pm 0.070 $ & $0.041 \pm 0.023 $ & $0.004 \pm 0.001 $\\
+adept-core#Resident             & location     & Texas           & $0.018 \pm 0.010 $ & $0.036 \pm 0.019 $ & $0.029 \pm 0.013 $ & $0.003 \pm 0.000 $\\
+adept-core#Role                 & role         & author          & $0.025 \pm 0.007 $ & $0.024 \pm 0.007 $ & $0.025 \pm 0.008 $ & $0.020 \pm 0.001 $\\
+adept-core#Role                 & role         & director        & $0.053 \pm 0.002 $ & $0.054 \pm 0.003 $ & $0.053 \pm 0.002 $ & $0.052 \pm 0.001 $\\
+adept-core#StudentAlum          & almamater    & Harvard         & $0.189 \pm 0.118 $ & $0.391 \pm 0.193 $ & $0.309 \pm 0.189 $ & $0.001 \pm 0.000 $\\
+adept-core#StudentAlum          & almamater    & Stanford        & $0.089 \pm 0.081 $ & $0.192 \pm 0.132 $ & $0.130 \pm 0.105 $ & $0.000 \pm 0.000 $\\
+\end{tabular}}
+  \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
+  \label{tab:perf-nb}
+\end{table}
 
 
+\subsection{Entity Recommendation on Edge attributed Bipartite Graphs under the SBM model}
+\label{sec:er-vn}
+We want to model the fact that edges have types, and we want to model the fact that
+the graph is mostly bipartite. So we have edge attributes, on a bipartite graph.
+The natural extension of the SBM model to this situation actually translates
+into a generalization of the naive bayes model.
+
+Consider a generalization of the NB model where the components of $f$ belong to
+one of $\tilde{K}$ classes. Let $\mathcal{\tilde{K}}$ be the set of classes into
+which the entire feature vector can be seprated. Assume that the $i$th component
+of $f$, \ie $f[k]$ belong to some class $c_{f[k]}$ and that the probability
+$p(x, f[k] | y = p(c_{f[k]} | y)$. Then $p(x, f, y) = p(y) \prod_{k=1}^K p(x,
+f[k] | y) = p(y) \prod_{k=1}^K p(c_{f[k]} | y)$
+
+Let $\Theta \in [0, 1]^{|\mathcal{Y}| \times \mathcal{\tilde{K}}}$ be a matrix
+consisting of the parameters $p(c | y)$, \ie $\Theta = [\theta_{lj}]$ where
+each $\theta_{lj} = p(c=j | y=l)$. Let $\pi$ be the map that assigns a class to
+its feature, \ie $\pi(k) = c_{f[k]}$. Once we know
+$\pi, \Theta, \{p(y) | y \in \mathcal{Y}\}$, \ie the
+feature class assignments, the conditional probabilities and the prior class
+probabilities  then inference can be done through the familiar rule:
+
+\begin{align}
+  \hat{y}_{\mathrm{GNB}} = \argmax{} p(y) \prod_{k=1}^K \theta_{y, \pi[k]}^{f[k]}
+  (1 - \theta_{y, \pi[k]})^{1-f[k]}
+\end{align}
+
+The training is again done through the maximization of log-likelihood of
+the corpus, however as oppossed to the simple optimization for the case of the
+naive-bayes model the optimization now needs to be done over the $K$ global
+latent variables that assign a feature to its class. Each latent variable
+$\pi[k]$ can take one out of ${\tilde{K}}$ classes, so the total number
+of possible combinations if $\tilde{K}^K$. We propose one simple alternating
+maximization scheme.
+
+Assume that the continous parameters $\Theta, \{p(y) | y \in \mathcal{Y}$ are
+known and that each joint assignment to the latent variables is equally likely.
+Then
+\begin{align}
+  \pi_{\mathrm{GNB}} &= \argmax{\pi \in \Pi} \sum_{i=1}^N \left[ \log(p(y^{(i)})) +
+  \sum_{k=1}^K f^{(i)}[k] \log(\theta_{y^{(i)}, \pi[k]})
+  + (1 - f^{(i)}[k]) \log(1- \theta_{y^{(i)}, \pi[k]}) \right]\\
+  &= \argmax{\pi \in \Pi} \sum_{k=1}^K \left[ \sum_{i=1}^N f^{(i)}[k] \log(\theta_{y^{(i)}, \pi[k]})
+  + (1 - f^{(i)}[k]) \log(1- \theta_{y^{(i)}, \pi[k]}) \right]\\
+\implies \pi_{\mathrm{GNB}}(k) &= \argmax{\tilde{k} \in [\tilde{K}]}
+                                 \sum_{i=1}^N f^{(i)}[k] \log(\theta_{y^{(i)}, \tilde{k}})
+  + (1 - f^{(i)}[k]) \log(1- \theta_{y^{(i)}, \tilde{k}}) \\
+\end{align}
+
+We note that the assignment of a value to $\pi[k]$ does not affect the
+assignment to $\pi[k]$ so we can maximize the objective by decomposing
+the objective for each of the latent variables and separately optimizing
+each of the sub0objectives.
+
+Once we estimate the global latent variables $\pi[k]$ then it is easy to find
+out the prior probabilities $p(y^{(i)})$ and this procedure can be repeated to
+convergence. Note that this method induces a natural clustering of the features.
+
+% \subsection{VN with Semi-Supervised Information}
+% \label{sec:vn-with-semi}
+% Semi supervised should only be done, when you think that the
+% signal really is strong enough. The techniques require data.
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+\begin{snugshade}
+  {vertex nomination was designed for communication graphs, and thaere has
+been interest in extending them to comm nets. the reson for applying VN to KG is
+because of the assumption that the KG is rich in entity to entity relations that
+have been acquired, much like in a social network. Friends are connected. What
+if we observe is that the KG is not rich in E2E relxn . It is rich in doc
+cooccurrence. In a social net conn. doc co-oucc is third person comm about 2
+entities. The analogy from a social network connection can shift to doc - cooucc
+in news stories. the closes we have to a social network is that a third person
+is communicating about two entities.}
+\end{snugshade}
 \bibliographystyle{plain}
-\bibliography{references.bib}
+\bibliography{references}
 \end{document}
+
+%% :Local Variables:
+%% :eval (progn (flycheck-mode -1) (writegood-mode -1) (orgtbl-mode -1) (company-mode -1) (auto-revert-mode -1))
+%% End:

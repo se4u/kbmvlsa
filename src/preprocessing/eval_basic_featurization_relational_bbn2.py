@@ -4,9 +4,9 @@
 | Description : Evaluate the basic featurization based method.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Apr 17 23:47:08 2016 (-0400)
-| Last-Updated: Fri Apr 22 00:25:23 2016 (-0400)
+| Last-Updated: Fri Apr 22 09:00:10 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 213
+|     Update #: 218
 '''
 import random
 import numpy as np
@@ -30,6 +30,7 @@ rasengan.DISABLE_TICTOC = True
 VERBOSE = False
 LOAD_DATA = True
 IDX_PKL_FN = r'../../scratch/relational_bbn2_train_test_idx.pkl'
+USE_SMALL_TEST_SET = False
 
 
 class DatasetTooSmall(Exception):
@@ -48,6 +49,7 @@ class Dataset(object):
         random.shuffle(positive_idx)
         random.shuffle(negative_idx)
         self.positive_idx = positive_idx
+        self.positive_idx_set = set(positive_idx)
         self.negative_idx = negative_idx
         # Fix the test set !! Do not work with varying test sets !!
         self.test_size_by2 = test_size_by2
@@ -61,7 +63,7 @@ class Dataset(object):
         tmp = scipy.sparse.find(self.feat[row_idx])
         return ([self.idx2feat_map[e] for e in tmp[1]], tmp[2])
 
-    def idx_to_keep(self):
+    def col_idx_to_keep(self):
         mask = set(self.mask + self.perma_mask)
         return [e for e in range(self.columns) if e not in mask]
 
@@ -90,7 +92,7 @@ class Dataset(object):
                      else train_idx)
         feat_rows = self.feat[train_idx]
         assert len(train_idx) == 2 * half_size
-        return (feat_rows[:, self.idx_to_keep()],
+        return (feat_rows[:, self.col_idx_to_keep()],
                 [1] * half_size + [-1] * half_size)
 
     def get_train_set_names(self, half_size=None, train_idx=None):
@@ -108,24 +110,20 @@ class Dataset(object):
                 + self.negative_idx[- self.test_size_by2:])
 
     def get_test_set(self, test_idx=None):
-        test_size_by2 = self.test_size_by2
         test_idx = (self.get_test_set_idx()
                     if test_idx is None
                     else test_idx)
         feat_rows = self.feat[test_idx]
-        assert len(test_idx) == 2 * test_size_by2
-        return (feat_rows[:, self.idx_to_keep()],
-                [1] * test_size_by2 + [-1] * test_size_by2)
+        return (feat_rows[:, self.col_idx_to_keep()],
+                [1 if i in self.positive_idx_set else -1 for i in test_idx])
 
     def get_test_set_names(self, test_idx=None):
-        test_size_by2 = self.test_size_by2
         test_idx = (self.get_test_set_idx()
                     if test_idx is None
                     else test_idx)
-        assert len(test_idx) == 2 * test_size_by2
         return ([self.featrow_names[e] for e in test_idx],
                 test_idx,
-                [1] * test_size_by2 + [-1] * test_size_by2)
+                [1 if i in self.positive_idx_set else -1 for i in test_idx])
 
     def mask_col(self, pattern=None, mask_inverse=False):
         mask = ([e
@@ -139,7 +137,7 @@ class Dataset(object):
         return
 
     def interpret_coef(self, coef):
-        return zip((self.idx2feat_map[e] for e in self.idx_to_keep()),
+        return zip((self.idx2feat_map[e] for e in self.col_idx_to_keep()),
                    coef)
 
     def max_coef(self, coef):
@@ -193,7 +191,7 @@ def binary_linear_classifier_diagnostics(
             'mask_pattern.pattern=%s' % mask_pattern.pattern, \
             'train_col=%d' % train_set[0].shape[1],
 
-        for k in itertools.takewhile(lambda x: x <= 2 * ds.test_size_by2, [1, 10, 100]):
+        for k in itertools.takewhile(lambda x: x <= 2 * ds.test_size_by2, [10, 100]):
             print 'P@%d=%.4f' % (k, rasengan.rank_metrics.precision_at_k(y_pred, k)),
             print 'BASE-P@%d=%.4f' % (k, rasengan.rank_metrics.precision_at_k(y_pred_randombaseline, k)),
         print 'AUPR=%.3f' % rasengan.rank_metrics.average_precision(y_pred),
@@ -236,7 +234,7 @@ def main():
     TOTAL_FEATURES = data['TOTAL_FEATURES']
     F2I_MAP = data['PERFECT_HASH']
     I2F_MAP = dict((a, b) for (b, a) in F2I_MAP.iteritems())
-
+    TOTAL_PERSONS = len(vertex_dict)
     with rasengan.tictoc('docs creation'):
         docs = set([fs['~document'] for v in vertex_dict.values()
                     for fs in v.featsets])
@@ -320,7 +318,7 @@ def main():
                 if not LOAD_DATA:
                     data_used[feat][trials] = dict(train=ds.get_train_set_idx(5),
                                                    test=ds.get_test_set_idx())
-                assert feat_idx not in ds.idx_to_keep()
+                assert feat_idx not in ds.col_idx_to_keep()
             except DatasetTooSmall:
                 print preamble, '\nTest Set too big'
                 continue
@@ -330,13 +328,22 @@ def main():
                 for mask_pattern in (re.compile('~document~.*'), re.compile('XXXX')):
                     print preamble, 'train_size_by2=%d' % train_size_by2, \
                         'mask_pattern.pattern=%s' % mask_pattern.pattern
+                    train_idx = (
+                        data_used[feat][trials]['train'] if LOAD_DATA else None)
+                    if USE_SMALL_TEST_SET:
+                        test_idx = (
+                            data_used[feat][trials]['test'] if LOAD_DATA else None)
+                    else:
+                        set_train_idx = set(train_idx)
+                        test_idx = ([i for i in range(TOTAL_PERSONS) if i not in set_train_idx]
+                                    if LOAD_DATA
+                                    else None)
                     binary_linear_classifier_diagnostics(
                         ds,
                         train_size_by2=train_size_by2,
                         mask_pattern=mask_pattern,
-                        train_idx=(
-                            data_used[feat][trials]['train'] if LOAD_DATA else None),
-                        test_idx=(data_used[feat][trials]['test'] if LOAD_DATA else None))
+                        train_idx=train_idx,
+                        test_idx=test_idx)
     # The feature runs are over.
     if not LOAD_DATA:
         with open(IDX_PKL_FN, 'wb') as f:

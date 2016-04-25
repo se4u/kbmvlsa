@@ -8,8 +8,29 @@ SCRATCH := $(PWD)/../../scratch
 .SECONDARY:
 .ONESHELL:
 
-../../scratch/mad_basic_featurization_relational_bbn2.txt: ./mad_basic_featurization_relational_bbn2.py
+tabulate_block_nb: ../../scratch/block_nb_full_featurization_relational_bbn2.txt
+	./tabulate_block_nb_full_featurization_relational_bbn2.py
+
+../../scratch/block_nb_full_featurization_relational_bbn2.txt: block_nb_full_featurization_relational_bbn2.py
 	./$< | tee $@
+
+
+tabulate_nb: ../../scratch/nb_full_featurization_relational_bbn2.txt
+	./tabulate_nb_full_featurization_relational_bbn2.py
+
+../../scratch/nb_full_featurization_relational_bbn2.txt: nb_full_featurization_relational_bbn2.py
+	./$< | tee $@
+
+
+tabulate_mad: ../../scratch/mad_basic_featurization_relational_bbn2.txt
+	./tabulate_mad_basic_featurization_relational_bbn2.py
+
+../../scratch/mad_basic_featurization_relational_bbn2.txt: mad_basic_featurization_relational_bbn2.py
+	./$< | tee $@
+
+tabulate_linear_classifier: ../../scratch/eval_basic_featurization_bbn2.txt
+	./tabulate_eval_basic_featurization_relational_bbn2.py
+
 
 ../../scratch/eval_basic_featurization_bbn2.txt: eval_basic_featurization_relational_bbn2.py
 	./$< | tee $@

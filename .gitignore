@@ -21,3 +21,4 @@ no_repo/
 *.out
 *.synctex.gz
 *auto/
+scratch/feat=*
