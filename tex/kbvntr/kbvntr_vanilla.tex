@@ -1,5 +1,6 @@
 \documentclass[paper=a4,fontsize=11pt]{scrartcl}
-\usepackage{underscore,changepage,booktabs,xcolor}
+\usepackage{underscore,changepage,booktabs}
+\usepackage[dvipsnames]{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage{framed}
 \definecolor{shadecolor}{rgb}{1.0,0.8,0.3}
@@ -8,6 +9,14 @@
 \usepackage[protrusion=true,expansion=true]{microtype}
 \usepackage{amsmath,amsfonts,amsthm,url,xspace,amssymb,mathrsfs}
 \usepackage[pdftex]{graphicx}
+\usepackage{thmtools}
+\declaretheorem[%
+  style=plain,%
+  thmbox={style=M,bodystyle=\normalfont},%
+  name=Example,%
+  within=section,%
+  shaded={bgcolor=gray!10},%
+]{example}
 %%% Custom sectioning
 \usepackage{sectsty}
 \allsectionsfont{\centering\normalfont\scshape}
@@ -42,7 +51,7 @@
 \newcommand{\note}[1]{\todo[author=PR,color=blue!40,size=\small,fancyline,inline]{Note: #1}}
 \newcommand{\Todo}[1]{\todo[author=PR,size=\small,inline]{Todo: #1}}
 \newcommand{\FW}[1]{\todo[author=PR,color=pink!20,size=\small,inline]{Future Work: #1}}
-\newtheorem{example}{Example}
+
 
 %%% Equation and float numbering
 \numberwithin{equation}{section}    % Equationnumbering: section.eq#
@@ -50,19 +59,31 @@
 \numberwithin{table}{section}       % Tablenumbering: section.tab#
 %%% Institution and Authors
 \newcommand{\horrule}[1]{\rule{\linewidth}{#1}}     % Horizontal rule
+% \title{
+%   % \vspace{-1in}
+%   \usefont{OT1}{bch}{b}{n}
+%   \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\[25pt]
+%   \horrule{0.5pt}\\[0.4cm]
+%   \huge Entity recommendations on a Cold Start Knowledge Graph\\
+%   \horrule{2pt}\\[0.5cm]
+% }
+% \author{
+%   \normalfont\normalsize
+%   Pushpendre Rastogi\\
+%   %[-3pt]\normalsize\today%%Optional Date
+% }
 \title{
-  % \vspace{-1in}
+  \vspace{-1in}
   \usefont{OT1}{bch}{b}{n}
-  \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\[25pt]
-  \horrule{0.5pt}\\[0.4cm]
+  \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\
   \huge Entity recommendations on a Cold Start Knowledge Graph\\
-  \horrule{2pt}\\[0.5cm]
 }
 \author{
   \normalfont\normalsize
   Pushpendre Rastogi\\
-  %[-3pt]\normalsize\today%%Optional Date
+  [-3pt]\normalsize\today%%Optional Date
 }
+
 \date{}
 
 \newcommand{\newrel}{41}
@@ -85,74 +106,137 @@
 % Globally Override the special status of # character %
 % --------------------------------------------------- %
 \catcode`#=12
-
 \begin{document}
 \maketitle
 \section{Introduction}
 \label{sec:introduction}
 The archetypical usage for knowledge graphs is as stores of knowledge that
 support evaluation of queries for information retrieval (IR). For example, a
-knowledge graph may be stored as RDF triples or as XML or inside a graph database
-and subsequently queried using a graph query language
-\footnote{Two popular graph query languages are Cypher or Gremlin},
-or through RDF query languages
-\footnote{The defacto standard for querying RDF databases is SPARQL}
-or even through XML querying languages such as XPath.
-In general, a pattern matching technique can be used to filter and select
-a parts of the graph that match the query.
+knowledge graph may be stored inside a purpose built graph database, or inside
+an \textit{RDF triplestore} as RDF triples or even inside XML files and then
+queried using graph query languages\footnote{Two popular graph query languages
+are Cypher or Gremlin}, RDF query languages, \footnote{The defacto standard for
+querying RDF databases is SPARQL} or XML querying languages.\footnote{The
+dominant language being XPath} In general, a pattern matching technique can be
+used to filter and select parts of a knowledge graph that match the query.
 
 An information retrieval paradigm that is very different from query execution by
-pattern matching
-is the paradigm of recommender systems, where the goal is not to retrieve a
-subgraph that matches a pattern but rather to rank the entities in a knowledge graph
-according to their relevance to the user.
+pattern matching, is the paradigm of recommender systems. The goal of a recommender
+system is not to retrieve a subset of entities that match a pattern. Instead,
+a recommender system must facilitate a user of the knowledge base
+by ranking entities in the knowledge base according to their relevance to the user.
+Such a recommender system may be needed as an interface to a knowledge base in a number
+of cases, some of which we explicate through Examples~\ref{ex:use-case-1},
+\ref{ex:use-case-2}.
 
-Our focus in this work is on benchmarking the performance of various recommendation
-methods on knowledge graphs built automatically according to the \ontology.
-By formulating the problem in multiple ways
-we show how a number of algorithms can be applied to this task.
-Specifically we benchmark the following algorithms
+\begin{example}\label{ex:use-case-1}
+  One common use case for interfacing with a knowledge graph through a recommendation
+engine may simply to order the results of a traditional query. Consider
+an example where the analyst queries a knowledge graph and retrieves
+a very large number of entities that satisfy that query. It may be the case that
+processing each of those outputs incurs some further cost and that the outputs
+of the queries could only be processed one at a time. In such a scenario it would
+be desirable if instead of a assigning a random order to the queries outputs the
+knowledge base assigns a useful ordering to the entities that are retrieved.
+\end{example}
+
+\begin{example}\label{ex:use-case-2}
+  Consider a scenario where the exact query that would be required to describe the
+set of \textit{Entities Of Interest (EOI)} is too complicated and/or expensive
+to write and maintain. If the criteria for selection relevant for us is
+absent from the the knowledge base, then it may be impossible to write
+down \textit{succinct} patterns that exactly define the set of interest.
+In place of manually developing approximations to describe the set of interest
+using the query language and data schema available to us it may be
+easier to provide a few examples of entities that should/should not
+be retrieved by the query, and then to find a hypothesis from a general purpose
+hypothesis space that agrees with the examples.
+
+For example, consider a database of people that contains attributes such as height
+and weight. An analyst may be interested in ranking the people based on their lung
+capacity, but such a property may not be explicitly coded in the database.
+Now either the analyst could manually approximate the lung capacity with some weighted
+combination of height and weight, or they may annotate some examples of people who they
+know to have high lung capacity as being relevant/interesting
+and people who are known to have low lung capacity as irrelevant/not interesting
+and a recommendation algorithm could take these annotations into account and present
+the top K people with the highest lung capacity to the user.
+\end{example}
+
+In this report we study the properties of an automatically constructed knowledge
+graph, specifically the \dataset, and survey techniques that can be used for
+ranking entities in a knowledge graph, in response to supervision from a user
+that is limited to binary annotations indicating the relevance of a small subset
+of all the entities. We present empirical results and error analysis
+about the performance of 2 \textit{inductive}, \textit{linear-classification}
+based algorithms on this task and the performance of the \textit{MAD} algorithm
+which is \textit{transductive} in nature. Apart from these 3 algorithms we also
+present a novel extension of the Naive-Bayes model, that is inspired by the
+stochastic block model for graphs. Specifically we analyze the performance of
+the following algorithms:
 \begin{snugshade}
 \begin{enumerate}
-\item Feature Based Recommendation.
-\item Label Propagation through Modified Adsorption.
-\item Feature Based Recommendation via Naive Bayes
-\item Feature Based Recommendation via the Naive Bayes model
-  generalized through Block Modelling.
+\item Recommendation through a binary SVM.
+\item Recommendation via the Naive Bayes model.
+\item Recommendation via the Block Naive Bayes model.
+\item Recommendation using the Modified Adsorption algorithm.
 \end{enumerate}
 \end{snugshade}
 
 In order to meaningfully evaluate the performance of the above algorithms on a real dataset
 we use a state of the art automatically generated knowledge base that was submitted by BBN in
-the \task. \Secref{sec:evaluation} details our evaluation protocol and
- \secref{sec:er-algorithms} the algorithms that we applied and
-their results.
+the \task. \Secref{sec:evaluation} details our evaluation protocol.
 
-\section{Background}
-\label{sec:background}
-The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized
-by NIST to evaluate systems that build a knowledge base (KB) from raw natural
-language text~\cite{TAC-KBP-DESC}.  At the beginning of the task the
-participants are provided natural language documents,
-some guidelines and examples about valid and invalid entities,
-and a schema of relationships and their examples.
-The systems have to extract entities and relations
-based on textual clues present in the documents and
-then populate a KB. The overarching goal is that the automatically
-created KB should be
-an accurate representation of the information available in the text
-documents. Specifically, the
-competing systems have to extract three types of entities: \textsc{PER, ORG, LOC}
-\footnote{PER, ORG and LOC are abbreviations of Person, Organization
-  and Location respectively.}  and a small, fixed set of relations
-\footnote{Note that relations are sometimes called \textit{slots} in prior work.}
-between those entities. {In \task
-  the number of regular relations was 41. Each relation
-had atleast one inverse relations, which may or may not be a regular relation.
-In total the number of relations was 63.}
+\section{Entity Recommendation}
+\label{sec:entity-recommendation}
+Let us introduce some notation to explain the task of Entity Recommendation.
+Let $\mathcal{V}$ be a finite set and let
+$\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
+$\mathcal{V}$ denotes the set of all entities, $\mathcal{I}$ denotes the set
+of \textit{entities of interest} and $\mathcal{O}$ denotes those entities for
+which it is known that they are elements of $\mathcal{I}$. The task of entity
+recommendation is to produce a ranking $\pi$ of the vertices in
+$\mathcal{O}^C = \mathcal{V} \setminus \mathcal{O}$
+such that vertices belonging to $\mathcal{T} = \mathcal{I} - \mathcal{O}$ are
+ranked higher than the vertices in $\mathcal{V} - \mathcal{I}$.
+
+There are a number of possible approaches that have been tried already, and they can be categorized
+as follows:
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l l l}
+    Transductive & Inductive & Semi Supervised \\
+    Linear & Non Linear \\
+    Generative & Discriminative \\
+    Only positive examples & Both positive and negative examples.
+  \end{tabular}
+  \caption{Criteria for categorization.}
+  \label{tab:cat-crit}
+\end{table}
+
 
 \section{Data}
 \label{sec:data}
+The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized
+by NIST to evaluate systems that build a knowledge base (KB) from raw natural
+language text~\cite{TAC-KBP-DESC}.  At the beginning of the task the
+participants are provided natural language documents, some guidelines and
+examples about valid and invalid entities, and a schema of relationships and
+their examples.  The systems have to extract entities and relations based on
+textual clues present in the documents and then populate a KB. The overarching
+goal is that the automatically created KB should be an accurate representation
+of the information available in the text documents. Specifically, the competing
+systems have to extract three types of entities: \textsc{PER, ORG, LOC}
+\footnote{PER, ORG and LOC are abbreviations of Person, Organization
+  and Location respectively.}
+and a small, fixed set of relations
+\footnote{Note that relations are sometimes called \textit{slots} in prior
+work.}
+between those entities. In \task the number of regular relations was 41. Each
+relation had atleast one inverse relations, which may or may not be a regular
+relation.  In total the number of relations was 63.
+
 BBN participated in the \task where it was the top performing
 participant in terms of precision and overall F1 according to the official
 results as of November 2015~\cite{BBN-System}. To assess the feasibility of
@@ -184,11 +268,11 @@ We note that this is a non-standard usage of the term named entities which usual
 names of people, locations and organizations but not their titles or dates.}
 The \dataset contains 5 types of named entities. See \tabref{tab:type}.
 For example, the identifier $9dd1d8d3-9a1f-4ec2-a45b-64cce788eb01$ in the dataset has
-the type \texttt{adept-core\#Title}
+the type \texttt{Title}
 and the canonical string associated with it is \texttt{Almighty King}.
  Because of the errors made
 during automatic relation extraction and because of the lack of post-processing there can be multiple
-\texttt{adept-core\#Title} identifiers that have the same, or roughly the same, canonical string.
+\texttt{Title} identifiers that have the same, or roughly the same, canonical string.
 See \exref{ex:title-cap}.
 \begin{example}
 \label{ex:title-cap}
@@ -197,21 +281,21 @@ $234f3110-c8ca-49aa-ba7b-a45bb5467c38$ have canonical strings \textit{professor}
 \textit{Professor} respectively which differ only in their capitalization.
 \end{example}
 
-As \tabref{tab:type} shows, the \texttt{adept-core\#Person} category is the highest occurring
+As \tabref{tab:type} shows, the \texttt{Person} category is the highest occurring
 category with $125$K instantiations
-and it is slightly less than double the next largest category of \texttt{adept-core\#Organization}.
+and it is slightly less than double the next largest category of \texttt{Organization}.
 
 \begin{table}[htbp]
   \centering
   \begin{tabular}{r l l}
     Instantiations & Type                          & Property                   \\
-    125022         & adept-core\#Person             & adept-base\#canonicalString \\
-    69544          & adept-core\#Organization       & adept-base\#canonicalString \\
-    23754          & adept-core\#GeoPoliticalEntity & adept-base\#canonicalString \\
-    1761           & adept-core\#Title              & adept-base\#canonicalString \\
+    125022         & Person             & adept-base\#canonicalString \\
+    69544          & Organization       & adept-base\#canonicalString \\
+    23754          & GeoPoliticalEntity & adept-base\#canonicalString \\
+    1761           & Title              & adept-base\#canonicalString \\
     819            & adept-base\#Date               & adept-base\#xsdDate         \\
-    333            & adept-core\#Crime              & adept-base\#canonicalString \\
-    189            & adept-core\#URL                & adept-base\#canonicalString \\
+    333            & Crime              & adept-base\#canonicalString \\
+    189            & URL                & adept-base\#canonicalString \\
   \end{tabular}
   \caption{Observation Counts for Named Entities}
   \label{tab:type}
@@ -220,16 +304,16 @@ and it is slightly less than double the next largest category of \texttt{adept-c
 \Tabref{tab:relation} tabulates statistics about the relations contained in the \dataset.
 Every instance of a relation has a unique id, and it relates two named entities.
 For example the id $001ae391-3a55-43d1-8d3e-0557bdd943d1$ refers to a relation of the
-type \texttt{adept-core\#Resident} which connects its named attribute \texttt{adept-core\#person}
-which must have the type \texttt{adept-core\#Person}
-with its \texttt{adept-core\#location} attribute which must be of type
-\texttt{adept-core\#Geopoliticalentity}.
-\Tabref{tab:relation} shows that the \texttt{adept-core\#Role} relation,
+type \texttt{Resident} which connects its named attribute \texttt{person}
+which must have the type \texttt{Person}
+with its \texttt{location} attribute which must be of type
+\texttt{Geopoliticalentity}.
+\Tabref{tab:relation} shows that the \texttt{Role} relation,
 that relates a person to his/her title, occurs most often.
-Note that the \texttt{adept-core\#Role} is not a relation between two people, but rather
+Note that the \texttt{Role} is not a relation between two people, but rather
 it is a relation between a person and an attribute.
-In this sense, the \texttt{adept-core\#Role} relation can be considered as a feature of a person
-instead of a relation, since the \texttt{adept-core\#Role} for one person can be
+In this sense, the \texttt{Role} relation can be considered as a feature of a person
+instead of a relation, since the \texttt{Role} for one person can be
 independent of the Role of another person.
 We note that 11 out of 20 relations including the top four most observed relations,
 can be thought of as features of persons.
@@ -247,54 +331,52 @@ that were already selected.
   \resizebox{\textwidth}{!}{
   \begin{tabular}{r l l l}
 \textbf{Instances} & \textbf{Relation}                  & \textbf{Attribute 1}           & \textbf{Attribute 1}        \\
-42490              & adept-core\#Role                    & adept-core\#person              & adept-core\#role             \\
-36631              & adept-core\#EmploymentMembership    & adept-core\#employeeMember      & adept-core\#organization     \\
-16288              & adept-core\#Resident                & adept-core\#person              & adept-core\#location         \\
-9600               & adept-core\#Leadership              & adept-core\#leader              & adept-core\#affiliatedEntity \\
-8705               & adept-core\#Subsidiary\dg           & adept-core\#organization        & adept-core\#subOrganization  \\
-7242               & adept-core\#OrgHeadquarter\dg       & adept-core\#organization        & adept-core\#location         \\
-2764               & adept-core\#Origin                  & adept-core\#person              & adept-core\#affiliatedEntity \\
-1774               & adept-core\#ParentChildRelationship\ddg & adept-core\#parent          & adept-core\#child            \\
-1612               & adept-core\#Die                     & adept-core\#person              & adept-core\#place            \\
-1317               & adept-core\#SpousalRelationship\ddg & adept-core\#person              & adept-core\#person           \\
-1306               & adept-core\#StudentAlum             & adept-core\#studentAlumni       & adept-core\#organization     \\
-1281               & adept-core\#Founder                 & adept-core\#founder             & adept-core\#organization     \\
-1261               & adept-core\#BeBorn                  & adept-core\#person              & adept-core\#time             \\
-530                & adept-core\#InvestorShareholder     & adept-core\#investorShareholder & adept-core\#organization     \\
-417                & adept-core\#SiblingRelationship\ddg & adept-core\#person              & adept-core\#person           \\
-387                & adept-core\#ChargeIndict            & adept-core\#defendant           & adept-core\#crime            \\
-374                & adept-core\#StartOrganization\dg    & adept-core\#organization        & adept-core\#time             \\
-369                & adept-core\#Membership\dg           & adept-core\#organization        & adept-core\#member           \\
-200                & adept-core\#OrganizationWebsite\dg  & adept-core\#organization        & adept-core\#url              \\
-33                 & adept-core\#EndOrganization\dg      & adept-core\#organization        & adept-core\#time             \\
+42490              & Role                    & person              & role             \\
+36631              & EmploymentMembership    & employeeMember      & organization     \\
+16288              & Resident                & person              & location         \\
+9600               & Leadership              & leader              & affiliatedEntity \\
+8705               & Subsidiary\dg           & organization        & subOrganization  \\
+7242               & OrgHeadquarter\dg       & organization        & location         \\
+2764               & Origin                  & person              & affiliatedEntity \\
+1774               & ParentChildRelationship\ddg & parent          & child            \\
+1612               & Die                     & person              & place            \\
+1317               & SpousalRelationship\ddg & person              & person           \\
+1306               & StudentAlum             & studentAlumni       & organization     \\
+1281               & Founder                 & founder             & organization     \\
+1261               & BeBorn                  & person              & time             \\
+530                & InvestorShareholder     & investorShareholder & organization     \\
+417                & SiblingRelationship\ddg & person              & person           \\
+387                & ChargeIndict            & defendant           & crime            \\
+374                & StartOrganization\dg    & organization        & time             \\
+369                & Membership\dg           & organization        & member           \\
+200                & OrganizationWebsite\dg  & organization        & url              \\
+33                 & EndOrganization\dg      & organization        & time             \\
 \end{tabular}}
   \caption{Relations Types and their attributes. \dg indicates relations for
     which neither of the arguments are of the type
-    \texttt{adept-core\#Person}. \ddg indicates relations for which both of the
-    arguments have the type \texttt{adept-core\#Person}.}
+    \texttt{Person}. \ddg indicates relations for which both of the
+    arguments have the type \texttt{Person}.}
   \label{tab:relation}
 \end{table}
 
-\subsection{Data Cleaning}
-\label{sec:data-cleaning}
-\Todo{As~\exref{ex:title-cap} illustrated some of the titles in the \dataset
-  only differ from each other by their capitalization.
-  During the task of vertex nomination matching such fragments can help in reducing sparsity.
-  but data cleaning can be handled more flexibly (though perhaps less efficiently)
-  as a similarity metric between the fragments.}
+The above discussion highlights the following key observations about the data:
+\begin{snugshade}
+  \begin{itemize}
+  \item The graph can be split into two groups of entities with one group made up of entities with the type
+    \textsc{PER} and the second group made of all other entities. Most of the connections in the knowledge graph
+    connect entities across these two groups. Specifically there are very few connections between person entities.
+  \item The knowledge graph contains a large number of singleton entities, since the number of entities
+    is much larger than the total number of edges.
+  \end{itemize}
+\end{snugshade}
 
-\section{Entity Recommendation}
-\label{sec:entity-recommendation}
-Let us introduce some notation to explain the task of Entity Recommendation.
-Let $\mathcal{V}$ be a finite set and let
-$\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
-$\mathcal{V}$ denotes the set of all entities, $\mathcal{I}$ denotes the set
-of \textit{entities of interest} and $\mathcal{O}$ denotes those entities for
-which it is known that they are elements of $\mathcal{I}$. The task of entity
-recommendation is to produce a ranking $\pi$ of the vertices in
-$\mathcal{O}^C = \mathcal{V} \setminus \mathcal{O}$
-such that vertices belonging to $\mathcal{T} = \mathcal{I} - \mathcal{O}$ are
-ranked higher than the vertices in $\mathcal{V} - \mathcal{I}$.
+% \subsection{Data Cleaning}
+% \label{sec:data-cleaning}
+% \Todo{As~\exref{ex:title-cap} illustrated some of the titles in the \dataset
+%   only differ from each other by their capitalization.
+%   During the task of vertex nomination matching such fragments can help in reducing sparsity.
+%   but data cleaning can be handled more flexibly (though perhaps less efficiently)
+%   as a similarity metric between the fragments.}
 
 \section{Evaluation}
 \label{sec:evaluation}
@@ -351,12 +433,12 @@ the predicate functions:
   \centering
   \begin{tabular}{r l | c c}
     Relation                        & Attribute    & Value 1    & Value 2      \\\hline
-    adept-core#EmploymentMembership & employer     & Army       & White\_House \\
-    adept-core#Leadership           & subject\_org & Democratic & Parliament   \\
-    adept-core#Origin               & origin       & American   & Russia       \\
-    adept-core#Resident             & location     & Chinese    & Texas        \\
-    adept-core#Role                 & role         & author     & director     \\
-    adept-core#StudentAlum          & almamater    & Harvard    & Stanford     \\
+    EmploymentMembership & employer     & Army       & White\_House \\
+    Leadership           & subject\_org & Democratic & Parliament   \\
+    Origin               & origin       & American   & Russia       \\
+    Resident             & location     & Chinese    & Texas        \\
+    Role                 & role         & author     & director     \\
+    StudentAlum          & almamater    & Harvard    & Stanford     \\
   \end{tabular}
   \caption{Table of Predicate Functions}
   \label{tab:pred-func}
@@ -368,7 +450,7 @@ the predicate functions:
 \section{Methods for Entity Recommentation on Knowledge Graphs}
 \label{sec:er-algorithms}
 
-\subsection{Entity Recommendation based on Entity Features}
+\subsection{Entity Recommendation using binary SVM}
 \label{sec:er-feature}
 
 Recall the discussion about \tabref{tab:relation} in \secref{sec:data}.
@@ -397,7 +479,6 @@ rank the entities in the test set.
   Treat the confidence scores as probabilities, or other bounded real
   values features.\\
   Threshold the confidence score to convert them to binary features.}
-\FW{We can create back-off features. We can create feature conjunctions.}
 
 The following table shows the performance of the methods on the 12 types of relations,
 when the method are given 10 training examples for 5 runs:
@@ -411,18 +492,18 @@ when the method are given 10 training examples for 5 runs:
 %   \begin{tabular}{l l l | H H H c c c}
 % Relation                        & Attribute    & Value           & \multicolumn{3}{H}{P\@10}     & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
 %                                 &              &                 & w/o doc & w/ doc & random     & w/o doc & w/ doc & random \\
-% adept-core#EmploymentMembership & employer     & Army            & $0.940 \pm 0.052$  & $0.940 \pm 0.052$  & $0.560 \pm 0.091$  & $0.822 \pm 0.056$  & $0.853 \pm 0.036$  & $0.544 \pm 0.059$   \\
-% adept-core#EmploymentMembership & employer     & White\_House    & $0.860 \pm 0.128$  & $0.820 \pm 0.104$  & $0.490 \pm 0.100$  & $0.775 \pm 0.073$  & $0.737 \pm 0.080$  & $0.538 \pm 0.033$   \\
-% adept-core#Leadership           & subject\_org & Democratic      & $0.640 \pm 0.052$  & $0.660 \pm 0.052$  & $0.510 \pm 0.043$  & $0.909 \pm 0.060$  & $0.932 \pm 0.023$  & $0.626 \pm 0.071$   \\
-% adept-core#Leadership           & subject\_org & Parliament      & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.960 \pm 0.052$  & $0.942 \pm 0.082$  & $0.676 \pm 0.114$   \\
-% adept-core#Origin               & origin       & American        & $0.720 \pm 0.265$  & $0.820 \pm 0.141$  & $0.500 \pm 0.067$  & $0.681 \pm 0.162$  & $0.748 \pm 0.082$  & $0.551 \pm 0.043$   \\
-% adept-core#Origin               & origin       & Russia          & $1.000 \pm 0.000$  & $0.980 \pm 0.043$  & $0.450 \pm 0.074$  & $0.963 \pm 0.022$  & $0.919 \pm 0.057$  & $0.530 \pm 0.055$   \\
-% adept-core#Resident             & location     & Chinese         & $0.920 \pm 0.171$  & $0.920 \pm 0.171$  & $0.500 \pm 0.095$  & $0.806 \pm 0.113$  & $0.820 \pm 0.119$  & $0.535 \pm 0.029$   \\
-% adept-core#Resident             & location     & Texas           & $0.780 \pm 0.124$  & $0.760 \pm 0.160$  & $0.440 \pm 0.056$  & $0.691 \pm 0.067$  & $0.661 \pm 0.114$  & $0.499 \pm 0.027$   \\
-% adept-core#Role                 & role         & author          & $0.620 \pm 0.124$  & $0.480 \pm 0.141$  & $0.600 \pm 0.077$  & $0.588 \pm 0.074$  & $0.508 \pm 0.060$  & $0.569 \pm 0.043$   \\
-% adept-core#Role                 & role         & director        & $0.580 \pm 0.171$  & $0.600 \pm 0.178$  & $0.600 \pm 0.109$  & $0.567 \pm 0.090$  & $0.552 \pm 0.067$  & $0.581 \pm 0.050$   \\
-% adept-core#StudentAlum          & almamater    & Harvard         & $0.940 \pm 0.085$  & $0.940 \pm 0.085$  & $0.520 \pm 0.112$  & $0.961 \pm 0.028$  & $0.936 \pm 0.063$  & $0.546 \pm 0.043$   \\
-% adept-core#StudentAlum          & almamater    & Stanford        & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.993 \pm 0.014$  & $0.985 \pm 0.031$  & $0.697 \pm 0.128$   \\
+% EmploymentMembership & employer     & Army            & $0.940 \pm 0.052$  & $0.940 \pm 0.052$  & $0.560 \pm 0.091$  & $0.822 \pm 0.056$  & $0.853 \pm 0.036$  & $0.544 \pm 0.059$   \\
+% EmploymentMembership & employer     & White\_House    & $0.860 \pm 0.128$  & $0.820 \pm 0.104$  & $0.490 \pm 0.100$  & $0.775 \pm 0.073$  & $0.737 \pm 0.080$  & $0.538 \pm 0.033$   \\
+% Leadership           & subject\_org & Democratic      & $0.640 \pm 0.052$  & $0.660 \pm 0.052$  & $0.510 \pm 0.043$  & $0.909 \pm 0.060$  & $0.932 \pm 0.023$  & $0.626 \pm 0.071$   \\
+% Leadership           & subject\_org & Parliament      & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.960 \pm 0.052$  & $0.942 \pm 0.082$  & $0.676 \pm 0.114$   \\
+% Origin               & origin       & American        & $0.720 \pm 0.265$  & $0.820 \pm 0.141$  & $0.500 \pm 0.067$  & $0.681 \pm 0.162$  & $0.748 \pm 0.082$  & $0.551 \pm 0.043$   \\
+% Origin               & origin       & Russia          & $1.000 \pm 0.000$  & $0.980 \pm 0.043$  & $0.450 \pm 0.074$  & $0.963 \pm 0.022$  & $0.919 \pm 0.057$  & $0.530 \pm 0.055$   \\
+% Resident             & location     & Chinese         & $0.920 \pm 0.171$  & $0.920 \pm 0.171$  & $0.500 \pm 0.095$  & $0.806 \pm 0.113$  & $0.820 \pm 0.119$  & $0.535 \pm 0.029$   \\
+% Resident             & location     & Texas           & $0.780 \pm 0.124$  & $0.760 \pm 0.160$  & $0.440 \pm 0.056$  & $0.691 \pm 0.067$  & $0.661 \pm 0.114$  & $0.499 \pm 0.027$   \\
+% Role                 & role         & author          & $0.620 \pm 0.124$  & $0.480 \pm 0.141$  & $0.600 \pm 0.077$  & $0.588 \pm 0.074$  & $0.508 \pm 0.060$  & $0.569 \pm 0.043$   \\
+% Role                 & role         & director        & $0.580 \pm 0.171$  & $0.600 \pm 0.178$  & $0.600 \pm 0.109$  & $0.567 \pm 0.090$  & $0.552 \pm 0.067$  & $0.581 \pm 0.050$   \\
+% StudentAlum          & almamater    & Harvard         & $0.940 \pm 0.085$  & $0.940 \pm 0.085$  & $0.520 \pm 0.112$  & $0.961 \pm 0.028$  & $0.936 \pm 0.063$  & $0.546 \pm 0.043$   \\
+% StudentAlum          & almamater    & Stanford        & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.993 \pm 0.014$  & $0.985 \pm 0.031$  & $0.697 \pm 0.128$   \\
 % \end{tabular}}
 %   \caption{Performance with a feature based ranker. The intervals are 90\% confidence intervals.}
 %   \label{tab:perf-feat}
@@ -434,21 +515,22 @@ when the method are given 10 training examples for 5 runs:
 \begin{table}[htbp]
   \centering
   \resizebox{\textwidth}{!}{
-  \begin{tabular}{l l l | H H H c c c}
-Relation                        & Attribute    & Value           & \multicolumn{3}{H}{P\@10}     & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
-                                &              &                 & w/o doc            & w/ doc             & random             & w/o doc            & w/ doc             & random \\
-adept-core#EmploymentMembership & employer     & Army            & $0.320 \pm 0.247 $ & $0.220 \pm 0.207 $ & $0.000 \pm 0.000 $ & $0.077 \pm 0.055 $ & $0.066 \pm 0.043 $ & $0.002 \pm 0.000 $  \\
-adept-core#EmploymentMembership & employer     & White\_House    & $0.280 \pm 0.124 $ & $0.220 \pm 0.171 $ & $0.010 \pm 0.018 $ & $0.044 \pm 0.020 $ & $0.038 \pm 0.017 $ & $0.004 \pm 0.001 $  \\
-adept-core#Leadership           & subject\_org & Democratic      & $0.220 \pm 0.080 $ & $0.100 \pm 0.117 $ & $0.000 \pm 0.000 $ & $0.171 \pm 0.111 $ & $0.095 \pm 0.122 $ & $0.000 \pm 0.000 $  \\
-adept-core#Leadership           & subject\_org & Parliament      & $0.140 \pm 0.085 $ & $0.080 \pm 0.043 $ & $0.000 \pm 0.000 $ & $0.124 \pm 0.087 $ & $0.070 \pm 0.037 $ & $0.000 \pm 0.000 $  \\
-adept-core#Origin               & origin       & American        & $0.220 \pm 0.256 $ & $0.260 \pm 0.173 $ & $0.000 \pm 0.000 $ & $0.073 \pm 0.041 $ & $0.082 \pm 0.031 $ & $0.014 \pm 0.000 $  \\
-adept-core#Origin               & origin       & Russia          & $0.180 \pm 0.157 $ & $0.160 \pm 0.085 $ & $0.000 \pm 0.000 $ & $0.091 \pm 0.067 $ & $0.082 \pm 0.065 $ & $0.001 \pm 0.000 $  \\
-adept-core#Resident             & location     & Chinese         & $0.260 \pm 0.145 $ & $0.180 \pm 0.104 $ & $0.000 \pm 0.000 $ & $0.066 \pm 0.032 $ & $0.079 \pm 0.042 $ & $0.004 \pm 0.000 $  \\
-adept-core#Resident             & location     & Texas           & $0.200 \pm 0.202 $ & $0.120 \pm 0.124 $ & $0.000 \pm 0.000 $ & $0.036 \pm 0.018 $ & $0.027 \pm 0.018 $ & $0.003 \pm 0.000 $  \\
-adept-core#Role                 & role         & author          & $0.040 \pm 0.085 $ & $0.020 \pm 0.043 $ & $0.050 \pm 0.041 $ & $0.025 \pm 0.007 $ & $0.024 \pm 0.005 $ & $0.021 \pm 0.000 $  \\
-adept-core#Role                 & role         & director        & $0.180 \pm 0.104 $ & $0.140 \pm 0.128 $ & $0.030 \pm 0.028 $ & $0.054 \pm 0.002 $ & $0.054 \pm 0.001 $ & $0.052 \pm 0.001 $  \\
-adept-core#StudentAlum          & almamater    & Harvard         & $0.460 \pm 0.313 $ & $0.160 \pm 0.052 $ & $0.000 \pm 0.000 $ & $0.277 \pm 0.301 $ & $0.100 \pm 0.077 $ & $0.001 \pm 0.000 $  \\
-adept-core#StudentAlum          & almamater    & Stanford        & $0.040 \pm 0.052 $ & $0.060 \pm 0.052 $ & $0.000 \pm 0.000 $ & $0.052 \pm 0.074 $ & $0.041 \pm 0.040 $ & $0.000 \pm 0.000 $  \\
+  \begin{tabular}{l l l | c c c c}
+Relation                        & Attribute    & Value            & \multicolumn{4}{c}{AUPR (Average-Precision)} \\\hline
+                                &              &                  & \multicolumn{2}{ c }{w/o doc} & w/ doc             & random \\
+                                &              &                  &    w/o clipping    & w/ clipping       & &\\
+EmploymentMembership & employer     & Army             & $0.075 \pm 0.055 $ &$0.077 \pm 0.055 $ & $0.066 \pm 0.043 $ & $0.002 \pm 0.000 $  \\
+EmploymentMembership & employer     & White\_House     & $0.041 \pm 0.019 $ &$0.044 \pm 0.020 $ & $0.038 \pm 0.017 $ & $0.004 \pm 0.001 $  \\
+Leadership           & subject\_org & Democratic       & $0.172 \pm 0.111 $ &$0.171 \pm 0.111 $ & $0.095 \pm 0.122 $ & $0.000 \pm 0.000 $  \\
+Leadership           & subject\_org & Parliament       & $0.124 \pm 0.088 $ &$0.124 \pm 0.087 $ & $0.070 \pm 0.037 $ & $0.000 \pm 0.000 $  \\
+Origin               & origin       & American         & $0.070 \pm 0.042 $ &$0.073 \pm 0.041 $ & $0.082 \pm 0.031 $ & $0.014 \pm 0.000 $  \\
+Origin               & origin       & Russia           & $0.093 \pm 0.071 $ &$0.091 \pm 0.067 $ & $0.082 \pm 0.065 $ & $0.001 \pm 0.000 $  \\
+Resident             & location     & Chinese          & $0.063 \pm 0.029 $ &$0.066 \pm 0.032 $ & $0.079 \pm 0.042 $ & $0.004 \pm 0.000 $  \\
+Resident             & location     & Texas            & $0.033 \pm 0.014 $ &$0.036 \pm 0.018 $ & $0.027 \pm 0.018 $ & $0.003 \pm 0.000 $  \\
+Role                 & role         & author           & $0.025 \pm 0.007 $ &$0.025 \pm 0.007 $ & $0.024 \pm 0.005 $ & $0.021 \pm 0.000 $  \\
+Role                 & role         & director         & $0.054 \pm 0.001 $ &$0.054 \pm 0.002 $ & $0.054 \pm 0.001 $ & $0.052 \pm 0.001 $  \\
+StudentAlum          & almamater    & Harvard          & $0.271 \pm 0.290 $ &$0.277 \pm 0.301 $ & $0.100 \pm 0.077 $ & $0.001 \pm 0.000 $  \\
+StudentAlum          & almamater    & Stanford         & $0.052 \pm 0.073 $ &$0.052 \pm 0.074 $ & $0.041 \pm 0.040 $ & $0.000 \pm 0.000 $  \\
 \end{tabular}}
   \caption{Performance with a feature based ranker. The intervals are 90\% confidence intervals.}
   \label{tab:perf-feat}
@@ -489,18 +571,18 @@ Using the modified adsorption algorithm we obtain the following result:
 %   \begin{tabular}{l l l | c c c}
 % Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
 %                                 &              &                 & w/o doc & w/ doc & random \\
-% adept-core#EmploymentMembership & employer     & Army            &  $0.909 \pm 0.046$   &  $0.909 \pm 0.046$   &  $0.539 \pm 0.064$  \\
-% adept-core#EmploymentMembership & employer     & White\_House    &  $0.810 \pm 0.052$   &  $0.810 \pm 0.052$   &  $0.545 \pm 0.055$  \\
-% adept-core#Leadership           & subject\_org & Democratic      &  $0.925 \pm 0.102$   &  $0.925 \pm 0.102$   &  $0.567 \pm 0.116$  \\
-% adept-core#Leadership           & subject\_org & Parliament      &  $0.975 \pm 0.052$   &  $0.975 \pm 0.052$   &  $0.604 \pm 0.101$  \\
-% adept-core#Origin               & origin       & American        &  $0.752 \pm 0.111$   &  $0.752 \pm 0.111$   &  $0.559 \pm 0.083$  \\
-% adept-core#Origin               & origin       & Russia          &  $0.968 \pm 0.040$   &  $0.968 \pm 0.040$   &  $0.558 \pm 0.063$  \\
-% adept-core#Resident             & location     & Chinese         &  $0.931 \pm 0.076$   &  $0.931 \pm 0.076$   &  $0.553 \pm 0.058$  \\
-% adept-core#Resident             & location     & Texas           &  $0.795 \pm 0.065$   &  $0.795 \pm 0.065$   &  $0.491 \pm 0.069$  \\
-% adept-core#Role                 & role         & author          &  $0.540 \pm 0.113$   &  $0.540 \pm 0.113$   &  $0.538 \pm 0.120$  \\
-% adept-core#Role                 & role         & director        &  $0.517 \pm 0.069$   &  $0.517 \pm 0.069$   &  $0.536 \pm 0.066$  \\
-% adept-core#StudentAlum          & almamater    & Harvard         &  $0.986 \pm 0.016$   &  $0.986 \pm 0.016$   &  $0.520 \pm 0.073$  \\
-% adept-core#StudentAlum          & almamater    & Stanford        &  $1.000 \pm 0.000$   &  $1.000 \pm 0.000$   &  $0.628 \pm 0.196$  \\
+% EmploymentMembership & employer     & Army            &  $0.909 \pm 0.046$   &  $0.909 \pm 0.046$   &  $0.539 \pm 0.064$  \\
+% EmploymentMembership & employer     & White\_House    &  $0.810 \pm 0.052$   &  $0.810 \pm 0.052$   &  $0.545 \pm 0.055$  \\
+% Leadership           & subject\_org & Democratic      &  $0.925 \pm 0.102$   &  $0.925 \pm 0.102$   &  $0.567 \pm 0.116$  \\
+% Leadership           & subject\_org & Parliament      &  $0.975 \pm 0.052$   &  $0.975 \pm 0.052$   &  $0.604 \pm 0.101$  \\
+% Origin               & origin       & American        &  $0.752 \pm 0.111$   &  $0.752 \pm 0.111$   &  $0.559 \pm 0.083$  \\
+% Origin               & origin       & Russia          &  $0.968 \pm 0.040$   &  $0.968 \pm 0.040$   &  $0.558 \pm 0.063$  \\
+% Resident             & location     & Chinese         &  $0.931 \pm 0.076$   &  $0.931 \pm 0.076$   &  $0.553 \pm 0.058$  \\
+% Resident             & location     & Texas           &  $0.795 \pm 0.065$   &  $0.795 \pm 0.065$   &  $0.491 \pm 0.069$  \\
+% Role                 & role         & author          &  $0.540 \pm 0.113$   &  $0.540 \pm 0.113$   &  $0.538 \pm 0.120$  \\
+% Role                 & role         & director        &  $0.517 \pm 0.069$   &  $0.517 \pm 0.069$   &  $0.536 \pm 0.066$  \\
+% StudentAlum          & almamater    & Harvard         &  $0.986 \pm 0.016$   &  $0.986 \pm 0.016$   &  $0.520 \pm 0.073$  \\
+% StudentAlum          & almamater    & Stanford        &  $1.000 \pm 0.000$   &  $1.000 \pm 0.000$   &  $0.628 \pm 0.196$  \\
 % \end{tabular}}
 %   \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
 %   \label{tab:perf-feat}
@@ -515,18 +597,18 @@ Using the modified adsorption algorithm we obtain the following result:
   \begin{tabular}{l l l | c c c}
 Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
                                 &              &                 & w/o doc & w/ doc & random \\
-adept-core#EmploymentMembership & employer     & Army            & $0.106 \pm 0.087 $ & $0.097 \pm 0.057 $ & $0.003 \pm 0.000 $\\
-adept-core#EmploymentMembership & employer     & White\_House    & $0.025 \pm 0.006 $ & $0.025 \pm 0.008 $ & $0.004 \pm 0.000 $\\
-adept-core#Leadership           & subject\_org & Democratic      & $0.009 \pm 0.002 $ & $0.004 \pm 0.001 $ & $0.000 \pm 0.000 $\\
-adept-core#Leadership           & subject\_org & Parliament      & $0.044 \pm 0.010 $ & $0.018 \pm 0.003 $ & $0.000 \pm 0.000 $\\
-adept-core#Origin               & origin       & American        & $0.086 \pm 0.043 $ & $0.073 \pm 0.031 $ & $0.014 \pm 0.000 $\\
-adept-core#Origin               & origin       & Russia          & $0.069 \pm 0.018 $ & $0.056 \pm 0.012 $ & $0.001 \pm 0.000 $\\
-adept-core#Resident             & location     & Chinese         & $0.147 \pm 0.069 $ & $0.126 \pm 0.044 $ & $0.004 \pm 0.000 $\\
-adept-core#Resident             & location     & Texas           & $0.054 \pm 0.028 $ & $0.032 \pm 0.012 $ & $0.003 \pm 0.000 $\\
-adept-core#Role                 & role         & author          & $0.028 \pm 0.009 $ & $0.026 \pm 0.005 $ & $0.022 \pm 0.001 $\\
-adept-core#Role                 & role         & director        & $0.056 \pm 0.004 $ & $0.051 \pm 0.002 $ & $0.054 \pm 0.000 $\\
-adept-core#StudentAlum          & almamater    & Harvard         & $0.168 \pm 0.044 $ & $0.112 \pm 0.034 $ & $0.002 \pm 0.000 $\\
-adept-core#StudentAlum          & almamater    & Stanford        & $0.050 \pm 0.012 $ & $0.032 \pm 0.011 $ & $0.000 \pm 0.000 $\\
+EmploymentMembership & employer     & Army            & $0.106 \pm 0.087 $ & $0.097 \pm 0.057 $ & $0.003 \pm 0.000 $\\
+EmploymentMembership & employer     & White\_House    & $0.025 \pm 0.006 $ & $0.025 \pm 0.008 $ & $0.004 \pm 0.000 $\\
+Leadership           & subject\_org & Democratic      & $0.009 \pm 0.002 $ & $0.004 \pm 0.001 $ & $0.000 \pm 0.000 $\\
+Leadership           & subject\_org & Parliament      & $0.044 \pm 0.010 $ & $0.018 \pm 0.003 $ & $0.000 \pm 0.000 $\\
+Origin               & origin       & American        & $0.086 \pm 0.043 $ & $0.073 \pm 0.031 $ & $0.014 \pm 0.000 $\\
+Origin               & origin       & Russia          & $0.069 \pm 0.018 $ & $0.056 \pm 0.012 $ & $0.001 \pm 0.000 $\\
+Resident             & location     & Chinese         & $0.147 \pm 0.069 $ & $0.126 \pm 0.044 $ & $0.004 \pm 0.000 $\\
+Resident             & location     & Texas           & $0.054 \pm 0.028 $ & $0.032 \pm 0.012 $ & $0.003 \pm 0.000 $\\
+Role                 & role         & author          & $0.028 \pm 0.009 $ & $0.026 \pm 0.005 $ & $0.022 \pm 0.001 $\\
+Role                 & role         & director        & $0.056 \pm 0.004 $ & $0.051 \pm 0.002 $ & $0.054 \pm 0.000 $\\
+StudentAlum          & almamater    & Harvard         & $0.168 \pm 0.044 $ & $0.112 \pm 0.034 $ & $0.002 \pm 0.000 $\\
+StudentAlum          & almamater    & Stanford        & $0.050 \pm 0.012 $ & $0.032 \pm 0.011 $ & $0.000 \pm 0.000 $\\
 \end{tabular}}
   \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
   \label{tab:perf-label-prop}
@@ -581,20 +663,20 @@ only conjunctive features, a combination of backoff features and conjunctive fea
   \begin{tabular}{l l l | c c c c}
 Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
                                 &              &                 & Only backoff & Only Conjunctive & Combination & Random \\
-adept-core#EmploymentMembership & employer     & Army            & $0.041 \pm 0.017 $ & $0.070 \pm 0.033 $ & $0.057 \pm 0.022 $ & $0.002 \pm 0.000 $\\
-adept-core#EmploymentMembership & employer     & White\_House    & $0.046 \pm 0.024 $ & $0.050 \pm 0.021 $ & $0.051 \pm 0.024 $ & $0.005 \pm 0.001 $\\
-adept-core#Leadership           & subject\_org & Democratic      & $0.230 \pm 0.064 $ & $0.225 \pm 0.061 $ & $0.235 \pm 0.063 $ & $0.001 \pm 0.002 $\\
-adept-core#Leadership           & subject\_org & Parliament      & $0.143 \pm 0.073 $ & $0.163 \pm 0.086 $ & $0.152 \pm 0.078 $ & $0.000 \pm 0.000 $\\
-adept-core#Origin               & origin       & American        & $0.034 \pm 0.016 $ & $0.076 \pm 0.024 $ & $0.053 \pm 0.019 $ & $0.014 \pm 0.001 $\\
-adept-core#Origin               & origin       & Russia          & $0.120 \pm 0.043 $ & $0.113 \pm 0.041 $ & $0.124 \pm 0.047 $ & $0.001 \pm 0.000 $\\
-adept-core#Resident             & location     & Chinese         & $0.018 \pm 0.008 $ & $0.083 \pm 0.070 $ & $0.041 \pm 0.023 $ & $0.004 \pm 0.001 $\\
-adept-core#Resident             & location     & Texas           & $0.018 \pm 0.010 $ & $0.036 \pm 0.019 $ & $0.029 \pm 0.013 $ & $0.003 \pm 0.000 $\\
-adept-core#Role                 & role         & author          & $0.025 \pm 0.007 $ & $0.024 \pm 0.007 $ & $0.025 \pm 0.008 $ & $0.020 \pm 0.001 $\\
-adept-core#Role                 & role         & director        & $0.053 \pm 0.002 $ & $0.054 \pm 0.003 $ & $0.053 \pm 0.002 $ & $0.052 \pm 0.001 $\\
-adept-core#StudentAlum          & almamater    & Harvard         & $0.189 \pm 0.118 $ & $0.391 \pm 0.193 $ & $0.309 \pm 0.189 $ & $0.001 \pm 0.000 $\\
-adept-core#StudentAlum          & almamater    & Stanford        & $0.089 \pm 0.081 $ & $0.192 \pm 0.132 $ & $0.130 \pm 0.105 $ & $0.000 \pm 0.000 $\\
+EmploymentMembership & employer     & Army            & $0.041 \pm 0.017 $ & $0.070 \pm 0.033 $ & $0.057 \pm 0.022 $ & $0.002 \pm 0.000 $\\
+EmploymentMembership & employer     & White\_House    & $0.046 \pm 0.024 $ & $0.050 \pm 0.021 $ & $0.051 \pm 0.024 $ & $0.005 \pm 0.001 $\\
+Leadership           & subject\_org & Democratic      & $0.230 \pm 0.064 $ & $0.225 \pm 0.061 $ & $0.235 \pm 0.063 $ & $0.001 \pm 0.002 $\\
+Leadership           & subject\_org & Parliament      & $0.143 \pm 0.073 $ & $0.163 \pm 0.086 $ & $0.152 \pm 0.078 $ & $0.000 \pm 0.000 $\\
+Origin               & origin       & American        & $0.034 \pm 0.016 $ & $0.076 \pm 0.024 $ & $0.053 \pm 0.019 $ & $0.014 \pm 0.001 $\\
+Origin               & origin       & Russia          & $0.120 \pm 0.043 $ & $0.113 \pm 0.041 $ & $0.124 \pm 0.047 $ & $0.001 \pm 0.000 $\\
+Resident             & location     & Chinese         & $0.018 \pm 0.008 $ & $0.083 \pm 0.070 $ & $0.041 \pm 0.023 $ & $0.004 \pm 0.001 $\\
+Resident             & location     & Texas           & $0.018 \pm 0.010 $ & $0.036 \pm 0.019 $ & $0.029 \pm 0.013 $ & $0.003 \pm 0.000 $\\
+Role                 & role         & author          & $0.025 \pm 0.007 $ & $0.024 \pm 0.007 $ & $0.025 \pm 0.008 $ & $0.020 \pm 0.001 $\\
+Role                 & role         & director        & $0.053 \pm 0.002 $ & $0.054 \pm 0.003 $ & $0.053 \pm 0.002 $ & $0.052 \pm 0.001 $\\
+StudentAlum          & almamater    & Harvard         & $0.189 \pm 0.118 $ & $0.391 \pm 0.193 $ & $0.309 \pm 0.189 $ & $0.001 \pm 0.000 $\\
+StudentAlum          & almamater    & Stanford        & $0.089 \pm 0.081 $ & $0.192 \pm 0.132 $ & $0.130 \pm 0.105 $ & $0.000 \pm 0.000 $\\
 \end{tabular}}
-  \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
+  \caption{Performance with NB. The intervals are 90\% confidence intervals.}
   \label{tab:perf-nb}
 \end{table}
 
@@ -656,6 +738,33 @@ each of the sub0objectives.
 Once we estimate the global latent variables $\pi[k]$ then it is easy to find
 out the prior probabilities $p(y^{(i)})$ and this procedure can be repeated to
 convergence. Note that this method induces a natural clustering of the features.
+
+
+The results are as follows
+
+\begin{table}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{l l l | c c c }
+Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
+                                &              &                 & Only backoff & Only Conjunctive & Random \\
+EmploymentMembership & employer     & Army            & $0.029 \pm 0.022 $ & $0.025 \pm 0.026 $ & $0.002 \pm 0.000 $\\
+EmploymentMembership & employer     & White\_House    & $0.042 \pm 0.023 $ & $0.041 \pm 0.015 $ & $0.004 \pm 0.000 $\\
+Leadership           & subject\_org & Democratic      & $0.204 \pm 0.055 $ & $0.164 \pm 0.041 $ & $0.000 \pm 0.000 $\\
+Leadership           & subject\_org & Parliament      & $0.116 \pm 0.077 $ & $0.133 \pm 0.083 $ & $0.000 \pm 0.000 $\\
+Origin               & origin       & American        & $0.045 \pm 0.008 $ & $0.048 \pm 0.015 $ & $0.014 \pm 0.001 $\\
+Origin               & origin       & Russia          & $0.086 \pm 0.045 $ & $0.063 \pm 0.030 $ & $0.001 \pm 0.000 $\\
+Resident             & location     & Chinese         & $0.014 \pm 0.011 $ & $0.049 \pm 0.042 $ & $0.004 \pm 0.000 $\\
+Resident             & location     & Texas           & $0.016 \pm 0.012 $ & $0.033 \pm 0.023 $ & $0.003 \pm 0.000 $\\
+Role                 & role         & author          & $0.025 \pm 0.006 $ & $0.028 \pm 0.002 $ & $0.021 \pm 0.001 $\\
+Role                 & role         & director        & $0.051 \pm 0.003 $ & $0.058 \pm 0.011 $ & $0.052 \pm 0.001 $\\
+StudentAlum          & almamater    & Harvard         & $0.089 \pm 0.112 $ & $0.101 \pm 0.033 $ & $0.001 \pm 0.000 $\\
+StudentAlum          & almamater    & Stanford        & $0.045 \pm 0.037 $ & $0.094 \pm 0.098 $ & $0.000 \pm 0.000 $\\
+\end{tabular}}
+  \caption{Performance with Block NB. The intervals are 90\% confidence intervals.}
+  \label{tab:perf-block-nb}
+\end{table}
+
 
 % \subsection{VN with Semi-Supervised Information}
 % \label{sec:vn-with-semi}

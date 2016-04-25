@@ -1,0 +1,240 @@
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.6000 BASE-P@10=0.0000 AUPR=0.162 BASE-AUPR=0.002
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.5000 BASE-P@10=0.0000 AUPR=0.135 BASE-AUPR=0.003
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.050 BASE-AUPR=0.002
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.044 BASE-AUPR=0.003
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.6000 BASE-P@10=0.0000 AUPR=0.110 BASE-AUPR=0.002
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.089 BASE-AUPR=0.002
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.041 BASE-AUPR=0.003
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.036 BASE-AUPR=0.002
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.021 BASE-AUPR=0.003
+feat=adept-core#EmploymentMembership~employer~name~"Army" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"Army" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.028 BASE-AUPR=0.002
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.038 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.036 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.069 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.025 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.031 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.040 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.061 BASE-AUPR=0.005
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.4000 BASE-P@10=0.1000 AUPR=0.066 BASE-AUPR=0.007
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.019 BASE-AUPR=0.004
+feat=adept-core#EmploymentMembership~employer~name~"White House" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#EmploymentMembership~employer~name~"White House" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.022 BASE-AUPR=0.005
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.079 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.321 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.064 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.039 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.126 BASE-AUPR=0.001
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.007 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.324 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.068 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.264 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Democratic" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Democratic" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.042 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.046 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.068 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.248 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.003 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.046 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.086 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.089 BASE-AUPR=0.001
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.088 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.193 BASE-AUPR=0.000
+feat=adept-core#Leadership~subject_org~name~"Parliament" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Leadership~subject_org~name~"Parliament" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.103 BASE-AUPR=0.000
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.084 BASE-AUPR=0.014
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.079 BASE-AUPR=0.014
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.022 BASE-AUPR=0.013
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.061 BASE-AUPR=0.015
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.114 BASE-AUPR=0.015
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.123 BASE-AUPR=0.015
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.034 BASE-AUPR=0.015
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.043 BASE-AUPR=0.014
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.7000 BASE-P@10=0.0000 AUPR=0.111 BASE-AUPR=0.014
+feat=adept-core#Origin~origin~name~"American" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"American" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.5000 BASE-P@10=0.0000 AUPR=0.106 BASE-AUPR=0.014
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.033 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.043 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.150 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.072 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.029 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.023 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.180 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.075 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.061 BASE-AUPR=0.001
+feat=adept-core#Origin~origin~name~"Russia" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Origin~origin~name~"Russia" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.198 BASE-AUPR=0.001
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.055 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.051 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.5000 BASE-P@10=0.0000 AUPR=0.094 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.140 BASE-AUPR=0.005
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.077 BASE-AUPR=0.005
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.086 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.013 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.023 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.091 BASE-AUPR=0.005
+feat=adept-core#Resident~location~name~"Chinese" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Chinese" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.093 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.027 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.019 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.016 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.015 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.052 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.043 BASE-AUPR=0.004
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.5000 BASE-P@10=0.0000 AUPR=0.059 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.050 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.026 BASE-AUPR=0.003
+feat=adept-core#Resident~location~name~"Texas" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Resident~location~name~"Texas" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.008 BASE-AUPR=0.003
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.020 BASE-AUPR=0.020
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.021 BASE-AUPR=0.021
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.2000 AUPR=0.020 BASE-AUPR=0.021
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.1000 AUPR=0.020 BASE-AUPR=0.022
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.032 BASE-AUPR=0.020
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.1000 AUPR=0.032 BASE-AUPR=0.021
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.1000 AUPR=0.033 BASE-AUPR=0.022
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.027 BASE-AUPR=0.020
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.020 BASE-AUPR=0.020
+feat=adept-core#Role~role~name~"author" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"author" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.020 BASE-AUPR=0.020
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.054 BASE-AUPR=0.051
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.1000 AUPR=0.056 BASE-AUPR=0.054
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.056 BASE-AUPR=0.052
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.054 BASE-AUPR=0.052
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.051 BASE-AUPR=0.052
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.053 BASE-AUPR=0.053
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.055 BASE-AUPR=0.053
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.3000 BASE-P@10=0.0000 AUPR=0.056 BASE-AUPR=0.053
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.3000 BASE-P@10=0.1000 AUPR=0.052 BASE-AUPR=0.050
+feat=adept-core#Role~role~name~"director" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#Role~role~name~"director" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.1000 AUPR=0.053 BASE-AUPR=0.052
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=1.0000 BASE-P@10=0.0000 AUPR=0.821 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.090 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.5000 BASE-P@10=0.0000 AUPR=0.278 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.239 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.4000 BASE-P@10=0.0000 AUPR=0.145 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.050 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.070 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.084 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.070 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Harvard" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Harvard" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.2000 BASE-P@10=0.0000 AUPR=0.039 BASE-AUPR=0.001
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.007 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.002 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.002 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.076 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.003 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.0000 BASE-P@10=0.0000 AUPR=0.003 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.182 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.093 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=~document~.*
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=~document~.* train_col=30598 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.067 BASE-AUPR=0.000
+feat=adept-core#StudentAlum~almamater~name~"Stanford" train_size_by2=5 mask_pattern.pattern=XXXX
+Criteria=adept-core#StudentAlum~almamater~name~"Stanford" train_rows=10 mask_pattern.pattern=XXXX train_col=54225 P@10=0.1000 BASE-P@10=0.0000 AUPR=0.033 BASE-AUPR=0.000

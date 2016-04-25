@@ -5,9 +5,9 @@
 | Description : Stochastic Block Model inspired Naive Bayes Model
 | Author      : Pushpendre Rastogi
 | Created     : Sun Apr 24 07:12:14 2016 (-0400)
-| Last-Updated: Sun Apr 24 20:42:11 2016 (-0400)
+| Last-Updated: Sun Apr 24 21:01:48 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 79
+|     Update #: 80
 '''
 from sklearn.preprocessing import binarize, LabelBinarizer
 import numpy
@@ -202,7 +202,7 @@ def main(featset_name, predicate_name, trials):
 
 if __name__ == '__main__':
     from joblib import Parallel, delayed
-    Parallel(n_jobs=2)(
+    Parallel(n_jobs=10)(
         delayed(main)(featset_name, predicate_name, trials)
         for featset_name in ['s_features_nodoc', 's_features_backoff', 'random']
         for predicate_name in IDX_DATA

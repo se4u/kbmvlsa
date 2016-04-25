@@ -22,3 +22,4 @@ no_repo/
 *.synctex.gz
 *auto/
 scratch/feat=*
+*.ipynb_checkpoints/

@@ -5,9 +5,9 @@
 | Description : Tabulate the output of the eval_basic_script
 | Author      : Pushpendre Rastogi
 | Created     : Thu Apr 21 12:34:14 2016 (-0400)
-| Last-Updated: Fri Apr 22 09:06:36 2016 (-0400)
+| Last-Updated: Mon Apr 25 07:39:25 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 30
+|     Update #: 35
 '''
 import rasengan
 
@@ -40,14 +40,15 @@ def mci(obs):
     return '$%.3f \pm %.3f $' % (mean, (interval[1] - interval[0]) / 2)
 
 if __name__ == '__main__':
-    data = list(open('../../scratch/eval_basic_featurization_bbn2.txt'))
+    data = list(open('../../scratch/eval_basic_featurization_bbn2_v2.txt'))
     mask_pattern = {'method+doc': 'mask_pattern.pattern=XXXX',
                     'method': 'mask_pattern.pattern=~document~.*'}
     prefix = 'Criteria='
     train_row = 'train_rows=10'
+    coef_type = ['coef_type=clipped', 'coef_type=original'][1]
     for hdr in headers:
         def process_lines(mp):
-            lines = get_line(data, prefix, train_row, mp, *hdr)
+            lines = get_line(data, prefix, train_row, mp, coef_type, *hdr)
             try:
                 lines = [dict([_.split('=') for _ in e.strip().split()])
                          for e in lines]
@@ -61,7 +62,6 @@ if __name__ == '__main__':
 
         lm = process_lines(mask_pattern['method'])
         lmd = process_lines(mask_pattern['method+doc'])
-
         p_at_10 = [float(e['P@10']) for e in lm]
         p_at_10_doc = [float(e['P@10']) for e in lmd]
         random_p_at_10 = [float(e['BASE-P@10']) for e in lm + lmd]

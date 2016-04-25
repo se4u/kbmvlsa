@@ -4,9 +4,9 @@
 | Description : Perform Naive Bayes based vertex ranking.
 | Author      : Pushpendre Rastogi
 | Created     : Sat Apr 23 20:26:27 2016 (-0400)
-| Last-Updated: Sun Apr 24 10:09:20 2016 (-0400)
+| Last-Updated: Sun Apr 24 20:51:25 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 42
+|     Update #: 44
 '''
 import random
 import numpy as np
@@ -20,10 +20,11 @@ import subprocess
 import collections
 from rasengan import rank_metrics
 from sklearn.naive_bayes import BernoulliNB
+import os
 
 IDX_PKL_FN = r'../../scratch/relational_bbn2_train_test_idx.pkl'
-fn = ('/Users/pushpendrerastogi/data/'
-      'tackbp2015bbn2/basicfeaturization_relational_bbn2.pkl')
+fn = os.path.expanduser('~/data/'
+                        'tackbp2015bbn2/basicfeaturization_relational_bbn2.pkl')
 data = pkl.load(open(fn))
 vertex_dict = data['vertex_dict']
 edgelist = data['edgelist']

@@ -4,9 +4,9 @@
 | Description : Evaluate the basic featurization based method.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Apr 17 23:47:08 2016 (-0400)
-| Last-Updated: Fri Apr 22 09:00:10 2016 (-0400)
+| Last-Updated: Mon Apr 25 07:37:14 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 218
+|     Update #: 220
 '''
 import random
 import numpy as np
@@ -169,9 +169,8 @@ def binary_linear_classifier_diagnostics(
                         class_weight='balanced').fit(*train_set)
     # cls = SGDClassifier().fit(*train_set)
     test_feat, test_label = ds.get_test_set(test_idx=test_idx)
-    for coef_ in [np.array([[e if e > 0 else 0 for e in cls.coef_.squeeze()]]),
-                  # cls.coef_
-                  ]:
+    for coef_type, coef_ in [('clipped', np.array([[e if e > 0 else 0 for e in cls.coef_.squeeze()]])),
+                             ('original', cls.coef_)]:
         cls.coef_ = coef_
         if VERBOSE:
             tmp = ds.get_test_set_names(test_idx=test_idx)
@@ -189,7 +188,8 @@ def binary_linear_classifier_diagnostics(
         print 'Criteria=%s' % ds.idx2feat_map[ds.perma_mask[0]], \
             'train_rows=%d' % train_set[0].shape[0], \
             'mask_pattern.pattern=%s' % mask_pattern.pattern, \
-            'train_col=%d' % train_set[0].shape[1],
+            'train_col=%d' % train_set[0].shape[1], \
+            'coef_type=%s' % coef_type,
 
         for k in itertools.takewhile(lambda x: x <= 2 * ds.test_size_by2, [10, 100]):
             print 'P@%d=%.4f' % (k, rasengan.rank_metrics.precision_at_k(y_pred, k)),
