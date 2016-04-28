@@ -4,9 +4,9 @@
 | Description : Perform Naive Bayes based vertex ranking.
 | Author      : Pushpendre Rastogi
 | Created     : Sat Apr 23 20:26:27 2016 (-0400)
-| Last-Updated: Sun Apr 24 20:51:25 2016 (-0400)
+| Last-Updated: Thu Apr 28 03:21:58 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 44
+|     Update #: 118
 '''
 import random
 import numpy as np
@@ -21,6 +21,7 @@ import collections
 from rasengan import rank_metrics
 from sklearn.naive_bayes import BernoulliNB
 import os
+import ipdb as pdb
 
 IDX_PKL_FN = r'../../scratch/relational_bbn2_train_test_idx.pkl'
 fn = os.path.expanduser('~/data/'
@@ -35,6 +36,11 @@ guid_list = vertex_dict.keys()
 vertices = [vertex_dict[e] for e in guid_list]
 features = [v.features for v in vertices]
 row_names = [v.name for v in vertices]
+
+
+def index_row_names(idi):
+    return [row_names[i] for i in idi]
+
 data = []
 row = []
 col = []
@@ -80,38 +86,95 @@ s_features_backoff = scipy.sparse.hstack(backoff_col_list)
 
 
 def get_s_features_backoff(backoff_feat_idx):
-    return s_features_backoff[:,
-                              [i
-                               for i
-                               in range(s_features_backoff.shape[1])
-                               if i != backoff_feat_idx]]
+    idx = [i
+           for i
+           in range(s_features_backoff.shape[1])
+           if i != backoff_feat_idx]
+    feat_name = [I2F_MAP[i] for i in idx]
+    return s_features_backoff[:, idx], feat_name
+
+
+def get_s_features_doc(predicate_idx):
+    idx = [i
+           for i
+           in range(TOTAL_FEATURES)
+           if (i != predicate_idx)]
+    feat_name = [I2F_MAP[i] for i in idx]
+    return s_features[:, idx], feat_name
 
 
 def get_s_features_nodoc(predicate_idx):
-    return s_features[:,
-                      [i
-                       for i
-                       in range(TOTAL_FEATURES)
-                       if (i not in docfeat_idx
-                           and i != predicate_idx)]]
+    idx = [i
+           for i
+           in range(TOTAL_FEATURES)
+           if (i not in docfeat_idx
+               and i != predicate_idx)]
+    feat_name = [I2F_MAP[i] for i in idx]
+    return s_features[:, idx], feat_name
 
 
-def get_train_x(featset_name, predicate_name, predicate_idx):
+def make_conjunctive_feat(feat, feat_name):
+    l = []
+    n = []
+    base_feat = feat.shape[1]
+    assert base_feat == len(feat_name)
+    if base_feat > 200:
+        rasengan.warn(
+            'Making Conjunctive feature with %d base features' % base_feat)
+    for i in range(base_feat):
+        for j in range(i + 1, base_feat):
+            # Maximummeans OR
+            l.append(feat[:, i].maximum(feat[:, j]))
+            # Minimum means AND
+            # l.append(feat[:, i].minimum(feat[:, j]))
+            n.append(feat_name[i] + feat_name[j])
+    return (scipy.sparse.hstack([feat] + l), feat_name + n)
+
+
+def get_train_x(featset_name, predicate_name, predicate_idx, train_idx, train_y, use_only_positive_feat=False, create_conjunctive_feat=False):
     if featset_name == 's_features_backoff':
         backoff_feat_idx = backoff_feat_name_to_idx[
             get_backoff_feature_name(predicate_name)]
-        return get_s_features_backoff(backoff_feat_idx)
+        train_x, feat_name = get_s_features_backoff(backoff_feat_idx)
     elif featset_name == 's_features_backoff_nodoc':
         backoff_feat_idx = backoff_feat_name_to_idx[
             get_backoff_feature_name(predicate_name)]
-        bkoff_part = get_s_features_backoff(backoff_feat_idx)
-        nodoc_part = get_s_features_nodoc(predicate_idx)
-        return scipy.sparse.hstack([bkoff_part, nodoc_part])
+        bkoff_part, bkoff_names = get_s_features_backoff(backoff_feat_idx)
+        nodoc_part, nodoc_names = get_s_features_nodoc(predicate_idx)
+        train_x = scipy.sparse.hstack([bkoff_part, nodoc_part])
+        feat_name = (bkoff_names + nodoc_names)
     elif featset_name == 's_features_nodoc':
-        return get_s_features_nodoc(predicate_idx)
+        train_x, feat_name = get_s_features_nodoc(predicate_idx)
+    elif featset_name == 's_features_doc':
+        train_x, feat_name = get_s_features_doc(predicate_idx)
     elif featset_name == 'random':
         return None
-    raise NotImplementedError
+    # print [feat_name[_] for _ in scipy.sparse.find(train_x[41935])[1]]
+    # pdb.set_trace()
+    assert train_x.shape[1] == len(feat_name)
+    idx_to_use = ([e for e, _ in zip(train_idx, train_y) if _ == 1]
+                  if use_only_positive_feat
+                  else train_idx)
+
+    non_zero_train_col_set = set(rasengan.flatten(
+        scipy.sparse.find(train_x[idx_to_use])[1]))
+    non_zero_train_col = list(non_zero_train_col_set)
+    train_x = train_x[:, non_zero_train_col]
+    feat_name = [feat_name[i] for i in non_zero_train_col_set]
+    # print [feat_name[_] for _ in scipy.sparse.find(train_x[41935])[1]]
+    # pdb.set_trace()
+    assert train_x.shape[1] == len(feat_name)
+    if not create_conjunctive_feat:
+        return train_x, feat_name
+    train_x_2, feat_name_2 = make_conjunctive_feat(train_x, feat_name)
+    # print [feat_name[_] for _ in scipy.sparse.find(train_x[41935])[1]]
+    # pdb.set_trace()
+    return train_x_2, feat_name_2
+
+
+def my_aupr(l):
+    return np.mean([(i + 1) / float(e + 1)
+                    for i, e in enumerate(l)])
 
 if __name__ == '__main__':
     IDX_DATA = pkl.load(open(IDX_PKL_FN))
@@ -120,8 +183,13 @@ if __name__ == '__main__':
         labels = s_features[:, predicate_idx]
         I = list(scipy.sparse.find(labels)[0])
         set_I = set(I)
-        for featset_name in ['s_features_nodoc', 's_features_backoff_nodoc',
-                             's_features_backoff', 'random']:
+        for featset_name in [
+                's_features_nodoc',
+                's_features_backoff_nodoc',
+                's_features_backoff',
+                's_features_doc',
+                'random',
+        ]:
             for trials in range(5):
                 train_idx = IDX_DATA[predicate_name][trials]['train']
                 preamble = 'predicate_name=%s trials=%d featset_name=%s ' % (
@@ -131,8 +199,8 @@ if __name__ == '__main__':
                 if featset_name != 'random':
                     train_y = (
                         np.array(labels[train_idx].todense()).squeeze() > 0).astype('int')
-                    train_x = get_train_x(
-                        featset_name, predicate_name, predicate_idx)
+                    train_x, feat_name = get_train_x(
+                        featset_name, predicate_name, predicate_idx, train_idx, train_y)
                     cls.fit(train_x[train_idx], train_y)
                     logprob = [(i, e[1])
                                for i, e
@@ -140,17 +208,76 @@ if __name__ == '__main__':
                     random.shuffle(logprob)
                 else:
                     logprob = list(enumerate(np.random.rand(total_persons)))
-                testing_output = [1 if i in set_I else 0
-                                  for i, _
-                                  in sorted(logprob,
-                                            key=lambda x: x[1],
-                                            reverse=True)
-                                  if i not in train_idx]
+                _testing_output = [[(1 if i in set_I else 0), i]
+                                   for i, _
+                                   in sorted(logprob,
+                                             key=lambda x: x[1],
+                                             reverse=True)
+                                   if i not in train_idx]
+                testing_output = [e[0] for e in _testing_output]
+                # In order to debug the performance of naive bayes we need to
+                # find out the features that were presented at train time.
+                # And then the features that the NB classifier rated highly at
+                # the test time. The question is that why were the false
+                # positives rated so highly?
+
+                def ftt(feat, feat_name, rownames):
+                    retval = {}
+                    for i in range(feat.shape[0]):
+                        retval[rownames[i]] = [feat_name[e]
+                                               for e in scipy.sparse.find(feat[i])[1]]
+                    return retval
+                import ipdb as pdb
+                import traceback
+                import sys
+                import signal
+                from pprint import pprint
+                signal.signal(
+                    signal.SIGUSR1, lambda _sig, _frame: pdb.set_trace())
+                try:
+                    rows_at_training_time = index_row_names(train_idx)
+                    features_at_training_time = ftt(
+                        train_x[train_idx], feat_name, rows_at_training_time)
+                    last_r1_i = []
+                    for _i, (r, i) in enumerate(_testing_output):
+                        if r == 0:
+                            continue
+                            if _i > 40:
+                                continue
+                            tmp = ftt(
+                                train_x[i], feat_name, index_row_names([i]))
+                            tmp_v = tmp.values()[0]
+                            okay_feat = [
+                                'adept-core#EmploymentMembership~employer~name~"Pentagon"',
+                                'adept-core#Leadership~subject_org~name~"Army"',
+                                'adept-core#EmploymentMembership~employer~name~"U.S. Army War College"',
+                                'adept-core#EmploymentMembership~employer~name~"3rd Armored Cavalry Regiment"',
+                            ]
+                            if any(e in tmp_v for e in okay_feat):
+                                pass
+                            else:
+                                pprint(_i)
+                                pprint(tmp)
+                        else:
+                            last_r1_i.append([(_i, r, i),
+                                              ftt(
+                                                  train_x[i],
+                                                  feat_name,
+                                                  index_row_names([i]))])
+                    # pprint(last_r1_i)
+                except:
+                    type, value, tb = sys.exc_info()
+                    traceback.print_exc()
+                    pdb.post_mortem(tb)
                 sto = sum(testing_output)
                 print preamble,
                 print 'CORRECTAUPR=%.3f' % rasengan.rank_metrics.average_precision(
                     testing_output), \
                     'CORRECTP@10=%.3f' % (rasengan.rank_metrics.precision_at_k(
                         testing_output, 10) if sto > 10 else -1), \
-                    'CORRECTP@100=%.3f' % (rasengan.rank_metrics.precision_at_k(
-                        testing_output, 100) if sto > 100 else -1)
+                    'CORRECTP@20=%.3f' % (rasengan.rank_metrics.precision_at_k(
+                        testing_output, 20) if sto > 20 else -1), \
+                    'TrueAUPR=%.3f' % (my_aupr([e[0][0]
+                                                for e
+                                                in last_r1_i
+                                                if len(e[1].values()[0]) > 0]))

@@ -1,240 +1,300 @@
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.124 CORRECTP@10=0.700 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.079 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.050 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.059 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.036 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.091 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.061 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.035 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.063 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.036 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.059 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.034 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.015 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.056 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.041 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.048 CORRECTP@10=0.200 CORRECTP@100=0.140
-predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.061 CORRECTP@10=0.400 CORRECTP@100=0.250
-predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.101 CORRECTP@10=0.200 CORRECTP@100=0.260
-predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.068 CORRECTP@10=0.100 CORRECTP@100=0.230
-predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.104 CORRECTP@10=0.400 CORRECTP@100=0.380
-predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.034 CORRECTP@10=0.000 CORRECTP@100=0.070
-predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.057 CORRECTP@10=0.400 CORRECTP@100=0.270
-predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.086 CORRECTP@10=0.300 CORRECTP@100=0.220
-predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.043 CORRECTP@10=0.200 CORRECTP@100=0.210
-predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.043 CORRECTP@10=0.200 CORRECTP@100=0.050
-predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.018 CORRECTP@10=0.000 CORRECTP@100=0.070
-predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.049 CORRECTP@10=0.400 CORRECTP@100=0.300
-predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.052 CORRECTP@10=0.200 CORRECTP@100=0.160
-predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.033 CORRECTP@10=0.400 CORRECTP@100=0.190
-predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.016 CORRECTP@10=0.000 CORRECTP@100=0.050
-predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=random  CORRECTAUPR=0.013 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=random  CORRECTAUPR=0.013 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=random  CORRECTAUPR=0.015 CORRECTP@10=0.000 CORRECTP@100=0.030
-predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=random  CORRECTAUPR=0.014 CORRECTP@10=0.000 CORRECTP@100=0.030
-predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=random  CORRECTAUPR=0.014 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.725 CORRECTP@10=1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.241 CORRECTP@10=0.600 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.437 CORRECTP@10=0.900 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.256 CORRECTP@10=0.400 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.294 CORRECTP@10=0.600 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.642 CORRECTP@10=0.900 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.172 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.340 CORRECTP@10=0.700 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.194 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.197 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.381 CORRECTP@10=0.400 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.056 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.230 CORRECTP@10=0.500 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.132 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.144 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.057 CORRECTP@10=0.200 CORRECTP@100=0.140
-predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.057 CORRECTP@10=0.400 CORRECTP@100=0.140
-predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.050 CORRECTP@10=0.000 CORRECTP@100=0.040
-predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.055 CORRECTP@10=0.200 CORRECTP@100=0.160
-predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.053 CORRECTP@10=0.100 CORRECTP@100=0.080
-predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.054 CORRECTP@10=0.200 CORRECTP@100=0.130
-predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.055 CORRECTP@10=0.100 CORRECTP@100=0.140
-predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.050 CORRECTP@10=0.100 CORRECTP@100=0.050
-predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@100=0.130
-predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.051 CORRECTP@10=0.100 CORRECTP@100=0.050
-predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.053 CORRECTP@10=0.200 CORRECTP@100=0.100
-predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.053 CORRECTP@10=0.000 CORRECTP@100=0.100
-predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.049 CORRECTP@10=0.200 CORRECTP@100=0.060
-predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.055 CORRECTP@10=0.000 CORRECTP@100=0.100
-predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.053 CORRECTP@10=0.000 CORRECTP@100=0.060
-predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=random  CORRECTAUPR=0.053 CORRECTP@10=0.000 CORRECTP@100=0.050
-predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=random  CORRECTAUPR=0.051 CORRECTP@10=0.000 CORRECTP@100=0.060
-predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=random  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@100=0.060
-predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=random  CORRECTAUPR=0.052 CORRECTP@10=0.000 CORRECTP@100=0.040
-predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=random  CORRECTAUPR=0.051 CORRECTP@10=0.000 CORRECTP@100=0.080
-predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.019 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.019 CORRECTP@10=0.100 CORRECTP@100=0.020
-predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.030 CORRECTP@10=0.000 CORRECTP@100=0.060
-predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.034 CORRECTP@10=0.300 CORRECTP@100=0.120
-predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.019 CORRECTP@10=0.000 CORRECTP@100=0.020
-predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.018 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.031 CORRECTP@10=0.000 CORRECTP@100=0.080
-predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.036 CORRECTP@10=0.200 CORRECTP@100=0.140
-predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.100 CORRECTP@100=0.010
-predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.019 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.033 CORRECTP@10=0.100 CORRECTP@100=0.070
-predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.033 CORRECTP@10=0.100 CORRECTP@100=0.120
-predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.022 CORRECTP@10=0.100 CORRECTP@100=0.010
-predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=random  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@100=0.020
-predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=random  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=random  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=random  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@100=0.040
-predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=random  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.034 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.196 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.084 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.376 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.268 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.023 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.093 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.042 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.265 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.227 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.012 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.057 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.025 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.136 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.213 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.228 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.147 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.192 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.235 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.321 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.256 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.155 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.190 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.250 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.325 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.299 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.157 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.169 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.228 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.297 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.077 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.156 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.059 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.150 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.124 CORRECTP@10=0.200 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.069 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.173 CORRECTP@10=0.400 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.072 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.147 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.158 CORRECTP@10=0.400 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.060 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.165 CORRECTP@10=0.400 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.084 CORRECTP@10=0.100 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.147 CORRECTP@10=0.300 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.142 CORRECTP@10=0.400 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@100=-1.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.064 CORRECTP@10=0.500 CORRECTP@100=0.180
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.077 CORRECTP@10=0.600 CORRECTP@100=0.200
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.033 CORRECTP@10=0.200 CORRECTP@100=0.110
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.050 CORRECTP@10=0.400 CORRECTP@100=0.120
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.024 CORRECTP@10=0.100 CORRECTP@100=0.090
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.069 CORRECTP@10=0.500 CORRECTP@100=0.180
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.082 CORRECTP@10=0.500 CORRECTP@100=0.230
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.036 CORRECTP@10=0.200 CORRECTP@100=0.110
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.046 CORRECTP@10=0.300 CORRECTP@100=0.120
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.300 CORRECTP@100=0.080
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.059 CORRECTP@10=0.300 CORRECTP@100=0.200
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.082 CORRECTP@10=0.500 CORRECTP@100=0.210
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.040 CORRECTP@10=0.300 CORRECTP@100=0.110
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.031 CORRECTP@10=0.200 CORRECTP@100=0.090
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.016 CORRECTP@10=0.100 CORRECTP@100=0.060
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=random  CORRECTAUPR=0.006 CORRECTP@10=0.100 CORRECTP@100=0.030
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.037 CORRECTP@10=0.300 CORRECTP@100=0.090
-predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.039 CORRECTP@10=0.000 CORRECTP@100=0.090
-predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.016 CORRECTP@10=0.100 CORRECTP@100=0.030
-predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.068 CORRECTP@10=0.700 CORRECTP@100=0.100
-predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.021 CORRECTP@10=0.300 CORRECTP@100=0.060
-predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.034 CORRECTP@10=0.300 CORRECTP@100=0.100
-predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.028 CORRECTP@10=0.100 CORRECTP@100=0.080
-predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.009 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.048 CORRECTP@10=0.500 CORRECTP@100=0.140
-predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.026 CORRECTP@10=0.400 CORRECTP@100=0.050
-predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.027 CORRECTP@10=0.200 CORRECTP@100=0.080
-predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.021 CORRECTP@10=0.100 CORRECTP@100=0.060
-predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.020
-predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.011 CORRECTP@10=0.100 CORRECTP@100=0.040
-predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.026 CORRECTP@10=0.400 CORRECTP@100=0.060
-predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.020
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.192 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.012 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.182 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.176 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.254 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.184 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.009 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.176 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.173 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.217 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.178 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.006 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.172 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.171 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.188 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@100=-1.000
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.054 CORRECTP@10=0.200 CORRECTP@100=0.150
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.204 CORRECTP@10=0.500 CORRECTP@100=0.270
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.063 CORRECTP@10=0.200 CORRECTP@100=0.190
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.007 CORRECTP@10=0.100 CORRECTP@100=0.030
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.088 CORRECTP@10=0.400 CORRECTP@100=0.250
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.041 CORRECTP@10=0.200 CORRECTP@100=0.090
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.064 CORRECTP@10=0.200 CORRECTP@100=0.210
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.025 CORRECTP@10=0.200 CORRECTP@100=0.080
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.010 CORRECTP@10=0.100 CORRECTP@100=0.040
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.065 CORRECTP@10=0.200 CORRECTP@100=0.170
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.026 CORRECTP@10=0.100 CORRECTP@100=0.110
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.014 CORRECTP@10=0.100 CORRECTP@100=0.090
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.007 CORRECTP@10=0.000 CORRECTP@100=0.020
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.020 CORRECTP@10=0.100 CORRECTP@100=0.070
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.025 CORRECTP@10=0.100 CORRECTP@100=0.080
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@100=0.000
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@100=0.020
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.010
-predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@100=0.000
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.128 CORRECTP@10=0.800 CORRECTP@20=0.450 TrueAUPR=0.198
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.088 CORRECTP@10=0.300 CORRECTP@20=0.350 TrueAUPR=0.135
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.063 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.111
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.061 CORRECTP@10=0.200 CORRECTP@20=0.400 TrueAUPR=0.088
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.036 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.083
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.090 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.140
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.066 CORRECTP@10=0.200 CORRECTP@20=0.250 TrueAUPR=0.100
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.041 CORRECTP@10=0.300 CORRECTP@20=0.250 TrueAUPR=0.070
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.063 CORRECTP@10=0.200 CORRECTP@20=0.350 TrueAUPR=0.091
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.038 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.082
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.057 CORRECTP@10=0.100 CORRECTP@20=0.150 TrueAUPR=0.089
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.036 CORRECTP@10=0.100 CORRECTP@20=0.150 TrueAUPR=0.053
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.019 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.033
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.056 CORRECTP@10=0.200 CORRECTP@20=0.100 TrueAUPR=0.080
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.041 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.087
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.149 CORRECTP@10=0.800 CORRECTP@20=0.450 TrueAUPR=0.227
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.095 CORRECTP@10=0.400 CORRECTP@20=0.350 TrueAUPR=0.146
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.051 CORRECTP@10=0.300 CORRECTP@20=0.150 TrueAUPR=0.089
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.057 CORRECTP@10=0.200 CORRECTP@20=0.250 TrueAUPR=0.083
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.037 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.081
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=0 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=1 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=2 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=3 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#EmploymentMembership~employer~name~"Army" trials=4 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.087
+predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.062 CORRECTP@10=0.400 CORRECTP@20=0.450 TrueAUPR=0.098
+predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.105 CORRECTP@10=0.300 CORRECTP@20=0.250 TrueAUPR=0.217
+predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.070 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.160
+predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.101 CORRECTP@10=0.400 CORRECTP@20=0.300 TrueAUPR=0.340
+predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.040 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.056
+predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.059 CORRECTP@10=0.400 CORRECTP@20=0.400 TrueAUPR=0.087
+predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.089 CORRECTP@10=0.200 CORRECTP@20=0.250 TrueAUPR=0.157
+predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.045 CORRECTP@10=0.200 CORRECTP@20=0.350 TrueAUPR=0.066
+predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.045 CORRECTP@10=0.300 CORRECTP@20=0.150 TrueAUPR=0.118
+predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.023 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.034
+predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.050 CORRECTP@10=0.400 CORRECTP@20=0.400 TrueAUPR=0.091
+predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.055 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.130
+predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.033 CORRECTP@10=0.400 CORRECTP@20=0.350 TrueAUPR=0.062
+predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.017 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.046
+predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.063 CORRECTP@10=0.100 CORRECTP@20=0.150 TrueAUPR=0.106
+predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.065 CORRECTP@10=0.400 CORRECTP@20=0.400 TrueAUPR=0.101
+predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.114 CORRECTP@10=0.100 CORRECTP@20=0.250 TrueAUPR=0.231
+predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.072 CORRECTP@10=0.100 CORRECTP@20=0.200 TrueAUPR=0.160
+predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.108 CORRECTP@10=0.400 CORRECTP@20=0.450 TrueAUPR=0.374
+predicate_name=adept-core#Origin~origin~name~"American" trials=0 featset_name=random  CORRECTAUPR=0.013 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.004
+predicate_name=adept-core#Origin~origin~name~"American" trials=1 featset_name=random  CORRECTAUPR=0.013 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.004
+predicate_name=adept-core#Origin~origin~name~"American" trials=2 featset_name=random  CORRECTAUPR=0.015 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.004
+predicate_name=adept-core#Origin~origin~name~"American" trials=3 featset_name=random  CORRECTAUPR=0.014 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003
+predicate_name=adept-core#Origin~origin~name~"American" trials=4 featset_name=random  CORRECTAUPR=0.014 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.004
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.739 CORRECTP@10=1.000 CORRECTP@20=0.800 TrueAUPR=0.739
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.245 CORRECTP@10=0.600 CORRECTP@20=0.350 TrueAUPR=0.245
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.427 CORRECTP@10=0.800 CORRECTP@20=0.650 TrueAUPR=0.427
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.257 CORRECTP@10=0.400 CORRECTP@20=0.300 TrueAUPR=0.257
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.296 CORRECTP@10=0.600 CORRECTP@20=0.550 TrueAUPR=0.296
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.662 CORRECTP@10=0.900 CORRECTP@20=0.800 TrueAUPR=0.662
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.174 CORRECTP@10=0.300 CORRECTP@20=0.250 TrueAUPR=0.174
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.339 CORRECTP@10=0.600 CORRECTP@20=0.400 TrueAUPR=0.339
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.189 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.189
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.202 CORRECTP@10=0.400 CORRECTP@20=0.250 TrueAUPR=0.202
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.404 CORRECTP@10=0.700 CORRECTP@20=0.500 TrueAUPR=0.477
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.056 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.062
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.232 CORRECTP@10=0.400 CORRECTP@20=0.300 TrueAUPR=0.266
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.133 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.147
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.135 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.151
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.724 CORRECTP@10=1.000 CORRECTP@20=0.800 TrueAUPR=0.724
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.235 CORRECTP@10=0.600 CORRECTP@20=0.300 TrueAUPR=0.235
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.419 CORRECTP@10=0.800 CORRECTP@20=0.650 TrueAUPR=0.419
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.233 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.233
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.278 CORRECTP@10=0.600 CORRECTP@20=0.500 TrueAUPR=0.278
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=0 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=1 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=2 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=3 featset_name=random  CORRECTAUPR=0.002 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.002
+predicate_name=adept-core#StudentAlum~almamater~name~"Harvard" trials=4 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.055 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.088
+predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.057 CORRECTP@10=0.300 CORRECTP@20=0.250 TrueAUPR=0.092
+predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.050 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.052
+predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.054 CORRECTP@10=0.100 CORRECTP@20=0.250 TrueAUPR=0.107
+predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.051 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.070
+predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.056 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.087
+predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.055 CORRECTP@10=0.100 CORRECTP@20=0.200 TrueAUPR=0.059
+predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.050 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.042
+predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@20=0.200 TrueAUPR=0.104
+predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.053 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.070
+predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.055 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.059
+predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.053 CORRECTP@10=0.100 CORRECTP@20=0.150 TrueAUPR=0.028
+predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.049 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.041
+predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.054 CORRECTP@10=0.200 CORRECTP@20=0.100 TrueAUPR=0.074
+predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.023
+predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.057 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.096
+predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.057 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.110
+predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.051 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.050
+predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.055 CORRECTP@10=0.000 CORRECTP@20=0.150 TrueAUPR=0.118
+predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.063
+predicate_name=adept-core#Role~role~name~"director" trials=0 featset_name=random  CORRECTAUPR=0.053 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"director" trials=1 featset_name=random  CORRECTAUPR=0.051 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"director" trials=2 featset_name=random  CORRECTAUPR=0.054 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.002
+predicate_name=adept-core#Role~role~name~"director" trials=3 featset_name=random  CORRECTAUPR=0.052 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.002
+predicate_name=adept-core#Role~role~name~"director" trials=4 featset_name=random  CORRECTAUPR=0.051 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.019 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.017
+predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.015
+predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.030 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.040
+predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.034 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.073
+predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.025
+predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.018
+predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.016
+predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.032 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.046
+predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.036 CORRECTP@10=0.300 CORRECTP@20=0.150 TrueAUPR=0.077
+predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.024 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.028
+predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.015
+predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.021
+predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.032 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.048
+predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.034 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.067
+predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.024 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.036
+predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.031
+predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.019
+predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.030 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.042
+predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.034 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.075
+predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.019
+predicate_name=adept-core#Role~role~name~"author" trials=0 featset_name=random  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"author" trials=1 featset_name=random  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"author" trials=2 featset_name=random  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"author" trials=3 featset_name=random  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Role~role~name~"author" trials=4 featset_name=random  CORRECTAUPR=0.020 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.032 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.032
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.156 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.156
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.079 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.079
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.378 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.378
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.278 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.278
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.021 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.021
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.083 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.083
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.040 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.040
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.269 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.269
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.246 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.246
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.012 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.012
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.054 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.054
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.023 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.023
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.223 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.223
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.216 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.216
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.033 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.033
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.175 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.175
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.077 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.077
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.379 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.379
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.284 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.284
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=0 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=1 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=2 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=3 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#StudentAlum~almamater~name~"Stanford" trials=4 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.229 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.255
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.147 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.163
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.193 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.214
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.261 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.289
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.335 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.372
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.248 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.276
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.204 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.227
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.188 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.208
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.239 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.265
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.343 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.381
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.295 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.369
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.205 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.256
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.169 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.187
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.228 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.284
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.314 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.393
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.260 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.289
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.187 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.208
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.187 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.208
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.243 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.270
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.296 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.329
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=0 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=1 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=2 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=3 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Democratic" trials=4 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.075 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.080
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.145 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.157
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.087 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.102
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.152 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.171
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.135 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.146
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.068 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.073
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.165 CORRECTP@10=0.400 CORRECTP@20=0.250 TrueAUPR=0.178
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.104 CORRECTP@10=0.100 CORRECTP@20=0.150 TrueAUPR=0.117
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.160 CORRECTP@10=0.300 CORRECTP@20=0.250 TrueAUPR=0.180
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.152 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.164
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.058 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.083
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.149 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.223
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.097 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.145
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.120 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.179
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.140 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.198
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.076 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.079
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.151 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.163
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.087 CORRECTP@10=0.100 CORRECTP@20=0.100 TrueAUPR=0.101
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.146 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.163
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.149 CORRECTP@10=0.300 CORRECTP@20=0.300 TrueAUPR=0.160
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=0 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=1 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=2 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=3 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Origin~origin~name~"Russia" trials=4 featset_name=random  CORRECTAUPR=0.001 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.067 CORRECTP@10=0.500 CORRECTP@20=0.350 TrueAUPR=0.102
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.076 CORRECTP@10=0.500 CORRECTP@20=0.400 TrueAUPR=0.125
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.039 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.064
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.067 CORRECTP@10=0.500 CORRECTP@20=0.350 TrueAUPR=0.140
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.024 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.045
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.070 CORRECTP@10=0.400 CORRECTP@20=0.400 TrueAUPR=0.104
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.082 CORRECTP@10=0.600 CORRECTP@20=0.500 TrueAUPR=0.131
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.046 CORRECTP@10=0.400 CORRECTP@20=0.300 TrueAUPR=0.073
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.071 CORRECTP@10=0.600 CORRECTP@20=0.400 TrueAUPR=0.147
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.026 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.046
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.066 CORRECTP@10=0.300 CORRECTP@20=0.300 TrueAUPR=0.098
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.081 CORRECTP@10=0.500 CORRECTP@20=0.500 TrueAUPR=0.129
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.053 CORRECTP@10=0.300 CORRECTP@20=0.250 TrueAUPR=0.085
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.056 CORRECTP@10=0.400 CORRECTP@20=0.350 TrueAUPR=0.114
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.025 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.044
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.069 CORRECTP@10=0.600 CORRECTP@20=0.500 TrueAUPR=0.105
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.079 CORRECTP@10=0.600 CORRECTP@20=0.450 TrueAUPR=0.129
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.040 CORRECTP@10=0.400 CORRECTP@20=0.300 TrueAUPR=0.065
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.066 CORRECTP@10=0.500 CORRECTP@20=0.350 TrueAUPR=0.134
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.029 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.055
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=0 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=1 featset_name=random  CORRECTAUPR=0.006 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.005
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=2 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.002
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=3 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003
+predicate_name=adept-core#EmploymentMembership~employer~name~"White House" trials=4 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.002
+predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.040 CORRECTP@10=0.400 CORRECTP@20=0.250 TrueAUPR=0.080
+predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.039 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.066
+predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.021 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.044
+predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.084 CORRECTP@10=0.700 CORRECTP@20=0.450 TrueAUPR=0.174
+predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.021 CORRECTP@10=0.300 CORRECTP@20=0.150 TrueAUPR=0.052
+predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.040 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.073
+predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.030 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.049
+predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.014 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.027
+predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.058 CORRECTP@10=0.400 CORRECTP@20=0.350 TrueAUPR=0.110
+predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.025 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.050
+predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.028 CORRECTP@10=0.300 CORRECTP@20=0.150 TrueAUPR=0.090
+predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.022 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.048
+predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.012
+predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.033 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.094
+predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.026 CORRECTP@10=0.400 CORRECTP@20=0.200 TrueAUPR=0.051
+predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.037 CORRECTP@10=0.300 CORRECTP@20=0.200 TrueAUPR=0.072
+predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.043 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.075
+predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.018 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.036
+predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.084 CORRECTP@10=0.700 CORRECTP@20=0.550 TrueAUPR=0.172
+predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.021 CORRECTP@10=0.300 CORRECTP@20=0.150 TrueAUPR=0.048
+predicate_name=adept-core#Resident~location~name~"Texas" trials=0 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Resident~location~name~"Texas" trials=1 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Resident~location~name~"Texas" trials=2 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.002
+predicate_name=adept-core#Resident~location~name~"Texas" trials=3 featset_name=random  CORRECTAUPR=0.003 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Resident~location~name~"Texas" trials=4 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.001
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.192 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.192
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.012 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.012
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.181 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.181
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.175 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.175
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.268 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.268
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.186 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.186
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.009 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.009
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.176 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.176
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.173 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.173
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.221 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.221
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.180 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.180
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.006 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.007
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.172 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.172
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.170 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.170
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.191 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.191
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.197 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.197
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.013 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.013
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.181 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.181
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.093 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.093
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.242 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.242
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=0 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=1 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=2 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=3 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Leadership~subject_org~name~"Parliament" trials=4 featset_name=random  CORRECTAUPR=0.000 CORRECTP@10=-1.000 CORRECTP@20=-1.000 TrueAUPR=0.000
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_nodoc  CORRECTAUPR=0.057 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.080
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_nodoc  CORRECTAUPR=0.211 CORRECTP@10=0.700 CORRECTP@20=0.650 TrueAUPR=0.356
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_nodoc  CORRECTAUPR=0.068 CORRECTP@10=0.200 CORRECTP@20=0.400 TrueAUPR=0.099
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_nodoc  CORRECTAUPR=0.010 CORRECTP@10=0.200 CORRECTP@20=0.100 TrueAUPR=0.024
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_nodoc  CORRECTAUPR=0.099 CORRECTP@10=0.300 CORRECTP@20=0.350 TrueAUPR=0.148
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.044 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.059
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.072 CORRECTP@10=0.200 CORRECTP@20=0.400 TrueAUPR=0.110
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.029 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.038
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.014 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.027
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_backoff_nodoc  CORRECTAUPR=0.069 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.096
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_backoff  CORRECTAUPR=0.031 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.063
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_backoff  CORRECTAUPR=0.016 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.041
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_backoff  CORRECTAUPR=0.009 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.015
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_backoff  CORRECTAUPR=0.014 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.032
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_backoff  CORRECTAUPR=0.027 CORRECTP@10=0.200 CORRECTP@20=0.200 TrueAUPR=0.051
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=s_features_doc  CORRECTAUPR=0.056 CORRECTP@10=0.200 CORRECTP@20=0.150 TrueAUPR=0.079
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=s_features_doc  CORRECTAUPR=0.210 CORRECTP@10=0.700 CORRECTP@20=0.500 TrueAUPR=0.349
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=s_features_doc  CORRECTAUPR=0.072 CORRECTP@10=0.200 CORRECTP@20=0.300 TrueAUPR=0.102
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=s_features_doc  CORRECTAUPR=0.011 CORRECTP@10=0.100 CORRECTP@20=0.050 TrueAUPR=0.029
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=s_features_doc  CORRECTAUPR=0.099 CORRECTP@10=0.400 CORRECTP@20=0.400 TrueAUPR=0.147
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=0 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=1 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=2 featset_name=random  CORRECTAUPR=0.005 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=3 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.050 TrueAUPR=0.002
+predicate_name=adept-core#Resident~location~name~"Chinese" trials=4 featset_name=random  CORRECTAUPR=0.004 CORRECTP@10=0.000 CORRECTP@20=0.000 TrueAUPR=0.003

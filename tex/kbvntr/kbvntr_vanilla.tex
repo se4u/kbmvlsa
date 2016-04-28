@@ -9,6 +9,13 @@
 \usepackage[protrusion=true,expansion=true]{microtype}
 \usepackage{amsmath,amsfonts,amsthm,url,xspace,amssymb,mathrsfs}
 \usepackage[pdftex]{graphicx}
+
+% http://tex.stackexchange.com/questions/128033
+% undefining-leftbar-environment-to-eliminate-multiple-definitions
+% Work by adding these two lines.
+\let\leftbar\undefined
+\let\endleftbar\undefined
+
 \usepackage{thmtools}
 \declaretheorem[%
   style=plain,%
@@ -22,7 +29,7 @@
 \allsectionsfont{\centering\normalfont\scshape}
 %%% Custom headers/footers (fancyhdr package)
 \usepackage{fancyhdr}
-\usepackage[disable]{todonotes} % insert [disable] to disable all notes.
+\usepackage[disable]{todonotes} % or [disable] notes.
 \pagestyle{fancyplain}
 \fancyhead{}                        % No page header
 \fancyfoot[L]{}                     % Empty
@@ -89,19 +96,20 @@
 \newcommand{\newrel}{41}
 \renewcommand{\cite}[1]{\textcolor{red}{#1}}
 \renewcommand{\r}[1]{\textcolor{red}{#1}}
-\newcommand{\dataset}[0]{\texttt{BBN2} KBP dataset.}
+\newcommand{\dataset}[0]{\texttt{BBN2} dataset}
 \newcommand{\ontology}{\textsc{BBN Adept Ontology}}
-\newcommand{\task}{CS-KBP 2015 task}
+\newcommand{\task}{CS-KBP 2015 task\xspace{}}
 \newcommand{\dg}{$^\dagger$}
 \newcommand{\ddg}{$^\ddagger$}
 \newcommand{\OPTION}[0]{\textcolor{red}{OPTION}}
-\newcommand{\PK}{P\@K}
+\newcommand{\PK}{P@K}
 
 %%% Commands for arcs and states.
 \def\overstrike#1#2{{\setbox0\hbox{$#2$}\hbox to \wd0{\hss$#1$\hss}\kern-\wd0\box0}}
 \newcommand{\bigstaten}[1]{\overstrike{\protect\raisebox{1pt}{\mbox{\scriptsize #1}}}{\mbox{\Large $\bigcirc$}}}
 \newcommand{\shortarc}[1]{\protect\raisebox{-1pt}{$\stackrel{#1}{\longrightarrow}$}}
-
+\newcommand\given{\:\vert\:}
+\newcommand{\remove}[1]{}
 % --------------------------------------------------- %
 % Globally Override the special status of # character %
 % --------------------------------------------------- %
@@ -110,227 +118,203 @@
 \maketitle
 \section{Introduction}
 \label{sec:introduction}
-The archetypical usage for knowledge graphs is as stores of knowledge that
-support evaluation of queries for information retrieval (IR). For example, a
-knowledge graph may be stored inside a purpose built graph database, or inside
-an \textit{RDF triplestore} as RDF triples or even inside XML files and then
-queried using graph query languages\footnote{Two popular graph query languages
-are Cypher or Gremlin}, RDF query languages, \footnote{The defacto standard for
-querying RDF databases is SPARQL} or XML querying languages.\footnote{The
-dominant language being XPath} In general, a pattern matching technique can be
-used to filter and select parts of a knowledge graph that match the query.
+The predominant way in which analysts interact with and make use of knowledge
+graphs is by treating knowledge graphs as databases that support evaluation
+of queries. A graph $G$ comprises a vertex set $V$ and a relation
+on those vertices $E$. The elements of $E$ are called edges.
+The vertices and edges can also have attributes or features.
+In the literature for knowledge
+graphs vertices may also be called entities or nodes, the edges may be
+called relations or predicates or slots and attributes are sometimes called properties or
+features. Some literature also assigns types to
+vertices and edges which for all purposes are just discrete attributes that may
+sometimes be mutually exclusive.
 
-An information retrieval paradigm that is very different from query execution by
-pattern matching, is the paradigm of recommender systems. The goal of a recommender
-system is not to retrieve a subset of entities that match a pattern. Instead,
-a recommender system must facilitate a user of the knowledge base
-by ranking entities in the knowledge base according to their relevance to the user.
-Such a recommender system may be needed as an interface to a knowledge base in a number
-of cases, some of which we explicate through Examples~\ref{ex:use-case-1},
-\ref{ex:use-case-2}.
+The most common type of queries that are used to interface with
+databases, graphical or otherwise, are queries that exist in some logical
+algebra. For example a knowledge graph may be stored inside a graph database,
+an RDF {triplestore} or even inside XML files and then queried using a graph
+query language such as Cypher or Gremlin, SPARQL or XPath. Such interfaces to
+knowledge graphs require an analyst to know atleast the following things:
+\begin{itemize}
+\item The schema of the knowledge graph.
+\item An expression from the query language, of the subgraph that the
+  analyst wants to select from the knowledge graph.
+\end{itemize}
+In case the desired subgraph cannot be efficiently expressed in the query
+language or if the exact expression is too inefficient to execute, then
+alternative queries may be formulated that select an approximations of
+the ideal subgraph that we want.
 
-\begin{example}\label{ex:use-case-1}
-  One common use case for interfacing with a knowledge graph through a recommendation
-engine may simply to order the results of a traditional query. Consider
-an example where the analyst queries a knowledge graph and retrieves
-a very large number of entities that satisfy that query. It may be the case that
-processing each of those outputs incurs some further cost and that the outputs
-of the queries could only be processed one at a time. In such a scenario it would
-be desirable if instead of a assigning a random order to the queries outputs the
-knowledge base assigns a useful ordering to the entities that are retrieved.
+A paradigm for databases queries that is very different from the paradigm
+of satisfying descriptive logical programs is the paradigm of
+\textit{example based queries} where the analyst wants to retrieve a subset of
+vertices and instead of describing that subset through an expression of the query
+language she provides {examples} of entities that are elements of
+ the desired subset. Sometimes the analyst may also provide negative examples of
+ entities that are are not elements of desired subset. The desired subset of
+ vertices is also sometimes called the ``{relevant set}'' or
+ ``{interesting set}''. Based on the  examples the database guesses the
+ analyst's criterion for relevance or interest and {recommends} other
+ vertices that would be relevant to the user. Databases that can support such
+ example based queries and return a sorted list of relevant entities are called
+\textit{Recommendation Systems} or \textit{Recommenders} in short. We call algorithms
+that can rank entities in a dataset based on a set of example entities
+\textit{Recommendation Algorithms}~(RAs). \Exref{ex:recommender} presents a
+concrete example of the utility of Recommenders and the variety of RAs that
+can be deployed. Clearly a single RA cannot perform well on all types of graphs and all types of
+queries. The performance of an RA would crucially depend on the topology of the
+knowledge graph, the complexity of the queries and the expressivity of the
+features utilized by the RA.
+
+\begin{example}\label{ex:recommender}
+  Consider a social network of sportsmen that contains the height
+  and weight of people and the sports that they play as well as their friendship
+  status. Assume that an analyst needs to retrieve the adult triathlete
+  with the lowest lung capacity from this database.
+
+  Clearly our analyst has her job cut out for her, not only will she have to
+  figure out the various ways in which people might express that they are
+  triathletes, but the attributes of age and lung capacity don't even exist in
+  the dataset. Since triathlete might simply state that they are triathletes or
+  instead state the three or more sports that they play individually creating
+  the correct filters by hand can be time consuming. On top of that the analyst
+  will have to manually figure out some rules for guessing the age and lung capacity of
+  a person  based on their height and weight.
+
+  In such a scenario a \textit{Recommender} can be very useful for achieving quick
+  results. A general purpose RA based on a probabilistic linear model built with
+  third order feature conjunctions could be quite easily figure out the right
+  entities to retrieve from the database and give useful hints to the analyst
+  for fast prototyping.
 \end{example}
 
-\begin{example}\label{ex:use-case-2}
-  Consider a scenario where the exact query that would be required to describe the
-set of \textit{Entities Of Interest (EOI)} is too complicated and/or expensive
-to write and maintain. If the criteria for selection relevant for us is
-absent from the the knowledge base, then it may be impossible to write
-down \textit{succinct} patterns that exactly define the set of interest.
-In place of manually developing approximations to describe the set of interest
-using the query language and data schema available to us it may be
-easier to provide a few examples of entities that should/should not
-be retrieved by the query, and then to find a hypothesis from a general purpose
-hypothesis space that agrees with the examples.
-
-For example, consider a database of people that contains attributes such as height
-and weight. An analyst may be interested in ranking the people based on their lung
-capacity, but such a property may not be explicitly coded in the database.
-Now either the analyst could manually approximate the lung capacity with some weighted
-combination of height and weight, or they may annotate some examples of people who they
-know to have high lung capacity as being relevant/interesting
-and people who are known to have low lung capacity as irrelevant/not interesting
-and a recommendation algorithm could take these annotations into account and present
-the top K people with the highest lung capacity to the user.
-\end{example}
-
-In this report we study the properties of an automatically constructed knowledge
-graph, specifically the \dataset, and survey techniques that can be used for
-ranking entities in a knowledge graph, in response to supervision from a user
-that is limited to binary annotations indicating the relevance of a small subset
-of all the entities. We present empirical results and error analysis
-about the performance of 2 \textit{inductive}, \textit{linear-classification}
-based algorithms on this task and the performance of the \textit{MAD} algorithm
-which is \textit{transductive} in nature. Apart from these 3 algorithms we also
-present a novel extension of the Naive-Bayes model, that is inspired by the
-stochastic block model for graphs. Specifically we analyze the performance of
-the following algorithms:
-\begin{snugshade}
-\begin{enumerate}
-\item Recommendation through a binary SVM.
-\item Recommendation via the Naive Bayes model.
-\item Recommendation via the Block Naive Bayes model.
-\item Recommendation using the Modified Adsorption algorithm.
-\end{enumerate}
-\end{snugshade}
-
-In order to meaningfully evaluate the performance of the above algorithms on a real dataset
-we use a state of the art automatically generated knowledge base that was submitted by BBN in
-the \task. \Secref{sec:evaluation} details our evaluation protocol.
-
-\section{Entity Recommendation}
-\label{sec:entity-recommendation}
-Let us introduce some notation to explain the task of Entity Recommendation.
-Let $\mathcal{V}$ be a finite set and let
-$\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
-$\mathcal{V}$ denotes the set of all entities, $\mathcal{I}$ denotes the set
-of \textit{entities of interest} and $\mathcal{O}$ denotes those entities for
-which it is known that they are elements of $\mathcal{I}$. The task of entity
-recommendation is to produce a ranking $\pi$ of the vertices in
-$\mathcal{O}^C = \mathcal{V} \setminus \mathcal{O}$
-such that vertices belonging to $\mathcal{T} = \mathcal{I} - \mathcal{O}$ are
-ranked higher than the vertices in $\mathcal{V} - \mathcal{I}$.
-
-There are a number of possible approaches that have been tried already, and they can be categorized
-as follows:
+To ascertain the extent to which, the most advanced automatically
+constructed knowledge graph that has been created under the DARPA DEFT program,
+can function as a recommender, we evaluated the performance of a few RAs (See \Tabref{tab:ra}) on the
+\dataset (\Secref{sec:data})~\cite{BBN-REPORT} with a few plausible, but
+synthetic example based queries (\Secref{sec:evaluation}).
+Our results (\Secref{sec:er-algorithms}) suggest that the current state of
+the art automatically constructed knowledge graphs are too sparse to fruitfully
+function as a recommender. In conclusion (\Secref{sec:conclusions}), we discuss
+guidelines to construct ontologies such that the resulting knowledge graph can
+function as a recommender.
 
 \begin{table}[htbp]
   \centering
-  \begin{tabular}{l l l}
-    Transductive & Inductive & Semi Supervised \\
-    Linear & Non Linear \\
-    Generative & Discriminative \\
-    Only positive examples & Both positive and negative examples.
+  \begin{tabular}{l l}
+    Method              & Type         \\\hline
+    Naive Bayes         & Inductive    \\
+    %Block Naive Bayes  & Inductive    \\
+    %Binary SVM         & Inductive    \\
+    Modified Adsorption & Transductive \\
+    Random Walk         & Transductive \\
   \end{tabular}
-  \caption{Criteria for categorization.}
-  \label{tab:cat-crit}
+  \caption{List of Recommendation Algorithms}
+  \label{tab:ra}
 \end{table}
 
+% \begin{table}[htbp]
+%   \centering
+%   \begin{tabular}{l l l}
+%     Transductive & Inductive & Semi Supervised \\
+%     Linear & Non Linear \\
+%     Generative & Discriminative \\
+%     Only positive examples & Both positive and negative examples.
+%   \end{tabular}
+%   \caption{Criteria for categorization.}
+%   \label{tab:cat-crit}
+% \end{table}
 
-\section{Data}
+
+\section{The \dataset{}}
 \label{sec:data}
 The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized
 by NIST to evaluate systems that build a knowledge base (KB) from raw natural
-language text~\cite{TAC-KBP-DESC}.  At the beginning of the task the
-participants are provided natural language documents, some guidelines and
-examples about valid and invalid entities, and a schema of relationships and
-their examples.  The systems have to extract entities and relations based on
-textual clues present in the documents and then populate a KB. The overarching
-goal is that the automatically created KB should be an accurate representation
-of the information available in the text documents. Specifically, the competing
-systems have to extract three types of entities: \textsc{PER, ORG, LOC}
-\footnote{PER, ORG and LOC are abbreviations of Person, Organization
-  and Location respectively.}
-and a small, fixed set of relations
-\footnote{Note that relations are sometimes called \textit{slots} in prior
-work.}
-between those entities. In \task the number of regular relations was 41. Each
-relation had atleast one inverse relations, which may or may not be a regular
-relation.  In total the number of relations was 63.
-
+language text~\cite{TAC-KBP-DESC}.  The competing systems extract entities and relations based on
+textual clues present in natural language documents and populate a KB according to a shared
+schema of entities and relationships. The set of documents is released at the beginning of
+the task and the schema is released some time before that.
+At the end of the shared task the systems submit their
+automatically generated knowledge bases to NIST, which evaluates their accuracy.
 BBN participated in the \task where it was the top performing
 participant in terms of precision and overall F1 according to the official
-results as of November 2015~\cite{BBN-System}. To assess the feasibility of
-ranking potentially similar entities using KBs built with an ontology of a small
-number of relations we accessed BBN's \texttt{BBN2} submission to the CS-KBP
-task and performed entity recommendation experiments on the \texttt{BBN2}
-database.
+results as of November 2015~\cite{BBN-System}. Since BBN's \texttt{BBN2} was one
+of its top performing submissions therefore to ascertain the feasibility of using an
+automatically constructed knowledge graphs as a recommender we
+performed our experiments on \texttt{BBN2}.
 
 The \dataset is a knowledge graph built according to the \ontology.
-Although the \ontology defines a large number of
-relations the \dataset contains instantiations for only a small
-number of the total possible relationships.
-The reason is that the entities and relations
-were extracted from approximately $50,000$ web pages by BBN for their
-\texttt{BBN2} submission for the TAC CS-KBP task. That task has its own set
-of 41 important relations and 3 entity types which were mapped to the \ontology
-and converted into rdf triples that we accessed.
-Further more the observations for different relations follow a power law
-and the highest occurring relation accounts for $30\%$ of the total
-observations.
-% The reason for this skew is that the
-% natural language text itself has a strong bias about the type of relations that are
-% reported explicitly and that bias is reflected in the distribution of textual mentions
-% of relations.
-
-We define a named entity to be a unique entity that has either a canonical string
-or a canonical time attached to it.\footnote{
-We note that this is a non-standard usage of the term named entities which usually refers only to
-names of people, locations and organizations but not their titles or dates.}
-The \dataset contains 5 types of named entities. See \tabref{tab:type}.
-For example, the identifier $9dd1d8d3-9a1f-4ec2-a45b-64cce788eb01$ in the dataset has
+It contains three standard entity types: \textsc{PER, ORG, LOC}
+that refer to Person, Organization and Location respectively as well
+as four extra types of \textsc{TITLE, DATE, CRIME, URL} (\Tabref{tab:type}).
+We will collectively denote entities
+of these types as named entities. Technically we define a named entity to be a
+any entity that has only either a canonical string
+or a canonical time attached to it and no other attributes.
+See~\ref{ex:ne}  for an example.
+Because of the errors made during automatic relation extraction there can be multiple
+named entities with different identifiers that have approximately the same canonical string
+(See \Exref{ex:title-cap}). We call this phenomenon \textit{Denormalization} and we will show
+later this phenomenon severely hurts the performance of any recommendation system.
+\begin{example}\label{ex:ne}
+  The identifier $9dd1d8d3-9a1f-4ec2-a45b-64cce788eb01$ in the dataset has
 the type \texttt{Title}
-and the canonical string associated with it is \texttt{Almighty King}.
- Because of the errors made
-during automatic relation extraction and because of the lack of post-processing there can be multiple
-\texttt{Title} identifiers that have the same, or roughly the same, canonical string.
-See \exref{ex:title-cap}.
-\begin{example}
-\label{ex:title-cap}
-The identifiers $e3ac2b1e-cd3b-4cf8-a1fb-b1f71db123df$ and
-$234f3110-c8ca-49aa-ba7b-a45bb5467c38$ have canonical strings \textit{professor} and
-\textit{Professor} respectively which differ only in their capitalization.
+and the canonical string associated with it is \texttt{Almighty King}. This
+identifier has no other attributes attached to it.
 \end{example}
-
+\begin{example}\label{ex:title-cap}
+  The identifiers $e3ac2b1e-cd3b-4cf8-a1fb-b1f71db123df$ and
+  $234f3110-c8ca-49aa-ba7b-a45bb5467c38$ have canonical strings \textit{professor} and
+  \textit{Professor} respectively which differ only in their capitalization.
+\end{example}
 As \tabref{tab:type} shows, the \texttt{Person} category is the highest occurring
 category with $125$K instantiations
 and it is slightly less than double the next largest category of \texttt{Organization}.
-
+The occurrences of the \texttt{URL} type are negligible.
 \begin{table}[htbp]
   \centering
   \begin{tabular}{r l l}
-    Instantiations & Type                          & Property                   \\
-    125022         & Person             & adept-base\#canonicalString \\
-    69544          & Organization       & adept-base\#canonicalString \\
-    23754          & GeoPoliticalEntity & adept-base\#canonicalString \\
-    1761           & Title              & adept-base\#canonicalString \\
-    819            & adept-base\#Date               & adept-base\#xsdDate         \\
-    333            & Crime              & adept-base\#canonicalString \\
-    189            & URL                & adept-base\#canonicalString \\
+    \textbf{Instantiations} & \textbf{Type}& \textbf{Property}\\
+    $125022$         & Person             & canonicalString \\
+    $69544$          & Organization       & canonicalString \\
+    $23754$          & GeoPoliticalEntity & canonicalString \\
+    $1761$           & Title              & canonicalString \\
+    $819$            & adept-base#Date    & xsdDate         \\
+    $333$            & Crime              & canonicalString \\
+    $189$            & URL                & canonicalString \\\cline{1-1}
+    Total $= 221,547$   \\
   \end{tabular}
-  \caption{Observation Counts for Named Entities}
+  \caption{The number of instantiations(occurrences) of Named Entities of different types.}
   \label{tab:type}
 \end{table}
+Also we note that the knowledge graph contains a large number of singleton entities.
+We can infer this from Tables~\ref{tab:type} and \ref{tab:relation}
+since the number of entities is much larger than the total number of edges.
 
-\Tabref{tab:relation} tabulates statistics about the relations contained in the \dataset.
-Every instance of a relation has a unique id, and it relates two named entities.
-For example the id $001ae391-3a55-43d1-8d3e-0557bdd943d1$ refers to a relation of the
+The relations in the \dataset comprise of a small number of relation types.
+Just like named entities every instance of a relation has a unique id.
+Each instance relates two named entities (See \Exref{ex:rel}).
+\begin{example}\label{ex:rel}
+  The id $001ae391-3a55-43d1-8d3e-0557bdd943d1$ refers to a relation of the
 type \texttt{Resident} which connects its named attribute \texttt{person}
 which must have the type \texttt{Person}
 with its \texttt{location} attribute which must be of type
 \texttt{Geopoliticalentity}.
-\Tabref{tab:relation} shows that the \texttt{Role} relation,
-that relates a person to his/her title, occurs most often.
-Note that the \texttt{Role} is not a relation between two people, but rather
-it is a relation between a person and an attribute.
-In this sense, the \texttt{Role} relation can be considered as a feature of a person
-instead of a relation, since the \texttt{Role} for one person can be
-independent of the Role of another person.
-We note that 11 out of 20 relations including the top four most observed relations,
-can be thought of as features of persons.
-Only 3 relations out of the total of 20 relate two persons and
-only 6 relations relate organization to other organizations or to locations.
-These observations indicate that for recommending persons based on other persons of interest
-it might be enough to model the knowledge graphs in the more traditional supervised machine
-learning setting where the people are modeled as bags of features and the goal of the
-recommendation algorithm is to rank the people based on the features of the people
-that were already selected.
-% See \cite{TAC-SLOT-DESCRIPTION,BBN-DESCR} for details about the CS-KBP task, the
-% slot types and the \dataset.
-
+\end{example}
+The total number of regular relations was 41 in \task
+but the occurrences for different relations follow a power law
+(\Tabref{tab:relation}) and  out of the 20 relations that are observed the
+highest occurring \texttt{Role} relation type
+that relates a person to his/her title accounts for $30\%$ of the data.
+The reason for this skew is that the
+natural language text itself has a strong bias about the type of relations that are
+reported explicitly and that bias is reflected in the distribution of textual mentions
+of relations.
 \begin{table}[htbp]
   \resizebox{\textwidth}{!}{
   \begin{tabular}{r l l l}
-\textbf{Instances} & \textbf{Relation}                  & \textbf{Attribute 1}           & \textbf{Attribute 1}        \\
+\textbf{Instances} & \textbf{Relation}       &\textbf{Attribute 1} &\textbf{Attribute 2}\\
 42490              & Role                    & person              & role             \\
 36631              & EmploymentMembership    & employeeMember      & organization     \\
 16288              & Resident                & person              & location         \\
@@ -350,7 +334,8 @@ that were already selected.
 374                & StartOrganization\dg    & organization        & time             \\
 369                & Membership\dg           & organization        & member           \\
 200                & OrganizationWebsite\dg  & organization        & url              \\
-33                 & EndOrganization\dg      & organization        & time             \\
+33                 & EndOrganization\dg      & organization        & time             \\\cline{1-1}
+Total $= 134,581$ \\
 \end{tabular}}
   \caption{Relations Types and their attributes. \dg indicates relations for
     which neither of the arguments are of the type
@@ -359,16 +344,21 @@ that were already selected.
   \label{tab:relation}
 \end{table}
 
-The above discussion highlights the following key observations about the data:
-\begin{snugshade}
-  \begin{itemize}
-  \item The graph can be split into two groups of entities with one group made up of entities with the type
-    \textsc{PER} and the second group made of all other entities. Most of the connections in the knowledge graph
-    connect entities across these two groups. Specifically there are very few connections between person entities.
-  \item The knowledge graph contains a large number of singleton entities, since the number of entities
-    is much larger than the total number of edges.
-  \end{itemize}
-\end{snugshade}
+\subsection{Relations or Attributes}
+\label{sec:relat-or-attr}
+As shown in \tabref{tab:relation} the \texttt{Role} relation does not relate two people.
+It only relates a person and its title.
+In this sense, the \texttt{Role} relation acta as a feature or an attribute of a person
+instead of a relation between them, since the \texttt{Role} for one person can be completely
+independent of the Role of another person unlike the \texttt{Sibling, Spousal and ParentChild}
+relationships. The \texttt{Sibling, Spousal and ParentChild} relationships always affects two
+people simultaneously in the sense that if a person \textsc{B} is set to be the sibling of \textsc{A} then
+\textsc{A} must be set to the sibling of \textsc{B}.
+We note that 11 out of 20 relations including the top four most observed relations,
+act as features of persons instead of relations. So the \textit{intra-person} relational
+information is lower in comparison to \textit{person-feature} information.
+Also note that only 6 relations relate organization to other organizations or to locations,
+so the \textit{intra-feature} relational information is also quite low.
 
 % \subsection{Data Cleaning}
 % \label{sec:data-cleaning}
@@ -378,78 +368,142 @@ The above discussion highlights the following key observations about the data:
 %   but data cleaning can be handled more flexibly (though perhaps less efficiently)
 %   as a similarity metric between the fragments.}
 
-\section{Evaluation}
+\section{Synthetic Evaluation}
 \label{sec:evaluation}
-The task of ranking objects inside recommender systems and information retrieval systems
-are well researched in Machine Learning and Information Retrieval.
-Two standard evaluation metrics
-for these tasks are the {Precision\@K}(\PK) metric and the
-{Area Under Precision Recall Curve}(AUPR) metric and
-we would report the performance of the systems
+In order to evaluate RAs we need to simulate the kind of example based queries that an analyst might submit to an RA.
+In abscence of actual users minimally we require a synthetic predicate function that can act as a proxy of normal user's interests
+and that can label whether an entity is of interest or not. The RA can be trained by providing a small number of labeled examples
+generated from the predicate function and tested on the rest of the entities that were not provided as labeled inputs.
+
+We chose to use an existing binarized feature as a synthetic predicate function that
+acts as the oracle that determines whether an entity is relevant or not.
+During training and testing we remove this feature from the data and
+only present a few examples of entities with the values of this feature as labels.
+The algorithm then has to predict whether this hidden feature is $0$ or $1$ for the
+rest of the people on the basis of the training data and then to assign a rank to them
+such that people with feature value $1$ rank higher than people with feature value of $0$.
+Two standard evaluation metrics for these tasks are the {Precision@K}(\PK) metric and the
+{Area Under Precision Recall Curve}(AUPR) metric and we would report the performance of the systems
 on these two metrics and compare them to a random baseline.
-
-To evaluate a recommendation system we minimally need a predicate function to
-label whether an entity is an entity of interest or not and
-for training a recommender system we need examples of
-entities for which the predicate function is true and preferably some examples
-for which the predicate function is false as well. Since we don't have access
-to gold standard queries, we create some example queries of interest by using
-the prescence of a feature as a predicate function.
-During training and testing we remove this feature from the training data and
-only present labeled examples of entities for which the predicate function is
-true and a few negative examples.
-\FW{Should all features form the document that contained
-  the training relations that were used as the criteria of relevance be removed?}
-At test time the recommender systems rank the entities from a separate test set
-with the goal that the
-entities for which the predicate function is true should be ranked higher.
-Using the
-true predicate function and the ranking produced by the recommendation system we
-can measure the \PK and AUPR metrics. In order to increase the interpretability of the
-model we enforce the constraint that both the train and the test sets are balanced, \ie
-they contain an equal number of positive and negative examples.
-
-To simulate plausible recommendation criterion we made the following assumptions about
-the predicate functions:
-\begin{enumerate}
-\item We assume that a user of the knowledge graph recommendation system is only
-  interested in ranking the \textsc{PER} entities, therefore the predicate function
-  only needs to be able to label the \textsc{PER} entities.
-\item We
-  impose the constraint that the predicate functions can only be constructed from pre-existing entity features.
-  For example, a user of the recommendation system may mark certain employees of the
-  ``White\_House'' as people of interest and based on these examples the recommendation
-  system needs to assign a high rank to the remaining employees of the ``White\_House'' and
+\begin{example}\label{ex:eval}
+    For example, a user of the recommendation system may mark certain employees of the
+  ``White House'' as people of interest and based on these examples the recommendation
+  system needs to assign a high rank to the remaining employees of the ``White House'' and
   a low rank to the persons. Note that the recommendation system does not receive the
-  feature that the person was the employee of the ``White\_House'' during operation
+  feature that the person was the employee of the ``White House'' during operation
   and it has to make a guess on the basis of other persons and their features.
   Consider a second example, where a predicate function may mark people who are
   ``authors'' as people of interest and request the recommendation system to find more
   people who are ``authors''. \tabref{tab:pred-func} lists the 6 Relations types that we
   use to create a 12 predicate functions which we use for performance evaluation.
-\end{enumerate}
+\end{example}
+To simulate plausible recommendation criterion we assumed that
+a user of the knowledge graph recommendation system is only
+interested in ranking the \textsc{PER} entities, therefore the predicate function
+only needs to be able to label the \textsc{PER} entities.
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{r H | c c}
+    Relation             & Attribute    & Value 1    & Value 2      \\\hline
+    Role                 & role         & author     & director     \\
+    EmploymentMembership & employer     & Army       & White House \\
+    Resident             & location     & Chinese    & Texas        \\
+    Leadership           & subject\_org & Democratic & Parliament   \\
+    Origin               & origin       & American   & Russia       \\
+    StudentAlum          & almamater    & Harvard    & Stanford     \\
+  \end{tabular}
+  \caption{List of Predicate Functions used as proxies of an analyst's interests.
+    See \exref{ex:eval} for an illustration of the usage of the \texttt{Role=author}
+    predicate function.}
+  \label{tab:pred-func}
+\end{table}
+\FW{levarage unsupervised label co-occurrence data such as certain
+  labels tend to occur with each other.}
+\FW{Should all features form the document that contained
+  the training relations that were used as the criteria of relevance be removed?}
+
+\section{Recommentation Algorithms for Automatically Constructed Knowledge Graphs}
+\label{sec:er-algorithms}
+Since the knowledge graphs are automatically constructed therefore they are noisy.
+We first try simple model to see the performance.
+
+% Let us introduce some notation to explain the task of Entity Recommendation.
+% Let $\mathcal{V}$ be a finite set and let
+% $\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
+% $\mathcal{V}$ denotes the set of all entities, $\mathcal{I}$ denotes the set
+% of \textit{entities of interest} and $\mathcal{O}$ denotes those entities for
+% which it is known that they are elements of $\mathcal{I}$. The task of entity
+% recommendation is to produce a ranking $\pi$ of the vertices in
+% $\mathcal{O}^C = \mathcal{V} \setminus \mathcal{O}$
+% such that vertices belonging to $\mathcal{T} = \mathcal{I} - \mathcal{O}$ are
+% ranked higher than the vertices in $\mathcal{V} - \mathcal{I}$.
+
+\subsection{Entity Recommendation Through the Naive Bayes Model}
+\label{sec:er-nb}
+Consider a set of observations $\{(f^i, y^i) | i \in \{1, \ldots, N\}\}$.
+Here $y^i$ is the label assigned to the $i$th instance and $f^i$ is the
+feature representation of $x^i$. Let $f^i$ is a binary vector of size $K$.
+Let $y^i \in \{0, 1\}$. We denote the $k_{\mathrm{th}}$ element of $f^i$ as $f^i[k]$
+and we drop the superscript $i$ when the exact data instance is immaterial.
+Let $\hat{y}_{\mathrm{NB}}$ denote the estimate produced by the naive bayes model.
+Then the Naive Bayes models model the probability of $(x, y)$ very simplistically
+and they use that probability to estimate $\hat{y}_{\mathrm{NB}}$ as follows:
+\begin{align}
+  p(x, y) = p(f, y) = p(y) p(x, f \given y) = p(y) \prod_{k=1}^K p(f[k] \given y)\\
+  \hat{y}_{\mathrm{NB}} = \argmax{y \in \mathcal{Y}} p(y | x, f) = \argmax{y \in \mathcal{Y}} p(y) p(x, f | y)
+\end{align}
+The training of naive bayes models is done by
+maximizing the log probability of the entire corpus specified by the following expression:
+\begin{align}
+  \sum_{i=1}^N \log(p(x^i, f^i, y^i)) = \sum_{i=1}^N \log(p(y^i)) + \sum_{i=1}^N \log(p(x^i, f^i | y^i))
+\end{align}
+We perform vertex nomination by training the naive bayes model
+and then ranking the rest of the instances according to their
+positive class posterior probability.
+
+\paragraph{Feature Design:}\label{sec:nb-feature-design}
+Although the naive bayes model is conceptually very simple and does have many hyper parameters, it
+is quite sensitive to the features that are fed to it as input.
+
+Let us explain our featurization of the model using an example:
+Consider an \textsc{PER} entity named ``Shaikh Ahmed'' that is known to
+have three properties: 1) It has a Role of ``Gen.''
+2) It has a second Role of ``chief'' and
+3) The name of its Residence is ``Afghanistan''.
+We begin by concatenating the relation type with the attribute value to get 3 distinct feature types
+``Role-Gen.'', ``Role-chief'' and ``Residence-Afghanistan''. We call these features the ``concatenative'' features.
+Note that this featurization can
+lead to sparsity since it would assign a different feature to an entity for which we know that its
+``Origin'' is ``Afghanistan''. We can alleviate this problem of
+feature sparsity through the addition of ``attribute-based'' backoff features
+based solely on the attribute values and not the relation types.
+For example we can add the following three features
+to ``Shaikh Ahmed''. i) ``Gen.'' ii) ``chief'' and iii) ``Afghanistan''.
+We call this augmented featurization ``Concat W/ Backoff''.
+% Furthermore this featurization is a first order featurization which fails to take into
+% account the effect of the conjunction or disjunction of two features.
+% Since the distribution of a naive bayes model can change with the repetition of features therefore
+% disjunctive features that act as narrow backoff features can be useful for improving the performance
+% of the naive bayes model. We report results with pairwise disjunctions and pairwise conjunctions which are
+% two possible ways of doing pairwise feature combinations.
+For all these methods we prune the actual features
+used to only those that actually occurred in the positively
+labeled portion of the training set, separately for each trial.
 
 \begin{table}[htbp]
   \centering
-  \begin{tabular}{r l | c c}
-    Relation                        & Attribute    & Value 1    & Value 2      \\\hline
-    EmploymentMembership & employer     & Army       & White\_House \\
-    Leadership           & subject\_org & Democratic & Parliament   \\
-    Origin               & origin       & American   & Russia       \\
-    Resident             & location     & Chinese    & Texas        \\
-    Role                 & role         & author     & director     \\
-    StudentAlum          & almamater    & Harvard    & Stanford     \\
-  \end{tabular}
-  \caption{Table of Predicate Functions}
-  \label{tab:pred-func}
+  \resizebox{\textwidth}{!}
+  {
+  \begin{tabular}{l | c c c c c}
+     & Only Backoff      & Concatenative w/o Doc & Concatenative w/ Doc & Concat w/ Backoff & Random \\\hline
+AUPR & $ 8.8 \pm 3.9 $   & $ 12.6 \pm 5.9 $      & $ 12.5 \pm 5.8 $     & $ 10.9 \pm 5.0 $  & $ 1.0 \pm 0.1 $\\
+P@10 & $ 20.4 \pm 13.0 $ & $ 29.6 \pm 16.7 $     & $ 29.8 \pm 18.1 $    & $ 25.3 \pm 12.7 $ & $ 2.0 \pm 4.3 $\\
+  \end{tabular}}
+  \caption{Performance with NB. The intervals are 90\% confidence intervals.}
+  \label{tab:perf-nb}
 \end{table}
 
-\FW{levarage unsupervised label co-occurrence data such as certain
-  labels tend to occur with each other.}
-
-\section{Methods for Entity Recommentation on Knowledge Graphs}
-\label{sec:er-algorithms}
-
+\remove{
 \subsection{Entity Recommendation using binary SVM}
 \label{sec:er-feature}
 
@@ -535,12 +589,11 @@ StudentAlum          & almamater    & Stanford         & $0.052 \pm 0.073 $ &$0.
   \caption{Performance with a feature based ranker. The intervals are 90\% confidence intervals.}
   \label{tab:perf-feat}
 \end{table}
-\Todo{
-Add Backoff features. Perform entity ranking only through backoff features.}
-
+}
 \subsection{Entity Recommendation Through Label Propagation}
 \label{sec:er-lp}
-\FW{Remember that for all these models, there's a way to model them more compositionally by decomposing the model over the edge types and the vertices.}
+\FW{Remember that for all these models, there's a way to model them
+more compositionally by decomposing the model over the edge types and the vertices.}
 There are two ways of interpreting the graph.
 Either we can interpret the relations to be different types of edges,
 or equivalently as edge attributes,
@@ -593,22 +646,12 @@ Using the modified adsorption algorithm we obtain the following result:
 % --------------------------------------- %
 \begin{table}[htbp]
   \centering
-  \resizebox{\textwidth}{!}{
-  \begin{tabular}{l l l | c c c}
-Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
-                                &              &                 & w/o doc & w/ doc & random \\
-EmploymentMembership & employer     & Army            & $0.106 \pm 0.087 $ & $0.097 \pm 0.057 $ & $0.003 \pm 0.000 $\\
-EmploymentMembership & employer     & White\_House    & $0.025 \pm 0.006 $ & $0.025 \pm 0.008 $ & $0.004 \pm 0.000 $\\
-Leadership           & subject\_org & Democratic      & $0.009 \pm 0.002 $ & $0.004 \pm 0.001 $ & $0.000 \pm 0.000 $\\
-Leadership           & subject\_org & Parliament      & $0.044 \pm 0.010 $ & $0.018 \pm 0.003 $ & $0.000 \pm 0.000 $\\
-Origin               & origin       & American        & $0.086 \pm 0.043 $ & $0.073 \pm 0.031 $ & $0.014 \pm 0.000 $\\
-Origin               & origin       & Russia          & $0.069 \pm 0.018 $ & $0.056 \pm 0.012 $ & $0.001 \pm 0.000 $\\
-Resident             & location     & Chinese         & $0.147 \pm 0.069 $ & $0.126 \pm 0.044 $ & $0.004 \pm 0.000 $\\
-Resident             & location     & Texas           & $0.054 \pm 0.028 $ & $0.032 \pm 0.012 $ & $0.003 \pm 0.000 $\\
-Role                 & role         & author          & $0.028 \pm 0.009 $ & $0.026 \pm 0.005 $ & $0.022 \pm 0.001 $\\
-Role                 & role         & director        & $0.056 \pm 0.004 $ & $0.051 \pm 0.002 $ & $0.054 \pm 0.000 $\\
-StudentAlum          & almamater    & Harvard         & $0.168 \pm 0.044 $ & $0.112 \pm 0.034 $ & $0.002 \pm 0.000 $\\
-StudentAlum          & almamater    & Stanford        & $0.050 \pm 0.012 $ & $0.032 \pm 0.011 $ & $0.000 \pm 0.000 $\\
+  %\resizebox{\textwidth}{!}
+  {
+  \begin{tabular}{l  | c c c}
+         & w/o doc          & w/ doc           & random          \\
+    AUPR & $ 7.0 \pm 2.8 $  & $ 5.4 \pm 1.8 $  & $ 1.2 \pm 0.0 $ \\
+    P@10 & $ 9.8 \pm 11.2 $ & $ 12.3 \pm 9.6 $ & $ 0 $           \\
 \end{tabular}}
   \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
   \label{tab:perf-label-prop}
@@ -622,65 +665,9 @@ methods would have the drawback that the vertices would remain non-compositional
   Add the performance of unbiased RW with and without edge attributes.
   Add the performance of RESCAL with and without edge attributes.
   Add the performance of matrix factorization.}
-\Todo{
-Add Backoff features. Perform entity ranking only through backoff features.}
-
-\subsection{Entity Recommendation Through the Naive Bayes Model}
-\label{sec:er-nb}
-Consider a set of observations $\{(x^i, f^i, y^i) | i \in [N]\}$. Here $y^i$ is the label assigned to $x^i$.
-$f^i$ are binary features representing $x^i$. Let $y^i \in \mathcal{Y}$ where $\mathcal{Y}$ is the set of all labels.
-Let $f^i$ is a vector of features of length $K$. We denote the $k_{\mathrm{th}}$ element of $f$ as $f[k]$.
-
-Traditionally Naive Bayes models specify the probability of $(x, f, y)$ through the following decomposition:
-
-\begin{align}
-  p(x, f, y) = p(y) p(x, f, | y) = p(y) \prod_{k=1}^K p(f[k] | y)
-\end{align}
-
-The functional form of $p(f[k] | y)$ can vary but for purposes of this paper we restrict ourselves to the bernoulli probability distribution.
-
-The goal of the narive bayes classifier is to chose the most likely class given $f$ using the bayes rule.
-Let $\hat{y}_{\mathrm{NB}}$ denote the estimate produced by the naive bayes
-model.
-
-\begin{align}
-  \hat{y}_{\mathrm{NB}} = \argmax{y \in \mathcal{Y}} p(y | x, f) = \argmax{y \in \mathcal{Y}} p(y) p(x, f | y)
-\end{align}
-
-The training of the naive bayes models is done by maximizing the log probability of the entire corpus, where the log probability of the corpus is given by
-\begin{align}
-  \sum_{i=1}^N \log(p(x^i, f^i, y^i)) = \sum_{i=1}^N \log(p(y^i)) + \sum_{i=1}^N \log(p(x^i, f^i | y^i))
-\end{align}
-
-As in previous sections we model the combination of an arc type and a label as a single new label,
-and we perform vertex nomination by training a naive bayes model
-and then ranking the rest of the instances according to the posterior probability of them belonging to the positive class.
-Instead of performing experiments with and withour documents, we instead perform an experiments with , only backoff features,
-only conjunctive features, a combination of backoff features and conjunctive features.
-\begin{table}[htbp]
-  \centering
-  \resizebox{\textwidth}{!}{
-  \begin{tabular}{l l l | c c c c}
-Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
-                                &              &                 & Only backoff & Only Conjunctive & Combination & Random \\
-EmploymentMembership & employer     & Army            & $0.041 \pm 0.017 $ & $0.070 \pm 0.033 $ & $0.057 \pm 0.022 $ & $0.002 \pm 0.000 $\\
-EmploymentMembership & employer     & White\_House    & $0.046 \pm 0.024 $ & $0.050 \pm 0.021 $ & $0.051 \pm 0.024 $ & $0.005 \pm 0.001 $\\
-Leadership           & subject\_org & Democratic      & $0.230 \pm 0.064 $ & $0.225 \pm 0.061 $ & $0.235 \pm 0.063 $ & $0.001 \pm 0.002 $\\
-Leadership           & subject\_org & Parliament      & $0.143 \pm 0.073 $ & $0.163 \pm 0.086 $ & $0.152 \pm 0.078 $ & $0.000 \pm 0.000 $\\
-Origin               & origin       & American        & $0.034 \pm 0.016 $ & $0.076 \pm 0.024 $ & $0.053 \pm 0.019 $ & $0.014 \pm 0.001 $\\
-Origin               & origin       & Russia          & $0.120 \pm 0.043 $ & $0.113 \pm 0.041 $ & $0.124 \pm 0.047 $ & $0.001 \pm 0.000 $\\
-Resident             & location     & Chinese         & $0.018 \pm 0.008 $ & $0.083 \pm 0.070 $ & $0.041 \pm 0.023 $ & $0.004 \pm 0.001 $\\
-Resident             & location     & Texas           & $0.018 \pm 0.010 $ & $0.036 \pm 0.019 $ & $0.029 \pm 0.013 $ & $0.003 \pm 0.000 $\\
-Role                 & role         & author          & $0.025 \pm 0.007 $ & $0.024 \pm 0.007 $ & $0.025 \pm 0.008 $ & $0.020 \pm 0.001 $\\
-Role                 & role         & director        & $0.053 \pm 0.002 $ & $0.054 \pm 0.003 $ & $0.053 \pm 0.002 $ & $0.052 \pm 0.001 $\\
-StudentAlum          & almamater    & Harvard         & $0.189 \pm 0.118 $ & $0.391 \pm 0.193 $ & $0.309 \pm 0.189 $ & $0.001 \pm 0.000 $\\
-StudentAlum          & almamater    & Stanford        & $0.089 \pm 0.081 $ & $0.192 \pm 0.132 $ & $0.130 \pm 0.105 $ & $0.000 \pm 0.000 $\\
-\end{tabular}}
-  \caption{Performance with NB. The intervals are 90\% confidence intervals.}
-  \label{tab:perf-nb}
-\end{table}
 
 
+\remove{
 \subsection{Entity Recommendation on Edge attributed Bipartite Graphs under the SBM model}
 \label{sec:er-vn}
 We want to model the fact that edges have types, and we want to model the fact that
@@ -764,7 +751,15 @@ StudentAlum          & almamater    & Stanford        & $0.045 \pm 0.037 $ & $0.
   \caption{Performance with Block NB. The intervals are 90\% confidence intervals.}
   \label{tab:perf-block-nb}
 \end{table}
+}
 
+\subsection{Entity Recommendation with Random Walks}
+\label{sec:er-rw}
+
+
+
+\subsection{Entity Recommendation with RESCAL based KBC}
+\label{sec:er-rescal}
 
 % \subsection{VN with Semi-Supervised Information}
 % \label{sec:vn-with-semi}
@@ -789,6 +784,6 @@ is communicating about two entities.}
 \bibliography{references}
 \end{document}
 
-%% :Local Variables:
-%% :eval (progn (flycheck-mode -1) (writegood-mode -1) (orgtbl-mode -1) (company-mode -1) (auto-revert-mode -1))
+%% Local Variables:
+%% eval: (progn (flycheck-mode -1) (company-mode -1))
 %% End:

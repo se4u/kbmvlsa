@@ -5,23 +5,23 @@
 | Description : Tabulate the output of the eval_basic_script
 | Author      : Pushpendre Rastogi
 | Created     : Thu Apr 21 12:34:14 2016 (-0400)
-| Last-Updated: Mon Apr 25 07:39:25 2016 (-0400)
+| Last-Updated: Wed Apr 27 23:28:13 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 35
+|     Update #: 36
 '''
 import rasengan
 
 headers = [[_.strip() for _ in e.strip().split(' & ')] for e in '''
+adept-core#Role                 & role         & "author"
+adept-core#Role                 & role         & "director"
 adept-core#EmploymentMembership & employer     & "Army"
 adept-core#EmploymentMembership & employer     & "White_House"
+adept-core#Resident             & location     & "Chinese"
+adept-core#Resident             & location     & "Texas"
 adept-core#Leadership           & subject_org  & "Democratic"
 adept-core#Leadership           & subject_org  & "Parliament"
 adept-core#Origin               & origin       & "American"
 adept-core#Origin               & origin       & "Russia"
-adept-core#Resident             & location     & "Chinese"
-adept-core#Resident             & location     & "Texas"
-adept-core#Role                 & role         & "author"
-adept-core#Role                 & role         & "director"
 adept-core#StudentAlum          & almamater    & "Harvard"
 adept-core#StudentAlum          & almamater    & "Stanford"
 '''.strip().split('\n')]
