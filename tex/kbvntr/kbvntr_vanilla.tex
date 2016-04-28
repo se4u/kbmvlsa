@@ -29,7 +29,7 @@
 \allsectionsfont{\centering\normalfont\scshape}
 %%% Custom headers/footers (fancyhdr package)
 \usepackage{fancyhdr}
-\usepackage[disable]{todonotes} % or [disable] notes.
+\usepackage[]{todonotes} % or [disable] notes.
 \pagestyle{fancyplain}
 \fancyhead{}                        % No page header
 \fancyfoot[L]{}                     % Empty
@@ -427,6 +427,7 @@ only needs to be able to label the \textsc{PER} entities.
 Since the knowledge graphs are automatically constructed therefore they are noisy.
 We first try simple model to see the performance.
 
+\Todo{Check the cases where the confidence intervals are bigger than the mean itself.}
 % Let us introduce some notation to explain the task of Entity Recommendation.
 % Let $\mathcal{V}$ be a finite set and let
 % $\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
@@ -755,6 +756,16 @@ StudentAlum          & almamater    & Stanford        & $0.045 \pm 0.037 $ & $0.
 
 \subsection{Entity Recommendation with Random Walks}
 \label{sec:er-rw}
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l c c}
+         & Concatenative w/o Doc & Concatenative w/ Doc \\
+    AUPR & $ 1.3 \pm 0.4 $       & $ 1.4 \pm 0.4 $      \\
+    P@10 & $ 7.7 \pm 8.0 $       & $ 7.3 \pm 7.5 $      \\
+  \end{tabular}
+  \caption{Performance with Random Walks}
+  \label{tab:perf-rw}
+\end{table}
 
 
 
