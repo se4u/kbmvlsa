@@ -1,5 +1,5 @@
 \documentclass[paper=a4,fontsize=11pt]{scrartcl}
-\usepackage{underscore,changepage,booktabs}
+\usepackage{underscore,changepage,booktabs,enumitem}
 \usepackage[dvipsnames]{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage{framed}
@@ -19,7 +19,14 @@
 \usepackage{thmtools}
 \declaretheorem[%
   style=plain,%
-  thmbox={style=M,bodystyle=\normalfont},%
+  thmbox={style=S,bodystyle=\normalfont},%
+  name=Note,%
+  within=section,%
+  shaded={rulecolor=Lavender,rulewidth=2pt},%
+]{thmnote}
+\declaretheorem[%
+  style=plain,%
+  thmbox={style=L,bodystyle=\normalfont},%
   name=Example,%
   within=section,%
   shaded={bgcolor=gray!10},%
@@ -54,6 +61,8 @@
 \newcommand{\Tabref}[1]{Table~\ref{#1}}
 \newcommand{\exref}[1]{example~\ref{#1}}
 \newcommand{\Exref}[1]{Example~\ref{#1}}
+\newcommand{\figref}[1]{figure~\ref{#1}}
+\newcommand{\Figref}[1]{Figure~\ref{#1}}
 \newcommand{\argmax}[1]{\underset{#1}{\operatorname*{argmax}}}
 \newcommand{\note}[1]{\todo[author=PR,color=blue!40,size=\small,fancyline,inline]{Note: #1}}
 \newcommand{\Todo}[1]{\todo[author=PR,size=\small,inline]{Todo: #1}}
@@ -81,28 +90,31 @@
 % }
 \title{
   \vspace{-1in}
-  \usefont{OT1}{bch}{b}{n}
-  \normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}\\
-  \huge Entity recommendations on a Cold Start Knowledge Graph\\
+  %\usefont{OT1}{bch}{b}{n}
+  {\normalfont\huge Entity recommendations on a Cold Start Knowledge Graph}\\
+  {\normalfont\normalsize\textsc{HLTCOE, Johns Hopkins University}}\\
 }
-\author{
-  \normalfont\normalsize
-  Pushpendre Rastogi\\
-  [-3pt]\normalsize\today%%Optional Date
+\author{{\normalfont\normalsize Pushpendre Rastogi}
+  \and
+  {\normalfont\normalsize Vince Lyzinski}
+  \and
+  {\normalfont\normalsize Benjamin Van Durme}\\
+  %%[-3pt]\normalsize\today%%Optional Date
 }
 
 \date{}
 
 \newcommand{\newrel}{41}
 \renewcommand{\cite}[1]{\textcolor{red}{#1}}
+\newcommand{\newcite}[1]{\textcolor{red}{#1}}
 \renewcommand{\r}[1]{\textcolor{red}{#1}}
-\newcommand{\dataset}[0]{\texttt{BBN2} dataset}
-\newcommand{\ontology}{\textsc{BBN Adept Ontology}}
+\newcommand{\dataset}[0]{\texttt{BBN2} dataset\xspace{}}
+\newcommand{\ontology}{\textsc{Adept} Ontology\xspace{}}
 \newcommand{\task}{CS-KBP 2015 task\xspace{}}
 \newcommand{\dg}{$^\dagger$}
 \newcommand{\ddg}{$^\ddagger$}
 \newcommand{\OPTION}[0]{\textcolor{red}{OPTION}}
-\newcommand{\PK}{P@K}
+\newcommand{\PK}{P@K\xspace{}}
 
 %%% Commands for arcs and states.
 \def\overstrike#1#2{{\setbox0\hbox{$#2$}\hbox to \wd0{\hss$#1$\hss}\kern-\wd0\box0}}
@@ -118,55 +130,48 @@
 \maketitle
 \section{Introduction}
 \label{sec:introduction}
+In this report we consider the Adept Knowledge Base (KB), which we
+will work with as a graph. This graph is composed of a set of
+vertices (\ie entities, nodes), a set of edges (\ie relations,
+predicates, slot-fills) and vertices and edges may have zero or more
+properties (\ie attributes, features).
+
 The predominant way in which analysts interact with and make use of knowledge
 graphs is by treating knowledge graphs as databases that support evaluation
-of queries. A graph $G$ comprises a vertex set $V$ and a relation
-on those vertices $E$. The elements of $E$ are called edges.
-The vertices and edges can also have attributes or features.
-In the literature for knowledge
-graphs vertices may also be called entities or nodes, the edges may be
-called relations or predicates or slots and attributes are sometimes called properties or
-features. Some literature also assigns types to
-vertices and edges which for all purposes are just discrete attributes that may
-sometimes be mutually exclusive.
-
-The most common type of queries that are used to interface with
-databases, graphical or otherwise, are queries that exist in some logical
-algebra. For example a knowledge graph may be stored inside a graph database,
+of queries. An analyst may execute two types of queries on a KB:
+\begin{description}[leftmargin=*]
+\item[Logical Expression Based Queries] A analyst may want to retrieve a set of items,
+  that lie in a set exactly described via a logical expression. For example a analyst
+may ask for all vertices that are connected to the vertex with the highest
+degree. A simpler example of a query like this is a static lookup, where an
+analyst may ask to retrieve all vertices that have a \texttt{name} attribute
+whose value is \texttt{John Smith}\footnote
+{Specifically, a knowledge graph may be stored inside a graph database,
 an RDF {triplestore} or even inside XML files and then queried using a graph
-query language such as Cypher or Gremlin, SPARQL or XPath. Such interfaces to
-knowledge graphs require an analyst to know atleast the following things:
-\begin{itemize}
-\item The schema of the knowledge graph.
-\item An expression from the query language, of the subgraph that the
-  analyst wants to select from the knowledge graph.
-\end{itemize}
-In case the desired subgraph cannot be efficiently expressed in the query
-language or if the exact expression is too inefficient to execute, then
-alternative queries may be formulated that select an approximations of
-the ideal subgraph that we want.
-
-A paradigm for databases queries that is very different from the paradigm
-of satisfying descriptive logical programs is the paradigm of
-\textit{example based queries} where the analyst wants to retrieve a subset of
-vertices and instead of describing that subset through an expression of the query
-language she provides {examples} of entities that are elements of
- the desired subset. Sometimes the analyst may also provide negative examples of
- entities that are are not elements of desired subset. The desired subset of
- vertices is also sometimes called the ``{relevant set}'' or
- ``{interesting set}''. Based on the  examples the database guesses the
- analyst's criterion for relevance or interest and {recommends} other
- vertices that would be relevant to the user. Databases that can support such
- example based queries and return a sorted list of relevant entities are called
-\textit{Recommendation Systems} or \textit{Recommenders} in short. We call algorithms
+query language such as Cypher or Gremlin or an RDF query language like SPARQL
+or XPath which is the defacto standard for querying XML data.}
+\item[Example Based Queries] We focus on such queries in this work.
+  The analyst provides {examples} of items of
+  interest/relevance, and wants the system to \textit{nominate} or \textit{recommend}
+  items that are similar to the examples. Sometimes the analyst may also
+  provide \textit{negative supervision} in the form of examples that are marked
+  as uninteresting or irrelevant. Databases that can support such
+  example based queries and return a sorted list of relevant entities are called
+  \textit{Recommendation Systems} or \textit{Recommenders} in short. They may
+  also be called \textit{Vertex Nomination Systems}. We call algorithms
 that can rank entities in a dataset based on a set of example entities
-\textit{Recommendation Algorithms}~(RAs). \Exref{ex:recommender} presents a
-concrete example of the utility of Recommenders and the variety of RAs that
-can be deployed. Clearly a single RA cannot perform well on all types of graphs and all types of
-queries. The performance of an RA would crucially depend on the topology of the
-knowledge graph, the complexity of the queries and the expressivity of the
-features utilized by the RA.
+\textit{Recommendation Algorithms}~(RAs).
+\end{description}
 
+Interfaces that enable logical expression based queries view the goal of the
+Adept KB as one of aggregating Information Extraction (IE) output from raw
+natural language text into a database that can be queried declaratively by an
+analyst, similar to the way SQL is used to query a relational database.
+The important point is that creating the correct query is left to the analyst
+who must craft an expression that succinctly and
+efficiently describes the set of interesting or relevant items. Crafting
+such a query may be difficult and it may require a lot of skill on the part of the
+analyst (See \Exref{ex:recommender}).
 \begin{example}\label{ex:recommender}
   Consider a social network of sportsmen that contains the height
   and weight of people and the sports that they play as well as their friendship
@@ -188,18 +193,34 @@ features utilized by the RA.
   entities to retrieve from the database and give useful hints to the analyst
   for fast prototyping.
 \end{example}
+In contrast to logical expression based queries,
+example based queries do not require the analyst to create a
+logical expression by herself. A recommender can use the information stated
+in the knowledge graph to infer \textit{new} information that is not
+directly stated in
+any source document, and recommend relevant items to a user with
+minimal supervision. This report lays out definitions and pointers to related areas of
+research from various communities, and then presents the performance of
+a few canonical VN algorithms (See \Tabref{tab:ra}) when applied to to the Adept
+KB via a representative set of example based queries.
 
-To ascertain the extent to which, the most advanced automatically
-constructed knowledge graph that has been created under the DARPA DEFT program,
-can function as a recommender, we evaluated the performance of a few RAs (See \Tabref{tab:ra}) on the
-\dataset (\Secref{sec:data})~\cite{BBN-REPORT} with a few plausible, but
-synthetic example based queries (\Secref{sec:evaluation}).
-Our results (\Secref{sec:er-algorithms}) suggest that the current state of
-the art automatically constructed knowledge graphs are too sparse to fruitfully
-function as a recommender. In conclusion (\Secref{sec:conclusions}), we discuss
-guidelines to construct ontologies such that the resulting knowledge graph can
-function as a recommender.
+We conclude from these experiments (See \Secref{sec:conclusions})
+that the current Adept KB does not
+support example based queries well, owing to its severe sparsity
+in edges. In short, the ``knowledge graph'' is not much of a graph. The
+overwhelming majority of vertices form singleton cliques: entities are
+discovered but no relations connect them to the rest of the KB.
 
+We therefore end the report with a proposal to extend the ontology of
+the Adept KB, based on conservatively subselecting from an OpenIE
+ontology just those relations that best support provided example
+queries. We assume in this that DARPA does not wish to allow a
+massive (orders of magnitude) increase to the relation types in the
+Adept ontology, and thus will pursue a strategy for conservatively
+proposing to a KB-engineer a reduced set of relation types such that
+if they were included (based on observed performance in their
+extraction) then we would have a more sufficient graph for performing
+vertex nomination.
 \begin{table}[htbp]
   \centering
   \begin{tabular}{l l}
@@ -213,19 +234,6 @@ function as a recommender.
   \caption{List of Recommendation Algorithms}
   \label{tab:ra}
 \end{table}
-
-% \begin{table}[htbp]
-%   \centering
-%   \begin{tabular}{l l l}
-%     Transductive & Inductive & Semi Supervised \\
-%     Linear & Non Linear \\
-%     Generative & Discriminative \\
-%     Only positive examples & Both positive and negative examples.
-%   \end{tabular}
-%   \caption{Criteria for categorization.}
-%   \label{tab:cat-crit}
-% \end{table}
-
 
 \section{The \dataset{}}
 \label{sec:data}
@@ -267,6 +275,12 @@ identifier has no other attributes attached to it.
   The identifiers $e3ac2b1e-cd3b-4cf8-a1fb-b1f71db123df$ and
   $234f3110-c8ca-49aa-ba7b-a45bb5467c38$ have canonical strings \textit{professor} and
   \textit{Professor} respectively which differ only in their capitalization.
+
+  As this example illustrates some of the titles in the \dataset
+  lexically differ from each other but mean the same. Matching such fragments
+  can help in reducing sparsity and may improve the performance of the vertex
+  nomination algorithms. We leave such pre-processing for future work, and
+  measure the performance of the VN algorithms on the ADEPT KB as is.
 \end{example}
 As \tabref{tab:type} shows, the \texttt{Person} category is the highest occurring
 category with $125$K instantiations
@@ -275,15 +289,15 @@ The occurrences of the \texttt{URL} type are negligible.
 \begin{table}[htbp]
   \centering
   \begin{tabular}{r l l}
-    \textbf{Instantiations} & \textbf{Type}& \textbf{Property}\\
-    $125022$         & Person             & canonicalString \\
-    $69544$          & Organization       & canonicalString \\
-    $23754$          & GeoPoliticalEntity & canonicalString \\
-    $1761$           & Title              & canonicalString \\
-    $819$            & adept-base#Date    & xsdDate         \\
-    $333$            & Crime              & canonicalString \\
-    $189$            & URL                & canonicalString \\\cline{1-1}
-    Total $= 221,547$   \\
+    \textbf{Instantiations} & \textbf{Type}      & \textbf{Property} \\
+    $125022$                & Person             & canonicalString   \\
+    $69544$                 & Organization       & canonicalString   \\
+    $23754$                 & GeoPoliticalEntity & canonicalString   \\
+    $1761$                  & Title              & canonicalString   \\
+    $819$                   & Date               & xsdDate           \\
+    $333$                   & Crime              & canonicalString   \\
+    $189$                   & URL                & canonicalString   \\\cline{1-1}
+    Total $= 221,547$                                                \\
   \end{tabular}
   \caption{The number of instantiations(occurrences) of Named Entities of different types.}
   \label{tab:type}
@@ -348,40 +362,79 @@ Total $= 134,581$ \\
 \label{sec:relat-or-attr}
 As shown in \tabref{tab:relation} the \texttt{Role} relation does not relate two people.
 It only relates a person and its title.
-In this sense, the \texttt{Role} relation acta as a feature or an attribute of a person
+In this sense, the \texttt{Role} relation act as a feature or an attribute of a person
 instead of a relation between them, since the \texttt{Role} for one person can be completely
-independent of the Role of another person unlike the \texttt{Sibling, Spousal and ParentChild}
-relationships. The \texttt{Sibling, Spousal and ParentChild} relationships always affects two
+independent of the Role of another person unlike the \texttt{Sibling, Spousal} and \texttt{ParentChild}
+relationships. The \texttt{Sibling, Spousal} and \texttt{ParentChild} relationships always affects two
 people simultaneously in the sense that if a person \textsc{B} is set to be the sibling of \textsc{A} then
 \textsc{A} must be set to the sibling of \textsc{B}.
 We note that 11 out of 20 relations including the top four most observed relations,
-act as features of persons instead of relations. So the \textit{intra-person} relational
-information is lower in comparison to \textit{person-feature} information.
-Also note that only 6 relations relate organization to other organizations or to locations,
-so the \textit{intra-feature} relational information is also quite low.
+act as attributes of persons instead of relations. So the \textit{person-person} relational
+information is lower in comparison to \textit{person-attribute} information.
+Also note that only 6 relations relate organization to other organizations or
+to locations, so the \textit{attribute-attribute} relational information is
+also low. However in order to leverage the information present in the
+\texttt{OrgHeadquarter} relation we use the name of the headquarter of an
+organization that is related to a person as an attribute of the person.
 
-% \subsection{Data Cleaning}
-% \label{sec:data-cleaning}
-% \Todo{As~\exref{ex:title-cap} illustrated some of the titles in the \dataset
-%   only differ from each other by their capitalization.
-%   During the task of vertex nomination matching such fragments can help in reducing sparsity.
-%   but data cleaning can be handled more flexibly (though perhaps less efficiently)
-%   as a similarity metric between the fragments.}
+\subsection{Sparsity of the Adept KB}
+\label{sec:graph-sparsity}
+The Adept KB is a graph with more \textsc{PER} entities than edges.
+To quantify the sparsity and the connectedness of the Adept KB we present
+the degree histogram of all the \textsc{PER} entities in the Adept KB in \tabref{tab:deg-hist}. \Tabref{tab:hist-comp} shows a histogram of the sizes of the components that those \textsc{PER} entities belong to.
+Note that both of these tables do not count edges that were not incident
+with atleast one \textsc{PER} entity with the exception of edges of type
+\texttt{OrgHeadquarter}. These edge types are included in the counts since they can
+be considered to be a direct edge connected to a \textsc{PER} entity without causing
+an explosion in the number of types that a \textsc{PER} entity is connected to
+and they can bring useful signal to the graph since the location of a headquarter
+can act as an excellent ``backoff'' feature.
+\begin{table}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{l| c c c c c c c c c c c c}
+    \textbf{Degree}                & 0     & 1     & 2    & 3    & 4    & 5    & 6    & 7   & 8   & 9   & 10  & >10  \\
+    \textbf{\textsc{PER} Entities} & 82057 & 16672 & 8997 & 6862 & 3056 & 2521 & 1290 & 846 & 615 & 432 & 329 & 1345 \\
+  \end{tabular}}
+  \caption{Degree histogram for the \textsc{PER} entities in the Adept KB.}
+  \label{tab:deg-hist}
+\end{table}
 
-\section{Synthetic Evaluation}
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l | c c c c c c c c c }
+    \textbf{Component Size}     & 1     & 2  & 3  & 4  & 5 & 42350 \\
+  \textbf{Number of Components} & 82057 & 81 & 10 & 10 & 1 & 1     \\
+  \end{tabular}
+  \caption{Histogram of component sizes of the \textsc{PER} entities in the Adept KB.}
+  \label{tab:hist-comp}
+\end{table}
+
+\Tabref{tab:deg-hist} shows that the number of
+completely disconnected \textsc{PER} entities in the Adept KB constitute $65.6\%$
+of the total \textsc{PER} entities and that $13.3\%$ of the \textsc{PER}
+entities have degree 1 but only $162$ \textsc{PER} entities reside in a ``dumbbell'', \ie a component of size $2$. The majority of the entities that have degree 1 lie in the
+giant component that contains $42350$ \textsc{PER} entities. This has a lot of significance since it means that more than a third of the \textsc{PER} entities con be disconnected from the giant component by just removing single edges from the graph. This shows
+that the component has a small densely connected core and a large number of leaves.
+The above discussion clearly show that the Adept knowledge graph is quite sparse
+and weakly connected.
+
+
+\section{Evaluation}
 \label{sec:evaluation}
-In order to evaluate RAs we need to simulate the kind of example based queries that an analyst might submit to an RA.
-In abscence of actual users minimally we require a synthetic predicate function that can act as a proxy of normal user's interests
-and that can label whether an entity is of interest or not. The RA can be trained by providing a small number of labeled examples
-generated from the predicate function and tested on the rest of the entities that were not provided as labeled inputs.
+In order to evaluate RAs we need to simulate the kind of example based queries
+that an analyst might submit to an RA. We represent a user's query as a
+predicate on vertices, where some positive example of the predicate are
+provided, and we wish to sort the remaining vertices as to how confident we are
+that they satisfy the predicate (are of interest to the user).
 
-We chose to use an existing binarized feature as a synthetic predicate function that
+We chose to use an existing binarized attribute as a synthetic predicate function that
 acts as the oracle that determines whether an entity is relevant or not.
-During training and testing we remove this feature from the data and
-only present a few examples of entities with the values of this feature as labels.
-The algorithm then has to predict whether this hidden feature is $0$ or $1$ for the
+During training and testing we remove this attribute from the data and
+only present a few examples of entities with the values of this attribute as labels.
+The algorithm then has to predict whether this hidden attribute is $0$ or $1$ for the
 rest of the people on the basis of the training data and then to assign a rank to them
-such that people with feature value $1$ rank higher than people with feature value of $0$.
+such that people with attribute value $1$ rank higher than people with attribute value of $0$.
 Two standard evaluation metrics for these tasks are the {Precision@K}(\PK) metric and the
 {Area Under Precision Recall Curve}(AUPR) metric and we would report the performance of the systems
 on these two metrics and compare them to a random baseline.
@@ -390,8 +443,8 @@ on these two metrics and compare them to a random baseline.
   ``White House'' as people of interest and based on these examples the recommendation
   system needs to assign a high rank to the remaining employees of the ``White House'' and
   a low rank to the persons. Note that the recommendation system does not receive the
-  feature that the person was the employee of the ``White House'' during operation
-  and it has to make a guess on the basis of other persons and their features.
+  attribute that the person was the employee of the ``White House'' during operation
+  and it has to make a guess on the basis of other persons and their attributes.
   Consider a second example, where a predicate function may mark people who are
   ``authors'' as people of interest and request the recommendation system to find more
   people who are ``authors''. \tabref{tab:pred-func} lists the 6 Relations types that we
@@ -417,107 +470,278 @@ only needs to be able to label the \textsc{PER} entities.
     predicate function.}
   \label{tab:pred-func}
 \end{table}
-\FW{levarage unsupervised label co-occurrence data such as certain
-  labels tend to occur with each other.}
-\FW{Should all features form the document that contained
-  the training relations that were used as the criteria of relevance be removed?}
 
-\section{Recommentation Algorithms for Automatically Constructed Knowledge Graphs}
+
+\section{Recommentation Algorithms for the Adept KB}
 \label{sec:er-algorithms}
-Since the knowledge graphs are automatically constructed therefore they are noisy.
-We first try simple model to see the performance.
+Before we proceed to the discussion and comparison of different vertex
+nomination algorithms let us first understand the implications of the sparsity
+and fragmented nature of the Adept KB that we established in
+\secref{sec:graph-sparsity}.  In \secref{sec:graph-sparsity} we showed that
+$66\%$ of the vertices were singleton, the rest of the graph had one giant
+component and few small components.  \Figref{fig:adept-cartoon} is a cartoon
+representation of a graph with such characteristics.  We can see that out of 20
+vertices only a small component can be used as input to a vertex nomination
+algorithm and 14 out of 20 vertices are unusable. In this section we discard
+such singleton entities and report the result of performing vertex nomination on
+the connected portion of the data.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[trim=0 115 0 0,clip,width=0.4\linewidth,angle=90]{%
+    tikz-graph-crop.pdf}
+  \caption{Figure representing the number of vertices with degree $0$ and degree
+    $1$.}
+  \label{fig:adept-cartoon}
+\end{figure} With the above caveat, let us now describe the experimental setup
+that remains common across the application of all of the following
+algorithms. We present the results of applying different vertex nomination
+algorithms in their respective subsections.  Let the set of named entities in
+the Adept KB that have the type \textsc{PER} be $\mathcal{P}$.  Let us consider
+the first row of \tabref{tab:pred-func}.  It can define two predicate function /
+criteria for relevance over the elements of $\mathcal{P}$.  The first predicate
+selects $\mathcal{Q_1} \subset \mathcal{P}$ such that all elements of
+$\mathcal{Q_1}$ have an attribute called \texttt{role} with the value of
+\texttt{author}.  Analogously, the second predicate selects $\mathcal{Q}_2$ such
+that all elements of $\mathcal{Q}_2$ have \texttt{role=director}.
 
-\Todo{Check the cases where the confidence intervals are bigger than the mean itself.}
-% Let us introduce some notation to explain the task of Entity Recommendation.
-% Let $\mathcal{V}$ be a finite set and let
-% $\mathcal{O} \subset \mathcal{I} \subset \mathcal{V}$.
-% $\mathcal{V}$ denotes the set of all entities, $\mathcal{I}$ denotes the set
-% of \textit{entities of interest} and $\mathcal{O}$ denotes those entities for
-% which it is known that they are elements of $\mathcal{I}$. The task of entity
-% recommendation is to produce a ranking $\pi$ of the vertices in
-% $\mathcal{O}^C = \mathcal{V} \setminus \mathcal{O}$
-% such that vertices belonging to $\mathcal{T} = \mathcal{I} - \mathcal{O}$ are
-% ranked higher than the vertices in $\mathcal{V} - \mathcal{I}$.
+\Tabref{tab:pred-func} specifies a total of 12 such predicate functions and we
+evaluate the performance of a VN algorithm over all of the 12 predicate
+functions. For each predicate function we perform 5 trials and measure the
+performance in terms of the Area Under Precision-Recall(AUPR) and
+Precision@K(P@K).\footnote{We assume that the annotations present in the Adept
+KB are complete and correct and use those as the gold standard. This assumption
+sometimes turns out to be patently wrong. For example in the case of the
+predicate \texttt{Employer=Army} a number of time the Adept KB may have the
+annotation that \texttt{Employer=US Army} or \texttt{Employer=Pentagon} but not
+the annotation that \texttt{Employer=Army}. In our experiments we side-step
+these issues and assume that our task is to faithfully predict the predicate
+function as present in the Adept KB.} After performing 5 trials we average the
+performance of the VN algorithm across the trials and calculate the $90\%$
+confidence interval assuming the t-distribution for the standard
+error(SE). Finally we aggregate the confidence intervals and the average
+performance of the algorithms over all the predicate functions and create a
+single average performance and performance interval for each algorithm. We
+report these metrics in the later sections for different hyper-parameter
+settings and most notably for different feature sets.
+
+During each trial for a predicate, we select 10 entities that satisfy the
+criterion and which we assume as the positive input that the user provided to
+the VN algorithms, similarly we chose 10 \textsc{PER} entities that do not
+satisfy the criteria and assume that the user provided those as negative input
+to the VN algorithm. During each trial we also remove the edges/attributes that
+correspond to the predicate function from the Adept KB before inputting the KB
+to the VN algorithm.  We vary the entities used as training data across trials
+but ensure that the same entities are used as training input across different
+algorithms for a fixed predicate function and trial index. We denote the number
+of training instances including both the negative and the positive labeled
+instances as $N$ and the remaining instances as $M$.  We denote the set of
+\textsc{PER} entities whose relevance is observed with the symbol
+$\mathcal{O}$.
+The subset of $\mathcal{O}$ that satisfies the predicate function is called
+$\mathcal{O}^{+}$ and we define $\mathcal{O}^{-} = \mathcal{O} \setminus \mathcal{O}^{+}$.
+Clearly $\vert O \vert = N=20$ for all trials.  Note that $M$ can
+hypothetically have zero entities that satisfy the predicate function, however
+in practice since there are more than 10 labeled instances this does not happen
+for any of the predicates.
 
 \subsection{Entity Recommendation Through the Naive Bayes Model}
 \label{sec:er-nb}
-Consider a set of observations $\{(f^i, y^i) | i \in \{1, \ldots, N\}\}$.
-Here $y^i$ is the label assigned to the $i$th instance and $f^i$ is the
-feature representation of $x^i$. Let $f^i$ is a binary vector of size $K$.
-Let $y^i \in \{0, 1\}$. We denote the $k_{\mathrm{th}}$ element of $f^i$ as $f^i[k]$
+Let $v \in \mathcal{P}$. We can represent $v$ through a
+feature vector by enumerating all edges that are incident on $v$ and
+representing the type of edge along with the neighboring vertex  as the
+occurrence of a binary feature. For example, let $\bigstaten{v} \shortarc{r} \bigstaten{q}$
+be an arc of type $r$ connecting $v$ to vertex  $q$.
+This arc can be represented as the occurrence of the binary feature $\shortarc{r} \bigstaten{q}$.
+All such binary features formed by all the arcs that are incident on $v$ can be used to create
+a feature vector $f$ that represents $v$.
+Given this construction of a feature representation of $v$ we can represent $\mathcal{O}$
+as the set $\{(f^i, y^i) | i \in \{1, \ldots, N\}\}$.
+Here $y^i\in \mathcal{Y} = \{-1, 1\}$ is the label assigned to the $v^i$ and $f^i$ is its binary
+feature representation. $y^i = 1$ means that the feature $f^i$ represents a vertex of interest and $y^i = -1$ means the opposite.
+Let $K$ be the length of $f^i$.
+We denote the $k$th element of $f^i$ as $f^i[k]$
 and we drop the superscript $i$ when the exact data instance is immaterial.
-Let $\hat{y}_{\mathrm{NB}}$ denote the estimate produced by the naive bayes model.
-Then the Naive Bayes models model the probability of $(x, y)$ very simplistically
-and they use that probability to estimate $\hat{y}_{\mathrm{NB}}$ as follows:
+Let $\hat{y}_{\mathrm{NB}}$ denote the estimate produced by the Naive Bayes model.
+The Naive Bayes models model the probability of $(x, y)$ and it estimates $\hat{y}_{\mathrm{NB}}$ as follows:
 \begin{align}
-  p(x, y) = p(f, y) = p(y) p(x, f \given y) = p(y) \prod_{k=1}^K p(f[k] \given y)\\
-  \hat{y}_{\mathrm{NB}} = \argmax{y \in \mathcal{Y}} p(y | x, f) = \argmax{y \in \mathcal{Y}} p(y) p(x, f | y)
+  p(x, y) = p(f, y) = p(y) p(f \given y) = p(y) \prod_{k=1}^K p(f[k] \given y)\\
+  \hat{y}_{\mathrm{NB}} = \argmax{y \in \mathcal{Y}}\ p(y | f) = \argmax{y \in \mathcal{Y}}\ p(y) p(f | y)
 \end{align}
-The training of naive bayes models is done by
-maximizing the log probability of the entire corpus specified by the following expression:
+The Naive Bayes model can be trained by optimizing the log probability of the entire corpus, $\{(f^i, y^i) | i \in \{1, \ldots, N\}\}$ as specified by the following expression:
 \begin{align}
-  \sum_{i=1}^N \log(p(x^i, f^i, y^i)) = \sum_{i=1}^N \log(p(y^i)) + \sum_{i=1}^N \log(p(x^i, f^i | y^i))
+  \sum_{i=1}^N \log(p(v^i, f^i, y^i)) = \sum_{i=1}^N \log(p(y^i)) + \sum_{i=1}^N \log(p(v^i, f^i | y^i))
 \end{align}
-We perform vertex nomination by training the naive bayes model
-and then ranking the rest of the instances according to their
-positive class posterior probability.
+Once the Naive Bayes model is trained on $\mathcal{O}$ then we can perform vertex nomination
+by ranking the an unlabeled instance $v$ according to the posterior probability $p(y=1 | f)$.
 
 \paragraph{Feature Design:}\label{sec:nb-feature-design}
-Although the naive bayes model is conceptually very simple and does have many hyper parameters, it
-is quite sensitive to the features that are fed to it as input.
-
-Let us explain our featurization of the model using an example:
-Consider an \textsc{PER} entity named ``Shaikh Ahmed'' that is known to
-have three properties: 1) It has a Role of ``Gen.''
-2) It has a second Role of ``chief'' and
+Let us describe the features that we use for the Naive Bayes model with an example.
+Consider a an entity named ``Shaikh Ahmed'' that is known to have three properties:
+1) It has a Role of ``Gen.'';
+2) It has a second Role of ``chief''; and
 3) The name of its Residence is ``Afghanistan''.
 We begin by concatenating the relation type with the attribute value to get 3 distinct feature types
-``Role-Gen.'', ``Role-chief'' and ``Residence-Afghanistan''. We call these features the ``concatenative'' features.
-Note that this featurization can
-lead to sparsity since it would assign a different feature to an entity for which we know that its
-``Origin'' is ``Afghanistan''. We can alleviate this problem of
-feature sparsity through the addition of ``attribute-based'' backoff features
-based solely on the attribute values and not the relation types.
+``Role=Gen.'', ``Role=chief'' and ``Residence=Afghanistan''.
+We call these features the ``Concatenative'' features.
+Note that this featurization does not share parameters between two different feature even though they may have the same attribute value. For example, it seems plausible that sharing the parameters between ``Residence=Baltimore'' and ``Origin=Baltimore'' could be useful.
+We can alleviate this feature sparsity through the addition of ``Backoff'' features
+that are based only on the attribute value and not the relation type.
 For example we can add the following three features
 to ``Shaikh Ahmed''. i) ``Gen.'' ii) ``chief'' and iii) ``Afghanistan''.
-We call this augmented featurization ``Concat W/ Backoff''.
+We call this augmented featurization ``Concatenation w/ Backoff''.
+We call the feature set that  contains only features like i, ii and iii the ``Only Backoff'' feature set.
+Finally when we add the documents that a particular entity was mentioned in as features to
+``Concatenative'' features then we get the ``Concatenative w/ Doc'' feature set.
+For all of the above methods we prune the featureset used to only those that features $f$ that occurred in $\mathcal{O}^{+}$.
+separately for each trial.
+
 % Furthermore this featurization is a first order featurization which fails to take into
 % account the effect of the conjunction or disjunction of two features.
 % Since the distribution of a naive bayes model can change with the repetition of features therefore
 % disjunctive features that act as narrow backoff features can be useful for improving the performance
 % of the naive bayes model. We report results with pairwise disjunctions and pairwise conjunctions which are
 % two possible ways of doing pairwise feature combinations.
-For all these methods we prune the actual features
-used to only those that actually occurred in the positively
-labeled portion of the training set, separately for each trial.
+
+\paragraph{Results} We present the aggregate results of the naive bayes classifier's performance in \tabref{tab:perf-nb}.
+We can see that the performance of the Naive Bayes method varies a lot with the feature set
+and the ``Concatenative'' and ``Concatenative w/ Doc'' feature sets perform the best.
+Using backoff features seems to hurt the performance and
+the variance in the values of AUPR and P@10 indicates that the method is very sensitive to
+the examples that are chosen as inputs. This result is expected since the method only receives 10 data points as input.
+However even with 10 data points the Naive Bayes method is able to achieve $30\%$ precision amongst its top 10
+recommendations on average which indicates that there are correlations between the values of different attributes
+that can be exploited for performing recommendations.
 
 \begin{table}[htbp]
   \centering
-  \resizebox{\textwidth}{!}
-  {
-  \begin{tabular}{l | c c c c c}
-     & Only Backoff      & Concatenative w/o Doc & Concatenative w/ Doc & Concat w/ Backoff & Random \\\hline
-AUPR & $ 8.8 \pm 3.9 $   & $ 12.6 \pm 5.9 $      & $ 12.5 \pm 5.8 $     & $ 10.9 \pm 5.0 $  & $ 1.0 \pm 0.1 $\\
-P@10 & $ 20.4 \pm 13.0 $ & $ 29.6 \pm 16.7 $     & $ 29.8 \pm 18.1 $    & $ 25.3 \pm 12.7 $ & $ 2.0 \pm 4.3 $\\
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{l | c c c c c}
+     & Only Backoff      & Concatenative & Concatenative w/ Doc & Concatenative w/ Backoff & Random \\\hline
+AUPR & $ 8.8 \pm 3.9 $   & $ 12.6 \pm 5.9 $      & $ 12.5 \pm 5.8 $     & $ 10.9 \pm 5.0 $  & $ 0.9 \pm 0.1 $\\
+P@10 & $ 20.4 \pm 13.0 $ & $ 29.6 \pm 16.7 $     & $ 29.8 \pm 18.1 $    & $ 25.3 \pm 12.7 $ & $ 0.2 \pm 0.5 $\\
   \end{tabular}}
-  \caption{Performance with NB. The intervals are 90\% confidence intervals.}
+  \caption{Performance(\%) with NB with 90\% confidence intervals.}
   \label{tab:perf-nb}
 \end{table}
 
-\remove{
-\subsection{Entity Recommendation using binary SVM}
-\label{sec:er-feature}
+\paragraph{Error Analysis}
+We analyzed the coefficients of the trained Naive Bayes models and the predictions made by the system, specifically we tried to understood the reason why the Naive Bayes model sometimes gave a very low rank to relevant entities.
+For the first part of the analysis we checked the most important features selected by the naive bayes method for
+a few trials of the algorithm for the predicate ``EmploymentMembership=Army''.
+Our analysis showed that the NB model gave high score to very sensible feature
+values that correlated with the true predicate, for example it gave high weight to the ``EmploymentMembership=Pentagon''
+feature when trained to recommend entities that satisfied ``EmploymentMembership=Army''.
+Unfortunately, even though the NB algorithm made many correct
+recommendations in the top 10 for this criteria those recommendations were
+counted as incorrect since they were not part of the Adept KB. This highlights a
+challenge associated with evaluating such recommendation tasks where the entire
+truth is not known to us even at test time.
 
-Recall the discussion about \tabref{tab:relation} in \secref{sec:data}.
-We showed that a large number of relations in the KB could be considered to
-be features of \textsc{PER} entities instead of relations.
+For the second part of the analysis we checked why the Naive Bayes model did
+not assign a high rank
+to the true answers and for half of the cases we found that the \textsc{PER}
+entities that were misclassified did not have any feature that occurred in $\mathcal{O}^{+}$.
+These issues indicate that there is a natural ceiling to the results that one can obtain without
+cleaning it or otherwise modelling the fact that the features may have a information in the form of lexical overlap.
 
-This suggests the following simple model for performing entity recommendations:
-Represent the labeled examples
-as a bag of features and train a linear SVM based classifier to discriminate
-between the positive and negative training examples. Subsequently use the
-signed distance from the linear classifier's decision hyperplane as a way to
-rank the entities in the test set.
+\subsection{Entity Recommendation Through Modified Adsorption}
+\label{sec:er-lp}
+The MAD algorithm was introduced by \newcite{talukdar-cramer} as an algorithm
+for graph-based semi-supervised learning. The MAD algorithm receives a graph along with
+a labeled set $\mathcal{O}$ of entities in the graph and binary labels indicating
+their relevance or irrelevance to the predicate as input. As output, the MAD algorithm
+produces a soft assignment from the unlabeled nodes to the binary label set.\footnote{The MAD algorithm can be stated in more general terms but the above treatment suffices for our purposes. We refer the reader to~\cite{talukdar-cramer} for details of the MAD algorithm
+and its analysis.}
+
+The MAD algorithm produces a soft assignment by solving an unconstrained
+optimization problem over the space of all labellings where the objective
+is defined such that the labeling it produces are ``smooth'', \ie the
+labels of nodes that share an edge tend to be similar, and it tends to agree with
+the input partial labeling and that it should labeling should be close to an
+eigenvector of the graph laplacian of the input graph.
+Ideally, the soft assignment that MAD produces should match the true
+unknown labels of the unlabeled vertices.
+
+In order to apply MAD which is only defined for graphs with untyped edges to the
+Adept KB where the edges have types we use the following trick:
+for each edge of the form $\bigstaten{v} \shortarc{r} \bigstaten{q}$ where $v$
+is a \textsc{PER} entity, we change the edge from its original form to
+$\bigstaten{v} \shortarc{} \bigstaten{rq}$. \Ie for each edge incident on a
+\textsc{PER} entity we fuse the edge type with the neighboring vertex and leave
+the \textsc{PER} entity as is. This creates many new neighboring vertices and
+removes typing information from the edges.
+As explained in \secref{sec:er-nb} there are two variants of the Adept KB that
+we consider, the first variant does not contain document do-occurrence
+informaton and the second variant contains the document co-occurrence
+information. In order to add document co-occurrence information to the Adept KB
+graph we create ``document'' nodes and add edges between \textsc{PER} entities
+and the documents that they occurred in. For both of the variants we created
+untyped versions of the original graph. We present the results of applying the
+MAD algorithm to the Adept KB in \tabref{tab:mad-perf}.
+
+\paragraph{Results} The results indicate that adding the document co-occurrence
+information hurts the performance of the MAD algorithm although the decrease is
+not statistically significant for either of the metrics. The overall performance of the MAD
+algorithms is much worse than the performance of the NB model especially on the
+P@10 metric.
+% --------------------------------------- %
+% MAD Performance with Unlimited Test Set %
+% --------------------------------------- %
+\begin{table}[htbp]
+  \centering
+  %\resizebox{\textwidth}{!}
+  {
+  \begin{tabular}{l | c c H}
+         & Concatenative    & Concatenative w/ doc & random          \\\hline
+    AUPR & $ 7.0 \pm 2.8 $  & $ 5.4 \pm 1.8 $      & $ 0.9 \pm 0.0 $ \\
+    P@10 & $ 9.8 \pm 11.2 $ & $ 9.6 \pm 7.5 $      & $ 0.0 \pm 0.0 $ \\
+\end{tabular}}
+  \caption{Performance(\%) with MAD with 90\% confidence intervals.}
+  \label{tab:mad-perf}
+\end{table}
+
+\subsection{Entity Recommendation with Unweighted Random Walks}
+\label{sec:er-rw}
+The Unweighted Random Walk method uses statistics about the commute
+time of unweighted random walks to perform vertex nomination as follows:
+Given $\mathcal{O}^{+}$, for each $v \in \mathcal{O}^{+}$ we perform $w$ random walks
+of some fixed length $l$ that start from $v$. $w$ and $l$ are hyper-parameters which
+we set to $10$ and $3$ after some initial tuning. During each random walk we keep
+track of the vertices visited by that random walk and we aggregate the counts of all
+the vertices visited by a random walk, over all the random walks performed,
+for the set $\mathcal{O}^{+}$ corresponding to a given predicate and trial.
+This vector of counts is used to arrange the unlabeled vertices
+by assigning a high ranking to those vertices that were visited more often.
+We use this method on the two variants of graphs, ``Concatenative'' and ``Concatenative w/ Doc''
+which have the same meaning as before.
+
+\paragraph{Results} We present the results in \tabref{tab:perf-rw}.
+The results indicate that unweighted random walks perform
+worse than the MAD algorithm on the AUPR metric, but they outperform MAD in terms of precision.
+The performance of Unweighted Random Walks is worse than the Naive Bayes models.
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l | c c}
+         & Concatenative & Concatenative w/ Doc \\\hline
+    AUPR & $ 2.6 \pm 1.8 $       & $ 1.6 \pm 0.7 $      \\
+    P@10 & $ 12.0 \pm 9.0 $      & $ 7.6 \pm 7.3 $      \\
+  \end{tabular}
+  \caption{Performance(\%) with Random Walks with 90\% confidence intervals.}
+  \label{tab:perf-rw}
+\end{table}
+
+% \subsection{Entity Recommendation with RESCAL based KBC}
+% \label{sec:er-rescal}
+
+\section{Observations on Current Capabilities}
+\label{sec:observations}
+As the results indicate the current Adept KB does not support methods for vertex
+nomination. The two main reasons for this conclusion were that the data contains
+very few edges, and even in the region of the graph which is more densely
+connected the lack of ground truth information makes evaluation of difficult.
+
+\section{Proposed Next Steps}
+\label{sec:proposed}
 \FW{Learn from the SVM's performance to guide your search amongst models.
   The goal is not to try all of them. The goal is to wisely choose
   amongst the various model based on the performance of existing methods.
@@ -534,36 +758,62 @@ rank the entities in the test set.
   Treat the confidence scores as probabilities, or other bounded real
   values features.\\
   Threshold the confidence score to convert them to binary features.}
+\FW{levarage unsupervised label co-occurrence data such as certain
+  labels tend to occur with each other.}
+\FW{Should all attributes form the document that contained
+  the training relations that were used as the criteria of relevance be removed?}
+\FW{Use a information gain metric for doing feature selection.}
+\FW{Add the performance of MAD when we remove edge attributes all together. (through a union)
+  Add the performance of unbiased RW with and without edge attributes.
+  Add the performance of RESCAL with and without edge attributes.
+  Add the performance of matrix factorization.}
+\FW{Remember that for all these models, there's a way to model them
+  more compositionally by decomposing the model over the edge types and the
+  vertices.
+Either we can interpret the relations to be different types of edges,
+or equivalently as edge attributes,
+or we can interpret the combination of an
+edge type and edge value to be different vertices.
+
+For example let, $\bigstaten{$i$,s}$,
+$\bigstaten{$a$} \shortarc{r} \bigstaten{$b$}$
+be an arc of type $r$ going from vertex $\bigstaten{$a$}$
+to $\bigstaten{$b$}$. We can model the arc non-compositionally
+and consider the $\shortarc{r} \bigstaten{$b$}$ to be a single vertex
+or we can model the graph compositionally and
+consider the arc type to be a feature of the edge.}
+
+{vertex nomination was designed for communication graphs, and there has
+been interest in extending them to communication networks. the reson for applying VN to KG is
+because of the assumption that the KG is rich in entity to entity relations that
+have been acquired, much like in a social network. What
+we observe is that the KG is not rich in Entity to Entity relationships.
+}
+% \appendix
+
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
+\remove{
+\subsection{Entity Recommendation using binary SVM}
+\label{sec:er-feature}
+
+Recall the discussion about \tabref{tab:relation} in \secref{sec:data}.
+We showed that a large number of relations in the KB could be considered to
+be features of \textsc{PER} entities instead of relations.
+
+This suggests the following simple model for performing entity recommendations:
+Represent the labeled examples
+as a bag of features and train a linear SVM based classifier to discriminate
+between the positive and negative training examples. Subsequently use the
+signed distance from the linear classifier's decision hyperplane as a way to
+rank the entities in the test set.
+
 
 The following table shows the performance of the methods on the 12 types of relations,
 when the method are given 10 training examples for 5 runs:
-
-% ------------------------------------------------------------------ %
-% Clipped Linear Classifier Performance on Limited Balanced Test Set %
-% ------------------------------------------------------------------ %
-% \begin{table}[htbp]
-%   \centering
-%   \resizebox{\textwidth}{!}{
-%   \begin{tabular}{l l l | H H H c c c}
-% Relation                        & Attribute    & Value           & \multicolumn{3}{H}{P\@10}     & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
-%                                 &              &                 & w/o doc & w/ doc & random     & w/o doc & w/ doc & random \\
-% EmploymentMembership & employer     & Army            & $0.940 \pm 0.052$  & $0.940 \pm 0.052$  & $0.560 \pm 0.091$  & $0.822 \pm 0.056$  & $0.853 \pm 0.036$  & $0.544 \pm 0.059$   \\
-% EmploymentMembership & employer     & White\_House    & $0.860 \pm 0.128$  & $0.820 \pm 0.104$  & $0.490 \pm 0.100$  & $0.775 \pm 0.073$  & $0.737 \pm 0.080$  & $0.538 \pm 0.033$   \\
-% Leadership           & subject\_org & Democratic      & $0.640 \pm 0.052$  & $0.660 \pm 0.052$  & $0.510 \pm 0.043$  & $0.909 \pm 0.060$  & $0.932 \pm 0.023$  & $0.626 \pm 0.071$   \\
-% Leadership           & subject\_org & Parliament      & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.960 \pm 0.052$  & $0.942 \pm 0.082$  & $0.676 \pm 0.114$   \\
-% Origin               & origin       & American        & $0.720 \pm 0.265$  & $0.820 \pm 0.141$  & $0.500 \pm 0.067$  & $0.681 \pm 0.162$  & $0.748 \pm 0.082$  & $0.551 \pm 0.043$   \\
-% Origin               & origin       & Russia          & $1.000 \pm 0.000$  & $0.980 \pm 0.043$  & $0.450 \pm 0.074$  & $0.963 \pm 0.022$  & $0.919 \pm 0.057$  & $0.530 \pm 0.055$   \\
-% Resident             & location     & Chinese         & $0.920 \pm 0.171$  & $0.920 \pm 0.171$  & $0.500 \pm 0.095$  & $0.806 \pm 0.113$  & $0.820 \pm 0.119$  & $0.535 \pm 0.029$   \\
-% Resident             & location     & Texas           & $0.780 \pm 0.124$  & $0.760 \pm 0.160$  & $0.440 \pm 0.056$  & $0.691 \pm 0.067$  & $0.661 \pm 0.114$  & $0.499 \pm 0.027$   \\
-% Role                 & role         & author          & $0.620 \pm 0.124$  & $0.480 \pm 0.141$  & $0.600 \pm 0.077$  & $0.588 \pm 0.074$  & $0.508 \pm 0.060$  & $0.569 \pm 0.043$   \\
-% Role                 & role         & director        & $0.580 \pm 0.171$  & $0.600 \pm 0.178$  & $0.600 \pm 0.109$  & $0.567 \pm 0.090$  & $0.552 \pm 0.067$  & $0.581 \pm 0.050$   \\
-% StudentAlum          & almamater    & Harvard         & $0.940 \pm 0.085$  & $0.940 \pm 0.085$  & $0.520 \pm 0.112$  & $0.961 \pm 0.028$  & $0.936 \pm 0.063$  & $0.546 \pm 0.043$   \\
-% StudentAlum          & almamater    & Stanford        & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.500 \pm 0.000$  & $0.993 \pm 0.014$  & $0.985 \pm 0.031$  & $0.697 \pm 0.128$   \\
-% \end{tabular}}
-%   \caption{Performance with a feature based ranker. The intervals are 90\% confidence intervals.}
-%   \label{tab:perf-feat}
-% \end{table}
-
 % ----------------------------------------------------------- %
 % Clipped Linear Classifier Performance on Unlimited Test Set %
 % ----------------------------------------------------------- %
@@ -591,82 +841,12 @@ StudentAlum          & almamater    & Stanford         & $0.052 \pm 0.073 $ &$0.
   \label{tab:perf-feat}
 \end{table}
 }
-\subsection{Entity Recommendation Through Label Propagation}
-\label{sec:er-lp}
-\FW{Remember that for all these models, there's a way to model them
-more compositionally by decomposing the model over the edge types and the vertices.}
-There are two ways of interpreting the graph.
-Either we can interpret the relations to be different types of edges,
-or equivalently as edge attributes,
-or we can interpret the combination of an
-edge type and edge value to be different vertices.
-
-For example let, $\bigstaten{$i$,s}$,
-$\bigstaten{$a$} \shortarc{r} \bigstaten{$b$}$
-be an arc of type $r$ going from vertex $\bigstaten{$a$}$
-to $\bigstaten{$b$}$. We can model the arc non-compositionally
-and consider the $\shortarc{r} \bigstaten{$b$}$ to be a single vertex
-or we can model the graph compositionally and
-consider the arc type to be a feature of the edge.
-
-For sake of simplicity we would first implement the non-compositional
-method. The non-compositional method has the ideal property that
-there are no longer different types of edges. All edges are of the same
-type. The downside is that now there are a much larger number of vertices.
-and they can not share parameters.
-
-Using the modified adsorption algorithm we obtain the following result:
-% ---------------------------------------------- %
-% MAD Performance with Limited Balanced Test Set %
-% ---------------------------------------------- %
-% \begin{table}[htbp]
-%   \centering
-%   \resizebox{\textwidth}{!}{
-%   \begin{tabular}{l l l | c c c}
-% Relation                        & Attribute    & Value           & \multicolumn{3}{c}{AUPR (Average-Precision)} \\\hline
-%                                 &              &                 & w/o doc & w/ doc & random \\
-% EmploymentMembership & employer     & Army            &  $0.909 \pm 0.046$   &  $0.909 \pm 0.046$   &  $0.539 \pm 0.064$  \\
-% EmploymentMembership & employer     & White\_House    &  $0.810 \pm 0.052$   &  $0.810 \pm 0.052$   &  $0.545 \pm 0.055$  \\
-% Leadership           & subject\_org & Democratic      &  $0.925 \pm 0.102$   &  $0.925 \pm 0.102$   &  $0.567 \pm 0.116$  \\
-% Leadership           & subject\_org & Parliament      &  $0.975 \pm 0.052$   &  $0.975 \pm 0.052$   &  $0.604 \pm 0.101$  \\
-% Origin               & origin       & American        &  $0.752 \pm 0.111$   &  $0.752 \pm 0.111$   &  $0.559 \pm 0.083$  \\
-% Origin               & origin       & Russia          &  $0.968 \pm 0.040$   &  $0.968 \pm 0.040$   &  $0.558 \pm 0.063$  \\
-% Resident             & location     & Chinese         &  $0.931 \pm 0.076$   &  $0.931 \pm 0.076$   &  $0.553 \pm 0.058$  \\
-% Resident             & location     & Texas           &  $0.795 \pm 0.065$   &  $0.795 \pm 0.065$   &  $0.491 \pm 0.069$  \\
-% Role                 & role         & author          &  $0.540 \pm 0.113$   &  $0.540 \pm 0.113$   &  $0.538 \pm 0.120$  \\
-% Role                 & role         & director        &  $0.517 \pm 0.069$   &  $0.517 \pm 0.069$   &  $0.536 \pm 0.066$  \\
-% StudentAlum          & almamater    & Harvard         &  $0.986 \pm 0.016$   &  $0.986 \pm 0.016$   &  $0.520 \pm 0.073$  \\
-% StudentAlum          & almamater    & Stanford        &  $1.000 \pm 0.000$   &  $1.000 \pm 0.000$   &  $0.628 \pm 0.196$  \\
-% \end{tabular}}
-%   \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
-%   \label{tab:perf-feat}
-% \end{table}
-
-% --------------------------------------- %
-% MAD Performance with Unlimited Test Set %
-% --------------------------------------- %
-\begin{table}[htbp]
-  \centering
-  %\resizebox{\textwidth}{!}
-  {
-  \begin{tabular}{l  | c c c}
-         & w/o doc          & w/ doc           & random          \\
-    AUPR & $ 7.0 \pm 2.8 $  & $ 5.4 \pm 1.8 $  & $ 1.2 \pm 0.0 $ \\
-    P@10 & $ 9.8 \pm 11.2 $ & $ 12.3 \pm 9.6 $ & $ 0 $           \\
-\end{tabular}}
-  \caption{Performance with MAD. The intervals are 90\% confidence intervals.}
-  \label{tab:perf-label-prop}
-\end{table}
-
-
-Although many other methods can be used on this bipartite graph which has a single edge type
-such as other variants of label propagation or variants of matrix factorization. All of those
-methods would have the drawback that the vertices would remain non-compositional.
-\FW{Add the performance of MAD when we remove edge attributes all together. (through a union)
-  Add the performance of unbiased RW with and without edge attributes.
-  Add the performance of RESCAL with and without edge attributes.
-  Add the performance of matrix factorization.}
-
+\remove{
+\subsection{VN with Semi-Supervised Information}
+\label{sec:vn-with-semi}
+Semi supervised should only be done, when you think that the
+signal really is strong enough. The techniques require data.
+}
 
 \remove{
 \subsection{Entity Recommendation on Edge attributed Bipartite Graphs under the SBM model}
@@ -680,7 +860,7 @@ Consider a generalization of the NB model where the components of $f$ belong to
 one of $\tilde{K}$ classes. Let $\mathcal{\tilde{K}}$ be the set of classes into
 which the entire feature vector can be seprated. Assume that the $i$th component
 of $f$, \ie $f[k]$ belong to some class $c_{f[k]}$ and that the probability
-$p(x, f[k] | y = p(c_{f[k]} | y)$. Then $p(x, f, y) = p(y) \prod_{k=1}^K p(x,
+$p(x, f[k] | y) = p(c_{f[k]} | y)$. Then $p(x, f, y) = p(y) \prod_{k=1}^K p(x,
 f[k] | y) = p(y) \prod_{k=1}^K p(c_{f[k]} | y)$
 
 Let $\Theta \in [0, 1]^{|\mathcal{Y}| \times \mathcal{\tilde{K}}}$ be a matrix
@@ -692,7 +872,7 @@ feature class assignments, the conditional probabilities and the prior class
 probabilities  then inference can be done through the familiar rule:
 
 \begin{align}
-  \hat{y}_{\mathrm{GNB}} = \argmax{} p(y) \prod_{k=1}^K \theta_{y, \pi[k]}^{f[k]}
+  \hat{y}_{\mathrm{GNB}} = \argmax{}\ p(y) \prod_{k=1}^K \theta_{y, \pi[k]}^{f[k]}
   (1 - \theta_{y, \pi[k]})^{1-f[k]}
 \end{align}
 
@@ -754,47 +934,6 @@ StudentAlum          & almamater    & Stanford        & $0.045 \pm 0.037 $ & $0.
 \end{table}
 }
 
-\subsection{Entity Recommendation with Random Walks}
-\label{sec:er-rw}
-\begin{table}[htbp]
-  \centering
-  \begin{tabular}{l c c}
-         & Concatenative w/o Doc & Concatenative w/ Doc \\
-    AUPR & $ 1.3 \pm 0.4 $       & $ 1.4 \pm 0.4 $      \\
-    P@10 & $ 7.7 \pm 8.0 $       & $ 7.3 \pm 7.5 $      \\
-  \end{tabular}
-  \caption{Performance with Random Walks}
-  \label{tab:perf-rw}
-\end{table}
-
-
-
-\subsection{Entity Recommendation with RESCAL based KBC}
-\label{sec:er-rescal}
-
-% \subsection{VN with Semi-Supervised Information}
-% \label{sec:vn-with-semi}
-% Semi supervised should only be done, when you think that the
-% signal really is strong enough. The techniques require data.
-
-\section{Conclusions}
-\label{sec:conclusions}
-
-\begin{snugshade}
-  {vertex nomination was designed for communication graphs, and thaere has
-been interest in extending them to comm nets. the reson for applying VN to KG is
-because of the assumption that the KG is rich in entity to entity relations that
-have been acquired, much like in a social network. Friends are connected. What
-if we observe is that the KG is not rich in E2E relxn . It is rich in doc
-cooccurrence. In a social net conn. doc co-oucc is third person comm about 2
-entities. The analogy from a social network connection can shift to doc - cooucc
-in news stories. the closes we have to a social network is that a third person
-is communicating about two entities.}
-\end{snugshade}
-\bibliographystyle{plain}
-\bibliography{references}
-\end{document}
-
 %% Local Variables:
-%% eval: (progn (flycheck-mode -1) (company-mode -1))
+%% eval: (progn (flycheck-mode -1) (company-mode -1) (orgtbl-mode -1))
 %% End:

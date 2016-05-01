@@ -4,9 +4,9 @@
 | Description : Random Walks for Recommendation on Knowledge Graphs.
 | Author      : Pushpendre Rastogi
 | Created     : Thu Apr 28 07:02:15 2016 (-0400)
-| Last-Updated: Thu Apr 28 08:56:33 2016 (-0400)
+| Last-Updated: Sat Apr 30 08:17:53 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 13
+|     Update #: 16
 '''
 import random
 import numpy as np
@@ -24,8 +24,8 @@ import itertools
 
 arg_parser = argparse.ArgumentParser(description='')
 arg_parser.add_argument('--seed', default=0, type=int)
-arg_parser.add_argument('--rw_walk_num', default=3, type=int)
-arg_parser.add_argument('--rw_max_step', default=10, type=int)
+arg_parser.add_argument('--rw_walk_num', default=10, type=int)
+arg_parser.add_argument('--rw_max_step', default=3, type=int)
 args = arg_parser.parse_args()
 random.seed(args.seed)
 np.random.seed(args.seed)

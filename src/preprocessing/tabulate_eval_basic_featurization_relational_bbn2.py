@@ -5,12 +5,13 @@
 | Description : Tabulate the output of the eval_basic_script
 | Author      : Pushpendre Rastogi
 | Created     : Thu Apr 21 12:34:14 2016 (-0400)
-| Last-Updated: Wed Apr 27 23:28:13 2016 (-0400)
+| Last-Updated: Sat Apr 30 21:43:59 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 36
+|     Update #: 38
 '''
 import rasengan
-
+import numpy as np
+from rasengan import confidence_interval_of_mean_with_unknown_variance as cim
 headers = [[_.strip() for _ in e.strip().split(' & ')] for e in '''
 adept-core#Role                 & role         & "author"
 adept-core#Role                 & role         & "director"
@@ -38,6 +39,32 @@ def mci(obs):
     mean, interval = rasengan.confidence_interval_of_mean_with_unknown_variance(
         obs, alpha=0.9, sample_contains_all_of_population=False)
     return '$%.3f \pm %.3f $' % (mean, (interval[1] - interval[0]) / 2)
+
+
+def everything_impl(pat_out_l):
+    l = []
+    for pat_out in pat_out_l:
+        if pat_out == []:
+            l.append([np.nan, np.nan])
+        else:
+            mean, interval = cim(pat_out,
+                                 alpha=0.9,
+                                 sample_contains_all_of_population=False)
+            assert mean >= 0
+            l.append([mean, (interval[1] - interval[0]) / 2])
+    return np.array(l)
+
+
+def everything(pat_out_l):
+    l = everything_impl(pat_out_l)
+    try:
+        print ' & $', ' \pm '.join(
+            ['%2.1f' % (100 * e) for e
+             in np.ma.masked_array(l, np.isnan(l)).mean(axis=0)]), '$',
+    except TypeError:
+        import ipdb as pdb
+        pdb.set_trace()
+    return
 
 if __name__ == '__main__':
     data = list(open('../../scratch/eval_basic_featurization_bbn2_v2.txt'))

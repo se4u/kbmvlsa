@@ -1,0 +1,95 @@
+A graph $G$ comprises a vertex set $V$ and a relation
+on those vertices $E$. The elements of $E$ are called edges.
+The vertices and edges can also have attributes or features.
+In the literature for knowledge
+graphs vertices may also be called entities or nodes, the edges may be
+called relations or predicates or slots and attributes are sometimes called properties or
+features. Some literature also assigns types to
+vertices and edges which for all purposes are just discrete attributes that may
+sometimes be mutually exclusive.
+
+The predominant way in which analysts interact with and make use of knowledge
+graphs is by treating knowledge graphs as databases that support evaluation
+of queries. The most common type of queries that are used to interface with
+databases, graphical or otherwise, are queries that exist in some logical
+algebra. For example a knowledge graph may be stored inside a graph database,
+an RDF {triplestore} or even inside XML files and then queried using a graph
+query language such as Cypher or Gremlin, SPARQL or XPath. Such interfaces to
+knowledge graphs require an analyst to know atleast the following things:
+\begin{itemize}
+\item The schema of the knowledge graph.
+\item An expression from the query language, of the subgraph that the
+  analyst wants to select from the knowledge graph.
+\end{itemize}
+In case the desired subgraph cannot be efficiently expressed in the query
+language or if the exact expression is too inefficient to execute, then
+alternative queries may be formulated that select an approximations of
+the ideal subgraph that we want.
+
+A paradigm for databases queries that is very different from the paradigm
+of satisfying descriptive logical programs is the paradigm of
+\textit{example based queries} where the analyst wants to retrieve a subset of
+vertices and instead of describing that subset through an expression of the query
+language she provides {examples} of entities that are elements of
+ the desired subset. Sometimes the analyst may also provide negative examples of
+ entities that are are not elements of desired subset. The desired subset of
+ vertices is also sometimes called the ``{relevant set}'' or
+ ``{interesting set}''. Based on the  examples the database guesses the
+ analyst's criterion for relevance or interest and {recommends} other
+ vertices that would be relevant to the user. Databases that can support such
+ example based queries and return a sorted list of relevant entities are called
+\textit{Recommendation Systems} or \textit{Recommenders} in short. We call algorithms
+that can rank entities in a dataset based on a set of example entities
+\textit{Recommendation Algorithms}~(RAs). \Exref{ex:recommender} presents a
+concrete example of the utility of Recommenders and the variety of RAs that
+can be deployed. Clearly a single RA cannot perform well on all types of graphs and all types of
+queries. The performance of an RA would crucially depend on the topology of the
+knowledge graph, the complexity of the queries and the expressivity of the
+features utilized by the RA.
+
+\begin{example}\label{ex:recommender}
+  Consider a social network of sportsmen that contains the height
+  and weight of people and the sports that they play as well as their friendship
+  status. Assume that an analyst needs to retrieve the adult triathlete
+  with the lowest lung capacity from this database.
+
+  Clearly our analyst has her job cut out for her, not only will she have to
+  figure out the various ways in which people might express that they are
+  triathletes, but the attributes of age and lung capacity don't even exist in
+  the dataset. Since triathlete might simply state that they are triathletes or
+  instead state the three or more sports that they play individually creating
+  the correct filters by hand can be time consuming. On top of that the analyst
+  will have to manually figure out some rules for guessing the age and lung capacity of
+  a person  based on their height and weight.
+
+  In such a scenario a \textit{Recommender} can be very useful for achieving quick
+  results. A general purpose RA based on a probabilistic linear model built with
+  third order feature conjunctions could be quite easily figure out the right
+  entities to retrieve from the database and give useful hints to the analyst
+  for fast prototyping.
+\end{example}
+
+To ascertain the extent to which, the most advanced automatically
+constructed knowledge graph that has been created under the DARPA DEFT program,
+can function as a recommender, we evaluated the performance of a few RAs (See \Tabref{tab:ra}) on the
+\dataset (\Secref{sec:data})~\cite{BBN-REPORT} with a few plausible, but
+synthetic example based queries (\Secref{sec:evaluation}).
+Our results (\Secref{sec:er-algorithms}) suggest that the current state of
+the art automatically constructed knowledge graphs are too sparse to fruitfully
+function as a recommender. In conclusion (\Secref{sec:conclusions}), we discuss
+guidelines to construct ontologies such that the resulting knowledge graph can
+function as a recommender.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{l l}
+    Method              & Type         \\\hline
+    Naive Bayes         & Inductive    \\
+    %Block Naive Bayes  & Inductive    \\
+    %Binary SVM         & Inductive    \\
+    Modified Adsorption & Transductive \\
+    Random Walk         & Transductive \\
+  \end{tabular}
+  \caption{List of Recommendation Algorithms}
+  \label{tab:ra}
+\end{table}
