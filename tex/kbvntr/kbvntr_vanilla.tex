@@ -1,5 +1,6 @@
 \documentclass[paper=a4,fontsize=11pt]{scrartcl}
 \usepackage{underscore,changepage,booktabs,enumitem}
+\usepackage[round]{natbib}
 \usepackage[dvipsnames]{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage{framed}
@@ -105,8 +106,6 @@
 \date{}
 
 \newcommand{\newrel}{41}
-\renewcommand{\cite}[1]{\textcolor{red}{#1}}
-\newcommand{\newcite}[1]{\textcolor{red}{#1}}
 \renewcommand{\r}[1]{\textcolor{red}{#1}}
 \newcommand{\dataset}[0]{\texttt{BBN2} dataset\xspace{}}
 \newcommand{\ontology}{\textsc{Adept} Ontology\xspace{}}
@@ -239,7 +238,7 @@ vertex nomination.
 \label{sec:data}
 The TAC Cold Start Knowledge Base Population (CS-KBP) shared task is organized
 by NIST to evaluate systems that build a knowledge base (KB) from raw natural
-language text~\cite{TAC-KBP-DESC}.  The competing systems extract entities and relations based on
+language text~\citep{tac2015cold}. The competing systems extract entities and relations based on
 textual clues present in natural language documents and populate a KB according to a shared
 schema of entities and relationships. The set of documents is released at the beginning of
 the task and the schema is released some time before that.
@@ -247,7 +246,7 @@ At the end of the shared task the systems submit their
 automatically generated knowledge bases to NIST, which evaluates their accuracy.
 BBN participated in the \task where it was the top performing
 participant in terms of precision and overall F1 according to the official
-results as of November 2015~\cite{BBN-System}. Since BBN's \texttt{BBN2} was one
+results as of November 2015~\citep{bbn2015bonan}. Since BBN's \texttt{BBN2} was one
 of its top performing submissions therefore to ascertain the feasibility of using an
 automatically constructed knowledge graphs as a recommender we
 performed our experiments on \texttt{BBN2}.
@@ -266,14 +265,14 @@ named entities with different identifiers that have approximately the same canon
 (See \Exref{ex:title-cap}). We call this phenomenon \textit{Denormalization} and we will show
 later this phenomenon severely hurts the performance of any recommendation system.
 \begin{example}\label{ex:ne}
-  The identifier $9dd1d8d3-9a1f-4ec2-a45b-64cce788eb01$ in the dataset has
+  The identifier \texttt{9dd1d8d3-9a1f-4ec2-a45b-64cce788eb01} in the dataset has
 the type \texttt{Title}
 and the canonical string associated with it is \texttt{Almighty King}. This
 identifier has no other attributes attached to it.
 \end{example}
 \begin{example}\label{ex:title-cap}
-  The identifiers $e3ac2b1e-cd3b-4cf8-a1fb-b1f71db123df$ and
-  $234f3110-c8ca-49aa-ba7b-a45bb5467c38$ have canonical strings \textit{professor} and
+  The identifiers \texttt{e3ac2b1e-cd3b-4cf8-a1fb-b1f71db123df} and
+  \texttt{234f3110-c8ca-49aa-ba7b-a45bb5467c38} have canonical strings \textit{professor} and
   \textit{Professor} respectively which differ only in their capitalization.
 
   As this example illustrates some of the titles in the \dataset
@@ -646,11 +645,11 @@ cleaning it or otherwise modelling the fact that the features may have a informa
 
 \subsection{Entity Recommendation Through Modified Adsorption}
 \label{sec:er-lp}
-The MAD algorithm was introduced by \newcite{talukdar-cramer} as an algorithm
+The MAD algorithm was introduced by \citep{talukdar2009new} as an algorithm
 for graph-based semi-supervised learning. The MAD algorithm receives a graph along with
 a labeled set $\mathcal{O}$ of entities in the graph and binary labels indicating
 their relevance or irrelevance to the predicate as input. As output, the MAD algorithm
-produces a soft assignment from the unlabeled nodes to the binary label set.\footnote{The MAD algorithm can be stated in more general terms but the above treatment suffices for our purposes. We refer the reader to~\cite{talukdar-cramer} for details of the MAD algorithm
+produces a soft assignment from the unlabeled nodes to the binary label set.\footnote{The MAD algorithm can be stated in more general terms but the above treatment suffices for our purposes. We refer the reader to~\citep{talukdar2009new} for details of the MAD algorithm
 and its analysis.}
 
 The MAD algorithm produces a soft assignment by solving an unconstrained
@@ -733,12 +732,10 @@ The performance of Unweighted Random Walks is worse than the Naive Bayes models.
 % \subsection{Entity Recommendation with RESCAL based KBC}
 % \label{sec:er-rescal}
 
-\section{Observations on Current Capabilities}
-\label{sec:observations}
+\section{Conclusions}
+\label{sec:conclusions}
 As the results indicate the current Adept KB does not support methods for vertex
-nomination. The two main reasons for this conclusion were that the data contains
-very few edges, and even in the region of the graph which is more densely
-connected the lack of ground truth information makes evaluation of difficult.
+nomination. The  main reason for this conclusion is that the majority of the entities in the KB are disconnected. Therefore we propose to investigate a method to add more edges that can support vertex nomination.
 
 \section{Proposed Next Steps}
 \label{sec:proposed}
@@ -790,9 +787,7 @@ have been acquired, much like in a social network. What
 we observe is that the KG is not rich in Entity to Entity relationships.
 }
 % \appendix
-
-
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 \bibliography{references}
 
 \end{document}
