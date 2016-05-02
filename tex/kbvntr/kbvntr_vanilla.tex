@@ -37,7 +37,7 @@
 \allsectionsfont{\centering\normalfont\scshape}
 %%% Custom headers/footers (fancyhdr package)
 \usepackage{fancyhdr}
-\usepackage[]{todonotes} % or [disable] notes.
+\usepackage[disable]{todonotes} % or [disable] notes.
 \pagestyle{fancyplain}
 \fancyhead{}                        % No page header
 \fancyfoot[L]{}                     % Empty
@@ -734,11 +734,32 @@ The performance of Unweighted Random Walks is worse than the Naive Bayes models.
 
 \section{Conclusions}
 \label{sec:conclusions}
-As the results indicate the current Adept KB does not support methods for vertex
-nomination. The  main reason for this conclusion is that the majority of the entities in the KB are disconnected. Therefore we propose to investigate a method to add more edges that can support vertex nomination.
+Our experiments with vertex nomination on the Adept KB indicate that
+the the closed ontology under which the KB was generated was too restrictive.
+Because of the small number of relations in the ontology, a
+large number of named entities that were extracted from the text corpus
+remained disconnected from other entities, and clearly it is impossible to
+use such disconnected entities in a vertex nomination algorithm.
 
-\section{Proposed Next Steps}
-\label{sec:proposed}
+Amogst the small subset of the graph that was not disconnected, it is possible
+to perform vertex nomination using the Naive Bayes model however the performance
+was low. It is important to note that the Adept ``Knowledge Graph'' behaved more
+like a labeled set of features, or a bipartite graph, instead of a communication
+graph which the original vertex nomination methods were designed for and applied
+to. {The original thought behind applying Vertex Nomination methods to Knowledge
+  Graphs was the assumption that the Knowledge Graph is rich in entity to entity
+  relations, much like in a social network. What
+we observe is that the KG is not rich in Entity to Entity relationships, \eg out
+of a total of $134,581$ relations only $3,508$ relations connect one person
+entity to another.}
+
+\paragraph{Proposed Next Steps}\label{sec:proposed}
+Since the results indicate that the current Adept KB does not support methods
+for vertex nomination since a majority of the entities in the KB are
+disconnected. Therefore we propose to investigate
+methods to ``expand'' the ontology and introduce more relations in the ontology.
+
+
 \FW{Learn from the SVM's performance to guide your search amongst models.
   The goal is not to try all of them. The goal is to wisely choose
   amongst the various model based on the performance of existing methods.
@@ -766,26 +787,18 @@ nomination. The  main reason for this conclusion is that the majority of the ent
   Add the performance of matrix factorization.}
 \FW{Remember that for all these models, there's a way to model them
   more compositionally by decomposing the model over the edge types and the
-  vertices.
-Either we can interpret the relations to be different types of edges,
-or equivalently as edge attributes,
-or we can interpret the combination of an
-edge type and edge value to be different vertices.
+  vertices. Either we can interpret the relations to be different types of
+  edges, or equivalently as edge attributes, or we can interpret the combination
+  of an edge type and edge value to be different vertices.
 
-For example let, $\bigstaten{$i$,s}$,
-$\bigstaten{$a$} \shortarc{r} \bigstaten{$b$}$
-be an arc of type $r$ going from vertex $\bigstaten{$a$}$
-to $\bigstaten{$b$}$. We can model the arc non-compositionally
-and consider the $\shortarc{r} \bigstaten{$b$}$ to be a single vertex
-or we can model the graph compositionally and
-consider the arc type to be a feature of the edge.}
+  For example let, $\bigstaten{$i$,s}$,
+  $\bigstaten{$a$} \shortarc{r} \bigstaten{$b$}$
+  be an arc of type $r$ going from vertex $\bigstaten{$a$}$
+  to $\bigstaten{$b$}$. We can model the arc non-compositionally
+  and consider the $\shortarc{r} \bigstaten{$b$}$ to be a single vertex
+  or we can model the graph compositionally and
+  consider the arc type to be a feature of the edge.}
 
-{vertex nomination was designed for communication graphs, and there has
-been interest in extending them to communication networks. the reson for applying VN to KG is
-because of the assumption that the KG is rich in entity to entity relations that
-have been acquired, much like in a social network. What
-we observe is that the KG is not rich in Entity to Entity relationships.
-}
 % \appendix
 \bibliographystyle{plainnat}
 \bibliography{references}
