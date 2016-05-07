@@ -107,13 +107,13 @@
 
 \newcommand{\newrel}{41}
 \renewcommand{\r}[1]{\textcolor{red}{#1}}
-\newcommand{\dataset}[0]{\texttt{BBN2} dataset\xspace{}}
-\newcommand{\ontology}{\textsc{Adept} Ontology\xspace{}}
-\newcommand{\task}{CS-KBP 2015 task\xspace{}}
+\newcommand{\dataset}[0]{\texttt{BBN2} dataset\ }
+\newcommand{\ontology}{\textsc{Adept} Ontology\ }
+\newcommand{\task}{CS-KBP 2015 task\ }
 \newcommand{\dg}{$^\dagger$}
 \newcommand{\ddg}{$^\ddagger$}
 \newcommand{\OPTION}[0]{\textcolor{red}{OPTION}}
-\newcommand{\PK}{P@K\xspace{}}
+\newcommand{\PK}{P@K\ }
 
 %%% Commands for arcs and states.
 \def\overstrike#1#2{{\setbox0\hbox{$#2$}\hbox to \wd0{\hss$#1$\hss}\kern-\wd0\box0}}
@@ -247,16 +247,16 @@ automatically generated knowledge bases to NIST, which evaluates their accuracy.
 BBN participated in the \task where it was the top performing
 participant in terms of precision and overall F1 according to the official
 results as of November 2015~\citep{bbn2015bonan}. Since BBN's \texttt{BBN2} was one
-of its top performing submissions therefore to ascertain the feasibility of using an
-automatically constructed knowledge graphs as a recommender we
+of its top performing submissions, to ascertain the feasibility of using an
+automatically constructed knowledge graphs as a recommender, we
 performed our experiments on \texttt{BBN2}.
 
 The \dataset is a knowledge graph built according to the \ontology.
 It contains three standard entity types: \textsc{PER, ORG, LOC}
-that refer to Person, Organization and Location respectively as well
+that refer to Person, Organization and Location respectively, as well
 as four extra types of \textsc{TITLE, DATE, CRIME, URL} (\Tabref{tab:type}).
 We will collectively denote entities
-of these types as named entities. Technically we define a named entity to be a
+of these types as named entities. Technically, we define a named entity to be a
 any entity that has only either a canonical string
 or a canonical time attached to it and no other attributes.
 See~\ref{ex:ne}  for an example.
@@ -281,10 +281,6 @@ identifier has no other attributes attached to it.
   nomination algorithms. We leave such pre-processing for future work, and
   measure the performance of the VN algorithms on the ADEPT KB as is.
 \end{example}
-As \tabref{tab:type} shows, the \texttt{Person} category is the highest occurring
-category with $125$K instantiations
-and it is slightly less than double the next largest category of \texttt{Organization}.
-The occurrences of the \texttt{URL} type are negligible.
 \begin{table}[htbp]
   \centering
   \begin{tabular}{r l l}
@@ -301,6 +297,11 @@ The occurrences of the \texttt{URL} type are negligible.
   \caption{The number of instantiations(occurrences) of Named Entities of different types.}
   \label{tab:type}
 \end{table}
+As \tabref{tab:type} shows, the \texttt{Person} category is the highest occurring
+category with $125$K instantiations
+and it is slightly less than double the next largest category of \texttt{Organization}.
+The occurrences of the \texttt{URL} type are negligible.
+
 Also we note that the knowledge graph contains a large number of singleton entities.
 We can infer this from Tables~\ref{tab:type} and \ref{tab:relation}
 since the number of entities is much larger than the total number of edges.
@@ -322,7 +323,7 @@ highest occurring \texttt{Role} relation type
 that relates a person to his/her title accounts for $30\%$ of the data.
 The reason for this skew is that the
 natural language text itself has a strong bias about the type of relations that are
-reported explicitly and that bias is reflected in the distribution of textual mentions
+reported explicitly, and that bias is reflected in the distribution of textual mentions
 of relations.
 \begin{table}[htbp]
   \resizebox{\textwidth}{!}{
@@ -363,7 +364,7 @@ As shown in \tabref{tab:relation} the \texttt{Role} relation does not relate two
 It only relates a person and its title.
 In this sense, the \texttt{Role} relation act as a feature or an attribute of a person
 instead of a relation between them, since the \texttt{Role} for one person can be completely
-independent of the Role of another person unlike the \texttt{Sibling, Spousal} and \texttt{ParentChild}
+independent of the Role of another person, unlike the \texttt{Sibling, Spousal} and \texttt{ParentChild}
 relationships. The \texttt{Sibling, Spousal} and \texttt{ParentChild} relationships always affects two
 people simultaneously in the sense that if a person \textsc{B} is set to be the sibling of \textsc{A} then
 \textsc{A} must be set to the sibling of \textsc{B}.
@@ -372,7 +373,7 @@ act as attributes of persons instead of relations. So the \textit{person-person}
 information is lower in comparison to \textit{person-attribute} information.
 Also note that only 6 relations relate organization to other organizations or
 to locations, so the \textit{attribute-attribute} relational information is
-also low. However in order to leverage the information present in the
+also low. However, in order to leverage the information present in the
 \texttt{OrgHeadquarter} relation we use the name of the headquarter of an
 organization that is related to a person as an attribute of the person.
 
@@ -383,11 +384,12 @@ To quantify the sparsity and the connectedness of the Adept KB we present
 the degree histogram of all the \textsc{PER} entities in the Adept KB in \tabref{tab:deg-hist}. \Tabref{tab:hist-comp} shows a histogram of the sizes of the components that those \textsc{PER} entities belong to.
 Note that both of these tables do not count edges that were not incident
 with atleast one \textsc{PER} entity with the exception of edges of type
-\texttt{OrgHeadquarter}. These edge types are included in the counts since they can
-be considered to be a direct edge connected to a \textsc{PER} entity without causing
-an explosion in the number of types that a \textsc{PER} entity is connected to
-and they can bring useful signal to the graph since the location of a headquarter
-can act as an excellent ``backoff'' feature.
+\texttt{OrgHeadquarter}. The edges of type \texttt{OrgHeadquarter} are
+included in the counts for the following reasons:
+1) The location of the headquarter of the organization that a person is affiliated
+with can act as an excellent feature for ranking a person entity.
+2) Since the number of locations is small extracting these features does not
+cause an explosion in the number of features.
 \begin{table}[htbp]
   \centering
   \resizebox{\textwidth}{!}{
@@ -395,7 +397,7 @@ can act as an excellent ``backoff'' feature.
     \textbf{Degree}                & 0     & 1     & 2    & 3    & 4    & 5    & 6    & 7   & 8   & 9   & 10  & >10  \\
     \textbf{\textsc{PER} Entities} & 82057 & 16672 & 8997 & 6862 & 3056 & 2521 & 1290 & 846 & 615 & 432 & 329 & 1345 \\
   \end{tabular}}
-  \caption{Degree histogram for the \textsc{PER} entities in the Adept KB.}
+  \caption{Table of degrees for the \textsc{PER} entities in the Adept KB.}
   \label{tab:deg-hist}
 \end{table}
 
@@ -405,7 +407,7 @@ can act as an excellent ``backoff'' feature.
     \textbf{Component Size}     & 1     & 2  & 3  & 4  & 5 & 42350 \\
   \textbf{Number of Components} & 82057 & 81 & 10 & 10 & 1 & 1     \\
   \end{tabular}
-  \caption{Histogram of component sizes of the \textsc{PER} entities in the Adept KB.}
+  \caption{The component sizes of the \textsc{PER} entities in the Adept KB.}
   \label{tab:hist-comp}
 \end{table}
 
@@ -474,7 +476,7 @@ only needs to be able to label the \textsc{PER} entities.
 \section{Recommentation Algorithms for the Adept KB}
 \label{sec:er-algorithms}
 Before we proceed to the discussion and comparison of different vertex
-nomination algorithms let us first understand the implications of the sparsity
+nomination algorithms, let us first understand the implications of the sparsity
 and fragmented nature of the Adept KB that we established in
 \secref{sec:graph-sparsity}.  In \secref{sec:graph-sparsity} we showed that
 $66\%$ of the vertices were singleton, the rest of the graph had one giant
@@ -491,10 +493,10 @@ the connected portion of the data.
   \caption{Figure representing the number of vertices with degree $0$ and degree
     $1$.}
   \label{fig:adept-cartoon}
-\end{figure} With the above caveat, let us now describe the experimental setup
+\end{figure}
+With the above caveat, let us now describe the experimental setup
 that remains common across the application of all of the following
-algorithms. We present the results of applying different vertex nomination
-algorithms in their respective subsections.  Let the set of named entities in
+algorithms. Let the set of named entities in
 the Adept KB that have the type \textsc{PER} be $\mathcal{P}$.  Let us consider
 the first row of \tabref{tab:pred-func}.  It can define two predicate function /
 criteria for relevance over the elements of $\mathcal{P}$.  The first predicate
@@ -514,7 +516,7 @@ predicate \texttt{Employer=Army} a number of time the Adept KB may have the
 annotation that \texttt{Employer=US Army} or \texttt{Employer=Pentagon} but not
 the annotation that \texttt{Employer=Army}. In our experiments we side-step
 these issues and assume that our task is to faithfully predict the predicate
-function as present in the Adept KB.} After performing 5 trials we average the
+function as present in the Adept KB.} After performing five trials we average the
 performance of the VN algorithm across the trials and calculate the $90\%$
 confidence interval assuming the t-distribution for the standard
 error(SE). Finally we aggregate the confidence intervals and the average
@@ -641,7 +643,7 @@ not assign a high rank
 to the true answers and for half of the cases we found that the \textsc{PER}
 entities that were misclassified did not have any feature that occurred in $\mathcal{O}^{+}$.
 These issues indicate that there is a natural ceiling to the results that one can obtain without
-cleaning it or otherwise modelling the fact that the features may have a information in the form of lexical overlap.
+cleaning it or otherwise modeling the fact that the features may have a information in the form of lexical overlap.
 
 \subsection{Entity Recommendation Through Modified Adsorption}
 \label{sec:er-lp}
@@ -653,7 +655,7 @@ produces a soft assignment from the unlabeled nodes to the binary label set.\foo
 and its analysis.}
 
 The MAD algorithm produces a soft assignment by solving an unconstrained
-optimization problem over the space of all labellings where the objective
+optimization problem over the space of all labelings where the objective
 is defined such that the labeling it produces are ``smooth'', \ie the
 labels of nodes that share an edge tend to be similar, and it tends to agree with
 the input partial labeling and that it should labeling should be close to an
@@ -670,8 +672,8 @@ $\bigstaten{v} \shortarc{} \bigstaten{rq}$. \Ie for each edge incident on a
 the \textsc{PER} entity as is. This creates many new neighboring vertices and
 removes typing information from the edges.
 As explained in \secref{sec:er-nb} there are two variants of the Adept KB that
-we consider, the first variant does not contain document do-occurrence
-informaton and the second variant contains the document co-occurrence
+we consider, the first variant does not contain document co-occurrence
+information and the second variant contains the document co-occurrence
 information. In order to add document co-occurrence information to the Adept KB
 graph we create ``document'' nodes and add edges between \textsc{PER} entities
 and the documents that they occurred in. For both of the variants we created
@@ -741,7 +743,7 @@ large number of named entities that were extracted from the text corpus
 remained disconnected from other entities, and clearly it is impossible to
 use such disconnected entities in a vertex nomination algorithm.
 
-Amogst the small subset of the graph that was not disconnected, it is possible
+Amongst the small subset of the graph that was not disconnected, it is possible
 to perform vertex nomination using the Naive Bayes model however the performance
 was low. It is important to note that the Adept ``Knowledge Graph'' behaved more
 like a labeled set of features, or a bipartite graph, instead of a communication
