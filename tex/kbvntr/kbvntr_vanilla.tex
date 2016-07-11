@@ -139,21 +139,18 @@ The predominant way in which analysts interact with and make use of knowledge
 graphs is by treating knowledge graphs as databases that support evaluation
 of queries. An analyst may execute two types of queries on a KB:
 \begin{description}[leftmargin=*]
-\item[Logical Queries] A analyst may want to retrieve a set of items,
-  that lie in a set exactly described via a logical expression. For example a analyst
+\item[Logical Queries] An analyst may want to retrieve a set of items,
+  that lie in a set exactly described via a logical expression. For example, an analyst
 may ask for all vertices that are connected to the vertex with the highest
-degree. A simpler example of a query like this is a static lookup: an
+degree.  A simpler example is static lookup: an
 analyst may begin with an entity represented as a vertex connected via a
 ``name'' attribute to the value ``John Smith'' and then construct a query which
-looks for an edge called ``worksFor'', and then ``leaderOf''\footnote{Such
-  queries form the evaluation of \task}.
-whose value is \texttt{John Smith}\footnote
+looks for an edge called ``worksFor'', and then ``leaderOf''.\footnote
 {Specifically, a knowledge graph may be stored inside a graph database,
 an RDF {triplestore} or even inside XML files and then queried using a graph
 query language such as Cypher or Gremlin or an RDF query language like SPARQL
-or XPath which is the defacto standard for querying XML data.}
-\item[Example Queries] We focus on such queries in this work.
-  The analyst provides {examples} of items of
+or XPath which is the defacto standard for querying XML data.}  Logical queries -- so called ``one hop'' and ``two hop'' -- form the basis for evaluation of \task.
+\item[Example Queries] Here an analyst provides {examples} of items of
   interest/relevance, and wants the system to \textit{nominate} or \textit{recommend}
   items that are similar to the examples. Sometimes the analyst may also
   provide \textit{negative supervision} in the form of examples that are marked
@@ -164,6 +161,12 @@ or XPath which is the defacto standard for querying XML data.}
 that can rank entities in a dataset based on a set of example entities
 \textit{Recommendation Algorithms}~(RAs).
 \end{description}
+
+While the evaluation under DEFT for KB creation has focused on
+performance under Logical Queries, here \emph{we assume our goal is to
+  enable Example Queries}.  I.e., use an
+automatically created KB as the sole support for performing Vertex
+Nomination.
 
 Interfaces that enable logical queries view the goal of the
 Adept KB as one of aggregating Information Extraction (IE) output from raw
@@ -208,10 +211,10 @@ research from various communities, and then presents the performance of
 a few canonical VN algorithms (See \Tabref{tab:ra}) when applied to to the Adept
 KB via a representative set of example queries.
 
-We conclude from these experiments (See \Secref{sec:conclusions})
-that the current Adept KB does not
-support example queries well, owing to its severe sparsity
-in edges. In short, the ``knowledge graph'' is not much of a graph. The
+\emph{We conclude from these experiments (See
+  \Secref{sec:conclusions}) that the current Adept KB does not support
+  example queries well, owing to its severe sparsity in edges.} In
+short, the ``knowledge graph'' is not much of a graph, in that the
 overwhelming majority of vertices form singleton cliques: entities are
 discovered but no relations connect them to the rest of the KB.
 
@@ -599,7 +602,7 @@ We call this augmented featurization ``Concatenation w/ Backoff''.
 We call the feature set that  contains only features like i, ii and iii the ``Only Backoff'' feature set.
 Finally when we add the documents that a particular entity was mentioned in as features to
 ``Concatenative'' features then we get the ``Concatenative w/ Doc'' feature set.
-For all of the above methods we prune the featureset used to only those that features $f$ that occurred in $\mathcal{O}^{+}$.
+For all of the above methods we prune the featureset used to only those that features $f$ that occurred in $\mathcal{O}^{+}$
 separately for each trial.
 
 % Furthermore this featurization is a first order featurization which fails to take into
@@ -632,15 +635,17 @@ P@10 & $ 20.4 \pm 13.0 $ & $ 29.6 \pm 16.7 $     & $ 29.8 \pm 18.1 $    & $ 25.3
 \end{table}
 
 \paragraph{Error Analysis}
-We analyzed the coefficients of the trained Naive Bayes models and the predictions made by the system, specifically we tried to understood the reason why the Naive Bayes model sometimes gave a very low rank to relevant entities.
-For the first part of the analysis we checked the most important features selected by the naive bayes method for
+We analyzed the coefficients of the trained Naive Bayes models and the predictions made by the system, specifically we tried to understand why the Naive Bayes model sometimes gave a very low rank to relevant entities.
+For the first part of the analysis we checked the most important features selected by the method for
 a few trials of the algorithm for the predicate ``EmploymentMembership=Army''.
-Our analysis showed that the NB model gave high score to very sensible feature
+We found that the NB model gave a high score to intuitive feature
 values that correlated with the true predicate, for example it gave high weight to the ``EmploymentMembership=Pentagon''
 feature when trained to recommend entities that satisfied ``EmploymentMembership=Army''.
 Such an assignment of high scores to related entities is an example of the kind of
-rules that we wish to learn. Clearly such rules can only be applied to those
-\textsc{PER} vertices that have at least two edges. We noticed that the Naive Bayes model was able to learn useful features for recommending entities according to all the relations which we tabulate in \tabref{tab:nb-analysis}.
+rules that we wish to learn.\footnote{Keeping in mind that such rules can only be applied to those
+  \textsc{PER} vertices that have features under the graph, and that most do not.}
+
+Useful features for recommending entities are tabulated in \tabref{tab:nb-analysis}.
 \begin{table}[htbp]
   \begin{adjustwidth}{-2cm}{}
     \resizebox{1.3\textwidth}{!}{
@@ -659,23 +664,35 @@ rules that we wish to learn. Clearly such rules can only be applied to those
     StudentAlum          & Harvard        & StudentAlum=Harvard Law School     & EmploymentMembership=Harvard \\
     StudentAlum          & Stanford       & Resident=California                & Origin=American              \\
   \end{tabular}}
-  \caption{Highly weighted features for recommending \textsc{PER} entities according to relationship criterion.}
+  \caption{Highly weighted features for recommending \textsc{PER} entities according to relationship criterion.  For example, we found that if the graph claimed that someone was a resident of ``Russian'' or employed by ``Russian'', then their origin might likely be ``Russia''.}
   \end{adjustwidth}
   \label{tab:nb-analysis}
 \end{table}
 
-Unfortunately, even though the NB algorithm made many correct
-recommendations in the top 10 for this criteria those recommendations were
-counted as incorrect since they were not part of the Adept KB. This highlights a
-challenge associated with evaluating such recommendation tasks where the entire
-truth is not known to us even at test time.
+One reason for measured ``error'' is that in some cases the NB
+algorithm made correct recommendations in the top 10, but were counted
+as incorrect since they were not part of the Adept KB. This highlights
+a known challenge associated with evaluating any such recommendation
+task (where the entire truth set is not known even at test time).
 
-For the second part of the analysis we checked why the Naive Bayes model did
-not assign a high rank
-to the true answers and for half of the cases we found that the \textsc{PER}
-entities that were misclassified did not have any feature that occurred in $\mathcal{O}^{+}$.
-These issues indicate that there is a natural ceiling to the results that one can obtain without
-cleaning it or otherwise modeling the fact that the features may have a information in the form of lexical overlap.
+For the second part of the analysis we checked why the Naive Bayes
+model did not assign a high rank to the true answers: for half of the
+cases we found that the \textsc{PER} entities that were misclassified
+did not have any feature that occurred in $\mathcal{O}^{+}$.  This
+further evidence of data sparsity in the graph: even for vertices
+sub-selected from the graph for purposes of these synthetic
+experiments, chosen in order that they had non-zero features, it was
+still often the case that there was no feature overlap between the
+test vertex and the training data (except for the single ``feature''
+that represented the predicate we were directly trying to predict).
+We also observed on manual inspection a fair amount of lexical
+diversity in feature values: while we do not expect an order of
+magnitude impact, it did appear that further improvements to
+canonicalization of values in the KB might offer some limited
+improvement (e.g., a hypothetical example would be the difference
+between ``Russia'' and ``Russian'' as values in the graph, for the
+same relation argument across two examples).
+
 
 \subsection{Entity Recommendation Through Modified Adsorption}
 \label{sec:er-lp}
