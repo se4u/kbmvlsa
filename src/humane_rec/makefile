@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: tmp
+.PHONY:
 .SECONDARY:
 ### English-Entities-Guidelines-V5.6.6.pdf
 # The English portion of the ACE corpus comes from the following sources.
@@ -29,8 +29,10 @@ SHELL := /bin/bash
 # | Headless           | HLS | The nominal head is not overtly extressed                 |
 # | Partitive          | PTV | When we mention to a small part of the whole.             |
 # ACE data is in [bc|bn|cts|nw|un|wl]/adj/*apf.xml and corresponding *sgm files.
-ACE := $(HOME)/data/LDC2006T06/data/English
-
+ACE1 := $(HOME)/data/LDC2006T06/data/English
+# proc = adj and fp2 won't work.
+proc := timex2norm
+ACE := $(ACE1).$(proc).sgm_apf
 ### The ACEtoWiki file contains the following columns
 # link(s) | Document ID | Entity ID | Start position of mention's lexical head
 # The LDC Entity Ids need to be mapped to the ACE entity Ids
@@ -41,6 +43,9 @@ ACEtoWIKI := $(HOME)/data/ACEtoWIKI_resource/ACEtoWIKI_resource.txt
 
 default:
 	echo "Specify Target"
+
+echo_%:
+	echo $($*)
 
 data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wikilist_filter_by_list_size data/parsed_mentions
 	./mention_to_wikilist_filter_by_list_size_property_count.py $+ # > $@
@@ -69,7 +74,7 @@ data/parsed_mentions: data/mention_and_type_to_wikilink
 	  --link_col 1 --entity_type_col 8 --entity_subtype_col 9 \
 	  --sentence_col 10 # > $@
 
-# https://en.wikipedia.org/w/api.php?action=query&titles=John_Ashcroft&format=json&prop=categories&clshow=!hidden&cllimit=max
+# http://en.wikipedia.org/w/api.php?action=query&titles=John_Ashcroft&format=json&prop=categories&clshow=!hidden&cllimit=max
 
 # ---------------------------------------------------------------------------- #
 # TARGET: The target extends the ACEtoWIKI_resource. For each mention it adds  #
@@ -78,3 +83,32 @@ data/parsed_mentions: data/mention_and_type_to_wikilink
 # ---------------------------------------------------------------------------- #
 data/mention_and_type_to_wikilink: $(ACEtoWIKI)
 	./mention_and_type_to_wikilink.py # > $@
+
+data/wikilink_category.pkl: data/wikilink_category_cache
+	./wikilink_category.pkl.py $< $@
+
+data/wikilink_category_cache: data/wikilink_category_cache.raw
+	./wikilink_category_cache.sh $< $@
+
+data/wikilink_category_cache.raw: data/wikilink_url
+	-mkdir $@; cd $@; wget -i ../../$<
+
+data/wikilink_url_hash_revision: data/wikilink_url
+	grep '%23' $< > $@
+
+data/wikilink_url: data/wikilinks
+	awk '{printf("https://en.wikipedia.org/w/api.php?action=query&titles=%s&format=json&prop=categories&clshow=!hidden&cllimit=max&redirects\n", $$1)}' $< > $@
+
+data/wikilinks: $(ACEtoWIKI)
+	awk -F'\t' '{print $$1}' $< | sort -u | \
+	  grep -v -E '(MISSING SENSE|NO PAGE|NO_ANNOTATION)' | \
+	  sed  's#http://en.wikipedia.org/wiki/##g; s.#.%23.g' | \
+	  tr ' ' '\n' | sort -u > $@
+
+$(ACE): $(ACE1)
+	-mkdir $@; \
+	for d in bc bn cts nw un wl; do \
+	  cp $(ACE1)/$$d/$(proc)/*apf.xml $(ACE)/ ; \
+	  cp $(ACE1)/$$d/$(proc)/*sgm $(ACE)/ ; \
+	done ; \
+	chmod 444 $(ACE)/*
