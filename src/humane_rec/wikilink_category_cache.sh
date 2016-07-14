@@ -7,6 +7,7 @@ while read f
 do
     out_file=${f#'api.php?action=query&titles='}
     out_file=${out_file%'&redirects'}
+    out_file=${out_file%'.1'}
     out_file=${out_file%'&format=json&prop=categories&clshow=!hidden&cllimit=max'}
     jq '.query.pages[].categories[].title' $in_dir/$f > $out_dir/$out_file 2> /dev/null
     output=$?
@@ -22,3 +23,11 @@ do
     fi
 done < <( \ls -b $in_dir )
 echo $a
+# ------------------------------------------------- #
+# Somehow the max.1 files remain. Just rename them. #
+# ------------------------------------------------- #
+cd $out_dir
+for f in *max.1
+do
+    mv $f ${f%'&format=json&prop=categories&clshow=!hidden&cllimit=max.1'}
+done

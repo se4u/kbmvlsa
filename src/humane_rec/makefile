@@ -69,27 +69,69 @@ data/mention_to_wikilist: data/mention_and_type_to_wikilink
 # Parse those sentences that contain mentions to Person entities. #
 # The mention type does not matter. Just the entity type matters. #
 # --------------------------------------------------------------- #
-data/parsed_mentions: data/mention_and_type_to_wikilink
-	./parse_mentions $< \
-	  --link_col 1 --entity_type_col 8 --entity_subtype_col 9 \
-	  --sentence_col 10 # > $@
+data/parsed_mentions: data/mention_and_type_for_individuals
+	./parse_mentions.py --d1 ' |||' \
+	  --begin_mention_col 5 \
+	  --end_mention_col 6 \
+	  --sentence_col 7 \
+	  --in_fn $< # > $@
 
-# http://en.wikipedia.org/w/api.php?action=query&titles=John_Ashcroft&format=json&prop=categories&clshow=!hidden&cllimit=max
+# -------------------------------------- #
+# Analyze the categories of individuals. #
+# cat_col is indexed from 0              #
+# -------------------------------------- #
+data/analyze_categories_of_individuals.txt: data/mention_and_type_for_individuals
+	./analyze_categories_of_individuals.txt.py \
+	  --d1 ' |||' --d2 ';' --cat_col 9 --link_col 8 --link_count_thresh 5 \
+	  --in_fn $< --link_to_count_fn data/counts_of_mentions_of_individuals.txt > $@
+
+# -------------------------------------------- #
+# Count the number of mentions of individuals. #
+# -------------------------------------------- #
+data/counts_of_mentions_of_individuals.txt: data/mention_and_type_for_individuals
+	./counts_of_mentions_of_individuals.txt.sh $< > $@
+
+# --------------------------------------------- #
+# Filter the mentions down to only individuals. #
+# --------------------------------------------- #
+data/mention_and_type_for_individuals: data/mention_and_type_to_wikilink
+	./mention_and_type_for_individuals.sh $< > $@
 
 # ---------------------------------------------------------------------------- #
 # TARGET: The target extends the ACEtoWIKI_resource. For each mention it adds  #
-#   its entity type, entity subtype, entity class, mention id, type & sentence #
-# Delimited by triple pipes                                                    #
+# its entity type, entity subtype, entity class, mention id, type, sentence,   #
+# wikilink and wiki categories delimited by triple pipes.                      #
 # ---------------------------------------------------------------------------- #
-data/mention_and_type_to_wikilink: $(ACEtoWIKI)
-	./mention_and_type_to_wikilink.py # > $@
+data/mention_and_type_to_wikilink: data/ace_document_to_sentence.pkl # data/wikilink_category.pkl
+	./mention_and_type_to_wikilink.py \
+	 --wikilink_category_pkl_fn data/wikilink_category.pkl \
+	 --document_to_sentence_pkl_fn $< \
+	 --out_file $@
 
+# --------------------------------------- #
+# Map from document to list of sentences. #
+# --------------------------------------- #
+data/ace_document_to_sentence.pkl: ace_document_to_sentence.pkl.py
+	./ace_document_to_sentence.pkl.py $@
+
+# ------------------------------------ #
+# Map from wikilink to wiki categories #
+# The name of file becomes the key and #
+# the contents of file become value    #
+# ------------------------------------ #
 data/wikilink_category.pkl: data/wikilink_category_cache
 	./wikilink_category.pkl.py $< $@
 
+# -------------------------------------------------------------------- #
+# This step uses jq to extract categories from json and renames files. #
+# The usage of jq in a loop makes this step slow                       #
+# -------------------------------------------------------------------- #
 data/wikilink_category_cache: data/wikilink_category_cache.raw
 	./wikilink_category_cache.sh $< $@
 
+# -------------------------------------------------------- #
+# Download raw json from wikipedia in a single connection. #
+# -------------------------------------------------------- #
 data/wikilink_category_cache.raw: data/wikilink_url
 	-mkdir $@; cd $@; wget -i ../../$<
 
