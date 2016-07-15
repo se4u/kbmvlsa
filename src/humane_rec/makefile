@@ -74,7 +74,7 @@ data/parsed_mentions: data/mention_and_type_for_individuals
 	  --begin_mention_col 5 \
 	  --end_mention_col 6 \
 	  --sentence_col 7 \
-	  --in_fn $< # > $@
+	  --in_fn $< --out_fn $@
 
 # -------------------------------------- #
 # Analyze the categories of individuals. #
