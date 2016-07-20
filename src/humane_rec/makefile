@@ -47,8 +47,28 @@ default:
 echo_%:
 	echo $($*)
 
+data/wiki_link_individual_mentions: data/wiki_link
+	./extract_person_mentions_from_wikilink_data.py $< $@
+
+data/wiki_link: data/wiki-link-v0.1.thrift
+	thrift -gen py:new_style $< ; mv gen-py $@
+
 data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wikilist_filter_by_list_size data/parsed_mentions
 	./mention_to_wikilist_filter_by_list_size_property_count.py $+ # > $@
+
+data/unique_human_entities: data/category_to_entities
+	cat $</* | sort -u > $@
+
+data/category_to_entities: data/category_to_data
+	-mkdir $@; \
+	for f in `\ls -b $<`; do awk '{print $$1}' $</$$f | sort -u > $@/$$f ; done
+
+# The categories were generated using
+# hn 54 data/analyze_categories_of_individuals.txt | tn 53 | awk -F'"' '{printf "\"%s\" ", $2}'
+data/category_to_data:
+	for f in "21st-century American writers" "American people of Irish descent" "20th-century American writers" "American Roman Catholics" "American male writers" "American political writers" "20th-century American politicians" "Presidential Medal of Freedom recipients" "21st-century American politicians" "Democratic Party United States Senators" "CNN people" "Given names" "1946 births" "American people of English descent" "American memoirists" "Democratic Party members of the United States House of Representatives" "American television reporters and correspondents" "American Jews" "Recipients of the Bronze Star Medal" "American military personnel of the Vietnam War" "American male film actors" "Presidents of the United States" "1943 births" "English masculine given names" "1942 births" "American people of Scottish descent" "American Presbyterians" "Republican Party members of the United States House of Representatives" "1954 births" "George W. Bush Administration cabinet members" "1953 births" "2004 deaths" "American women writers" "1944 births" "Republican Party state governors of the United States" "Democratic Party (United States) presidential nominees" "Grammy Award winners" "1947 births" "American people of German descent" "New York Democrats" "20th-century women writers" "20th-century American businesspeople" "American anti-communists" "United States presidential candidates, 2008" "20th-century American male actors" "United States Army soldiers" "21st-century women writers" "1948 births" "United States presidential candidates, 2004" "Recipients of the Order of the Cross of Terra Mariana, 1st Class" "1945 births" "Recipients of the Purple Heart medal" "New York Republicans" ; do \
+	 echo $$f;  ./category_to_data.sh $@ "$$f" | sort -u ; \
+	done; touch $@
 
 # ------------------------------------------------------- #
 # Filter the input file of mentions to wikilists and keep #
