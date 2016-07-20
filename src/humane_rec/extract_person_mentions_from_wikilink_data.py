@@ -1,12 +1,13 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 '''
 | Filename    : tmp.py
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Wed Jul 20 01:25:43 2016 (-0400)
-| Last-Updated: Wed Jul 20 02:59:10 2016 (-0400)
+| Last-Updated: Wed Jul 20 03:31:06 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 22
+|     Update #: 28
 '''
 from thrift.protocol import TBinaryProtocol
 from thrift.transport.TTransport import TFileObjectTransport
@@ -452,14 +453,17 @@ http://en.wikipedia.org/wiki/Yasmin
 http://en.wikipedia.org/wiki/Yasser_Abd_Rabbo
 http://en.wikipedia.org/wiki/Yasser_Arafat
 '''.strip().split())
-assert all([pool[i - 1] < pool[i]
-            for i in range(1, 425)]), 'pool is not sorted'
 
-out_f = io.open(args.out_fn, 'w', encoding='utf-8')
+
+import gzip
+from collections import defaultdict
+out_val = defaultdict(list)
 for fn in xrange(1, 110):
+    # with gzip.open(args.thrift_data_dir + '/%03d.gz' % fn) as f:
     with open(args.thrift_data_dir + '/%03d' % fn) as f:
         p = TBinaryProtocol.TBinaryProtocolAccelerated(
             TFileObjectTransport(f))
+        print fn, len(out_val), sum(len(e) for e in out_val.itervalues())
         while True:
             try:
                 pp.read(p)
@@ -470,5 +474,8 @@ for fn in xrange(1, 110):
                 if c is not None:
                     url = m.wiki_url
                     if url in pool:
-                        # out_f.write
-                        print url, '|||', c.left, c.middle, c.right
+                        out_val[url].append([c.left, c.middle, c.right])
+
+import cPickle as pickle
+with open(args.out_fn, 'wb') as  out_f:
+    pickle.dump(dict(out_val), out_f, -1)

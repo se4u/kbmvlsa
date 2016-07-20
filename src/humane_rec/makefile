@@ -47,8 +47,11 @@ default:
 echo_%:
 	echo $($*)
 
-data/wiki_link_individual_mentions: data/wiki_link
-	./extract_person_mentions_from_wikilink_data.py $< $@
+data/wiki_link_individual_mentions.pkl: data/wiki_link
+	./extract_person_mentions_from_wikilink_data.py \
+	  --thrift_class_dir $< \
+	  --thrift_data_dir /export/b15/prastog3/wikilinks \
+	  --out_fn $@
 
 data/wiki_link: data/wiki-link-v0.1.thrift
 	thrift -gen py:new_style $< ; mv gen-py $@
