@@ -59,6 +59,45 @@ data/wiki_link: data/wiki-link-v0.1.thrift
 data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wikilist_filter_by_list_size data/parsed_mentions
 	./mention_to_wikilist_filter_by_list_size_property_count.py $+ # > $@
 
+
+# After getting the freebase id, filter these ids out from the cluweb data that
+# Xuchen had.
+# zcat /home/hltcoe/xuchen/clueweb09-freebase-annotation/extractedAnnotation/ClueWeb09_English_1/en0000/00.gz
+# Xuchen has 13217 files.
+# A single threaded implementation will take 13217 * X minutes.
+# I need to spawn atleast 2000 jobs to do this work in 1 hour.
+# Most probably it will take a day to extract the sentences.
+#
+CLUDIR := /export/common/data/processed/clueweb09-freebase-annotation/extractedAnnotation
+data/cluweb_freebase_mentions_of_mids: data/list_of_mid_to_extract
+	find $(CLUDIR) -name *.gz | xargs -I % zgrep -F -f data/list_of_mid_to_extract % | tee $@
+
+data/list_of_mid_to_extract: data/unique_human_entities_in_freebase
+	awk '{print $$2}' $< > $@
+
+data/unique_human_entities_in_freebase: data/unique_human_entities_wikidata_id
+	grep -v NOT_IN_FREEBASE $< > $@
+
+# 123 people are not in freebase.
+# But only 72 of those ar real. the rest 51 are just crappy names.
+# grep -v name data/unique_human_entities_not_in_freebase
+# These include people like:
+# http://en.wikipedia.org/wiki/Heidi_Collins NOT_IN_FREEBASE
+# http://en.wikipedia.org/wiki/Martin_Savidge NOT_IN_FREEBASE
+# http://en.wikipedia.org/wiki/Mark_Alan_Wilson NOT_IN_FREEBASE
+# http://en.wikipedia.org/wiki/A._Alfred_Taubman NOT_IN_FREEBASE
+# http://en.wikipedia.org/wiki/Leslie_L._Byrne NOT_IN_FREEBASE
+# http://en.wikipedia.org/wiki/Edward_H._Brooks NOT_IN_FREEBASE
+data/unique_human_entities_not_in_freebase: data/unique_human_entities_wikidata_id
+	grep NOT_IN_FREEBASE $< > $@
+
+data/unique_human_entities_wikidata_id: data/unique_human_entities
+	./unique_human_entities_wikidata_id.py \
+	  --human_entity_url_fn $< \
+	  --wikidata_to_freebase_id_fn ~/data/freebase_to_wikidata/freebase_to_wikidata.compressed \
+	  --shelf_fn data/unique_human_entities_wikidata_id.cache \
+	  --out_fn $@
+
 data/unique_human_entities: data/category_to_entities
 	cat $</* | sort -u > $@
 
@@ -161,6 +200,8 @@ data/wikilink_category_cache.raw: data/wikilink_url
 data/wikilink_url_hash_revision: data/wikilink_url
 	grep '%23' $< > $@
 
+# Note that "#" and unicode characters need to be decoded.
+# such as ñ
 data/wikilink_url: data/wikilinks
 	awk '{printf("https://en.wikipedia.org/w/api.php?action=query&titles=%s&format=json&prop=categories&clshow=!hidden&cllimit=max&redirects\n", $$1)}' $< > $@
 

@@ -1,0 +1,4 @@
+jq
+thrift
+python2
+python3
