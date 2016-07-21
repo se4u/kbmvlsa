@@ -61,16 +61,12 @@ data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wik
 
 
 # After getting the freebase id, filter these ids out from the cluweb data that
-# Xuchen had.
-# zcat /home/hltcoe/xuchen/clueweb09-freebase-annotation/extractedAnnotation/ClueWeb09_English_1/en0000/00.gz
-# Xuchen has 13217 files.
-# A single threaded implementation will take 13217 * X minutes.
-# I need to spawn atleast 2000 jobs to do this work in 1 hour.
-# Most probably it will take a day to extract the sentences.
-#
+# Xuchen had. There are 13217 files and 100 files take 23 seconds and creates
+# 145k lines with 43M data. A single thread will finish in one hour and create
+# 6 GB data.
 CLUDIR := /export/common/data/processed/clueweb09-freebase-annotation/extractedAnnotation
 data/cluweb_freebase_mentions_of_mids: data/list_of_mid_to_extract
-	find $(CLUDIR) -name *.gz | xargs -I % zgrep -F -f data/list_of_mid_to_extract % | tee $@
+	find $(CLUDIR) -name *.gz | xargs -I % zgrep -F -f data/list_of_mid_to_extract % > $@
 
 data/list_of_mid_to_extract: data/unique_human_entities_in_freebase
 	awk '{print $$2}' $< > $@
