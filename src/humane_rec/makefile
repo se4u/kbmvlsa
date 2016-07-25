@@ -47,6 +47,10 @@ default:
 echo_%:
 	echo $($*)
 
+
+demo:
+	./demonstrate_similarity_idea.py
+
 data/wiki_link_individual_mentions.pkl: data/wiki_link
 	./extract_person_mentions_from_wikilink_data.py \
 	  --thrift_class_dir $< \
@@ -64,6 +68,10 @@ data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wik
 # Xuchen had. There are 13217 files and 100 files take 23 seconds and creates
 # 145k lines with 43M data. A single thread will finish in one hour and create
 # 6 GB data.
+# md5sum data/cluweb_freebase_mentions_of_mids
+# fd1c29bbd17c5f9e993833cc3e826602 *data/cluweb_freebase_mentions_of_mids
+# This file is also backed up at
+# /export/projects/prastogi/kbvn/cluweb_freebase_mentions_of_mids
 CLUDIR := /export/common/data/processed/clueweb09-freebase-annotation/extractedAnnotation
 data/cluweb_freebase_mentions_of_mids: data/list_of_mid_to_extract
 	find $(CLUDIR) -name *.gz | xargs -I % zgrep -F -f data/list_of_mid_to_extract % > $@
