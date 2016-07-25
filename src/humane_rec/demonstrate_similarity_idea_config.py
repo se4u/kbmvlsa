@@ -4,9 +4,9 @@
 | Description : A config file to hold demo algorithm configurations.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 23:34:29 2016 (-0400)
-| Last-Updated: Mon Jul 25 00:42:42 2016 (-0400)
+| Last-Updated: Mon Jul 25 01:57:36 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 3
+|     Update #: 6
 '''
 from rasengan import Namespace
 import numpy
@@ -27,12 +27,16 @@ class Sequential_Policy(object):
 
 class Fixed_Iter_Convergence(object):
 
+    ''' When called this function object returns "True"
+    if we have converged.
+    '''
+
     def __init__(self, max_iter=10):
         self.max_iter = max_iter
         self._call_count = 0
 
     def __call__(self, _blfs):
-        ret = (self._call_count < self.max_iter)
+        ret = (self._call_count >= self.max_iter)
         self._call_count += 1
         return ret
 
@@ -46,15 +50,14 @@ class Fixed_L2_Belief_Tolerance_Convergence(object):
         self._call_count = 0
 
     def __call__(self, blfs):
-        call_count_criterion = (self._call_count < self.min_iter)
         self._call_count += 1
-        if call_count_criterion:
+        if self._call_count < self.min_iter:
             self.prev_blfs = blfs
-            return True
+            return False
         else:
             dist = self.distance(self.prev_blfs, blfs)
             self.prev_blfs = blfs
-            return (dist > self.avg_tol)
+            return (dist < self.avg_tol)
 
     def distance(self, prev_blfs, blfs):
         return numpy.sqrt(sum(numpy.linalg.norm(pb - b)**2
@@ -63,5 +66,6 @@ class Fixed_L2_Belief_Tolerance_Convergence(object):
 
 fast_relax.node_pick_policy = Sequential_Policy()
 fast_relax.respect_initial_assignment_for_initializing_beliefs = True
-fast_relax.has_converged = Fixed_Iter_Convergence(10)
+fast_relax.has_converged = Fixed_Iter_Convergence(100)
 # fast_relax.has_converged = Fixed_L2_Belief_Tolerance_Convergence(10, 1e-6)
+fast_relax.verbose = True

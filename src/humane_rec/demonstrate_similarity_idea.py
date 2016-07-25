@@ -5,9 +5,9 @@
 | Description : Demonstrate the idea of finding common concepts between people.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 16:20:04 2016 (-0400)
-| Last-Updated: Mon Jul 25 01:33:21 2016 (-0400)
+| Last-Updated: Mon Jul 25 01:56:52 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 28
+|     Update #: 33
 
 Data Structures
 ---------------
@@ -66,8 +66,6 @@ def fast_relax_optimize_belief(entity, problem, blfs):
 
     These moves are similar to the way that k-means works.
     '''
-    import pdb
-    pdb.set_trace()
     complement_agg = numpy.zeros(problem[0].shape[1])
     e_prime_contrib = numpy.empty(problem[0].shape[1])
     for e_prime in problem:
@@ -86,9 +84,12 @@ def fast_relax_optimize_belief(entity, problem, blfs):
     return blfs
 
 
+def fast_relax_post_process(blfs):
+    return dict((entity, numpy.argmax(blfs[entity]))
+                for entity in blfs)
+
+
 def fast_relax(problem, assignment):
-    import pdb
-    pdb.set_trace()
     blfs = rasengan.OrderedDict_Indexable_By_StringKey_Or_Index()
     # Initialize Node Beliefs
     if cfg.fast_relax.respect_initial_assignment_for_initializing_beliefs:
@@ -109,8 +110,11 @@ def fast_relax(problem, assignment):
         entity = problem.getkey(entity_idx)
         # Step 2: Optimize Entity Beliefs
         blfs = fast_relax_optimize_belief(entity, problem, blfs)
+        if cfg.fast_relax.verbose:
+            print '%s best tag = %s' % (
+                entity, problem[entity].iloc[numpy.argmax(blfs[entity])].name)
 
-    return
+    return fast_relax_post_process(blfs)
 
 
 def optimize_assignment(problem, assignment, method='fast_relax'):
