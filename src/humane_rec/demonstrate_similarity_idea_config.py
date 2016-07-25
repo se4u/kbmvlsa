@@ -4,9 +4,9 @@
 | Description : A config file to hold demo algorithm configurations.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 23:34:29 2016 (-0400)
-| Last-Updated: Mon Jul 25 01:57:36 2016 (-0400)
+| Last-Updated: Mon Jul 25 02:34:43 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 6
+|     Update #: 22
 '''
 from rasengan import Namespace
 import numpy
@@ -64,8 +64,54 @@ class Fixed_L2_Belief_Tolerance_Convergence(object):
                               for (pb, b)
                               in zip(prev_blfs, blfs)) / len(blfs))
 
+
+# -------------- #
+# Configure Demo #
+# -------------- #
+introduce_NULL_embedding = True
+NULL_KEY = '--NULL--'
+demo_second_mode = False
+demo_third_mode = False
+demo_fourth_mode = False
+demo_fifth_mode = False
+first_mode_tags_to_remove = {
+    'Condoleezza_Rice': 'book',
+    'Carly_Fiorina': 'book',
+    'Geraldine_Ferraro': 'lost',
+    'Elizabeth_Smart': 'took',
+    'Hillary_Rodham_Clinton': 'book',
+    'Judy_Woodruff': 'took',
+    'Martha_Stewart': 'book'}
+second_mode_tags_to_remove = {
+    'Condoleezza_Rice': 'quoted',
+    'Carly_Fiorina': 'told',
+    'Geraldine_Ferraro': 'speak',
+    'Elizabeth_Smart': 'speech',
+    'Hillary_Rodham_Clinton': 'speech',
+    'Judy_Woodruff': 'interview',
+    'Martha_Stewart': 'words'}
+third_mode_tags_to_remove = {
+    'Condoleezza_Rice': 'published',
+    'Carly_Fiorina': 'claimed',
+    'Geraldine_Ferraro': 'said',
+    'Elizabeth_Smart': 'described',
+    'Hillary_Rodham_Clinton': 'wrote',
+    'Judy_Woodruff': 'interview',
+    'Martha_Stewart': 'published'}
+fourth_mode_tags_to_remove = {
+    'Condoleezza_Rice': 'secretary',
+    'Carly_Fiorina': 'senate',
+    'Geraldine_Ferraro': 'representative',
+    'Elizabeth_Smart': 'keynote',
+    'Hillary_Rodham_Clinton': 'secretary',
+    'Judy_Woodruff': 'correspondent',
+    'Martha_Stewart': 'presenter'}
+
+# -------------------- #
+# Configure Fast_Relax #
+# -------------------- #
 fast_relax.node_pick_policy = Sequential_Policy()
 fast_relax.respect_initial_assignment_for_initializing_beliefs = True
-fast_relax.has_converged = Fixed_Iter_Convergence(100)
+fast_relax.has_converged = Fixed_Iter_Convergence(50)
 # fast_relax.has_converged = Fixed_L2_Belief_Tolerance_Convergence(10, 1e-6)
 fast_relax.verbose = True

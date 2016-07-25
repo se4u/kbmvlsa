@@ -5,9 +5,9 @@
 | Description : Demonstrate the idea of finding common concepts between people.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 16:20:04 2016 (-0400)
-| Last-Updated: Mon Jul 25 01:56:52 2016 (-0400)
+| Last-Updated: Mon Jul 25 02:33:15 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 33
+|     Update #: 42
 
 Data Structures
 ---------------
@@ -111,7 +111,7 @@ def fast_relax(problem, assignment):
         # Step 2: Optimize Entity Beliefs
         blfs = fast_relax_optimize_belief(entity, problem, blfs)
         if cfg.fast_relax.verbose:
-            print '%s best tag = %s' % (
+            print '%-25s best tag = %-10s' % (
                 entity, problem[entity].iloc[numpy.argmax(blfs[entity])].name)
 
     return fast_relax_post_process(blfs)
@@ -123,6 +123,13 @@ def optimize_assignment(problem, assignment, method='fast_relax'):
     return method(problem, assignment)
 
 
+def tolerant_remove(l, v):
+    try:
+        l.remove(v)
+    except ValueError:
+        pass
+
+
 def main():
     with rasengan.debug_support():
         yaml_data = yaml.load(open('data/women_writer_manual_clues.yaml'))
@@ -131,6 +138,11 @@ def main():
         total_tags = set(
             rasengan.flatten([(rasengan.flatten(b[1::2])) for b in yaml_data.values()]))
         embeddings = pkl.load(open('data/demonstrate_similarity_idea.emb.pkl'))
+
+        if cfg.introduce_NULL_embedding:
+            embeddings[cfg.NULL_KEY] = numpy.zeros(
+                next(embeddings.itervalues()).shape)
+
         assert all(e in embeddings for e in total_tags)
         print ('For each of these people our goal is to select one word.'
                ' That word should be as similar to other words picked for other'
@@ -139,6 +151,22 @@ def main():
         problem = rasengan.OrderedDict_Indexable_By_StringKey_Or_Index()
         for (a, b) in entity_tags.items():
             b = list(b)
+            if cfg.introduce_NULL_embedding:
+                b.append(cfg.NULL_KEY)
+            if cfg.demo_second_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+            if cfg.demo_third_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+            if cfg.demo_fourth_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
+            if cfg.demo_fifth_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fourth_mode_tags_to_remove[a])
             print '%-25s' % a, '|||', ', '.join(b)
             problem[a] = DataFrame(
                 data=numpy.concatenate([embeddings[e][None, :]
@@ -156,6 +184,14 @@ def main():
             'Elizabeth_Smart': 4,
             'Martha_Stewart': 5,
             'Hillary_Rodham_Clinton': 6}
+        initial_assignment = {
+            'Condoleezza_Rice': 0,
+            'Carly_Fiorina': 0,
+            'Geraldine_Ferraro': 0,
+            'Judy_Woodruff': 0,
+            'Elizabeth_Smart': 0,
+            'Martha_Stewart': 0,
+            'Hillary_Rodham_Clinton': 0}
 
         print 'Initial chosen tags::', chosen_tags(problem, initial_assignment)
         initial_objective = dp_objective_efficient_impl(
