@@ -51,18 +51,16 @@ echo_%:
 demo:
 	./demonstrate_similarity_idea.py
 
-data/wiki_link_individual_mentions.pkl: data/wiki_link
-	./extract_person_mentions_from_wikilink_data.py \
-	  --thrift_class_dir $< \
-	  --thrift_data_dir /export/b15/prastog3/wikilinks \
-	  --out_fn $@
 
-data/wiki_link: data/wiki-link-v0.1.thrift
-	thrift -gen py:new_style $< ; mv gen-py $@
+# --------------------------------------------------- #
+# I need to tunnel from local -> clsp -> test1 -> r6n #
+# --------------------------------------------------- #
 
-data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wikilist_filter_by_list_size data/parsed_mentions
-	./mention_to_wikilist_filter_by_list_size_property_count.py $+ # > $@
+curl_call: # tunnel
+	./curl_call.sh "Carly Fiorina, former CEO of Hewlett Packard, told the assembled troops Carly Fiorina, former CEO of Hewlett Packard, told the assembled troops."
 
+tunnel:
+	./multi_hop_tnl.sh prastog3@login.clsp.jhu.edu prastogi@test1.hltcoe.jhu.edu prastogi@r6n23
 
 # After getting the freebase id, filter these ids out from the cluweb data that
 # Xuchen had. There are 13217 files and 100 files take 23 seconds and creates
@@ -83,15 +81,12 @@ data/unique_human_entities_in_freebase: data/unique_human_entities_wikidata_id
 	grep -v NOT_IN_FREEBASE $< > $@
 
 # 123 people are not in freebase.
-# But only 72 of those ar real. the rest 51 are just crappy names.
+# But only 72 of those ar real. Rest 51 are names of things, not actual things.
 # grep -v name data/unique_human_entities_not_in_freebase
 # These include people like:
 # http://en.wikipedia.org/wiki/Heidi_Collins NOT_IN_FREEBASE
 # http://en.wikipedia.org/wiki/Martin_Savidge NOT_IN_FREEBASE
-# http://en.wikipedia.org/wiki/Mark_Alan_Wilson NOT_IN_FREEBASE
-# http://en.wikipedia.org/wiki/A._Alfred_Taubman NOT_IN_FREEBASE
 # http://en.wikipedia.org/wiki/Leslie_L._Byrne NOT_IN_FREEBASE
-# http://en.wikipedia.org/wiki/Edward_H._Brooks NOT_IN_FREEBASE
 data/unique_human_entities_not_in_freebase: data/unique_human_entities_wikidata_id
 	grep NOT_IN_FREEBASE $< > $@
 
@@ -101,17 +96,118 @@ data/unique_human_entities_wikidata_id: data/unique_human_entities
 	  --wikidata_to_freebase_id_fn ~/data/freebase_to_wikidata/freebase_to_wikidata.compressed \
 	  --shelf_fn data/unique_human_entities_wikidata_id.cache \
 	  --out_fn $@
+# -------------------------------------------------------------- #
+# - Don't Do BOW / Linguistic methods
+#    - may not need fiscriminative feature selection.
+#    - then add discriminative feature selection.
+# - Do BOW features
+#    - feature selection by picking feature that are most
+#    - discriminative between random entities and the entities
+#    - that were given to me
+# -------------------------------------------------------------- #
 
+# The final step to extracting the governing tokens from sentences.
+# Compute the fixed point of a set of rules.
+data/wikimic_identify_governors.pkl: data/wikimic_create_entity_token_set.pkl
+	./wikimic_identify_governors.pkl.py --in_fn $< --out_fn $@
+
+# -------------------------------------------------------------- #
+# ETS includes the coreference entities.                         #
+# We have now included the coreferent tokens including pronouns. #
+# -------------------------------------------------------------- #
+data/wikimic_create_entity_token_set.pkl: data/wikimic_tokenize_parse_sentence.pkl
+	./wikimic_create_entity_token_set.pkl.py --in_fn $< --out_fn $@
+
+# --------------------------------------------------------------------------- #
+# Unfortunately, the easiest way to parse and tokenize involves transferring  #
+# the sentences to the mini grid. Which means I need to write each sentence to#
+# a line and then I need to gzip it. then copy it over 3 hops to r6n24.       #
+# Then on r6n24 I will run a command to parse this data and store to a file.  #
+# Then I will copy the data back and store into a pickle.                     #
+# --------------------------------------------------------------------------- #
+data/wikimic_tokenize_parse_sentence.pkl: data/wikimic_tokenize_parse_sentence.conll.gz data/wikimic_extract_sentence_boundary.txt.gz data/wikimic_extract_sentence_boundary.pkl
+	./wikimic_tokenize_parse_sentence.pkl.py \
+	  --in_parse_gz $< \
+	  --in_sent_gz $(word 2,$+) \
+	  --in_fn $(word 3,$+) \
+	  --out_fn $@
+
+data/wikimic_tokenize_parse_sentence.conll.gz:
+	ssh prastog3@login.clsp.jhu.edu "rsync --progress -av -e ' ssh -A -t prastogi@test1.hltcoe.jhu.edu ssh -A -t prastogi@r6n24 ' :/home/hltcoe/prastogi/$(notdir $<) /home/prastog3/ "
+	scp prastog3@login.clsp.jhu.edu:/home/prastog3/$(notdir $<) $@
+
+parse_on_r6n24: # Do not run docker in tty mode.
+	zcat wikimic_extract_sentence_boundary.txt.gz \
+	  | docker run -i syntaxnet-parser 2> /dev/null \
+	  | gzip -9 > wikimic_tokenize_parse_sentence.conll.gz
+
+copy_to_r6n24: data/wikimic_extract_sentence_boundary.txt.gz
+	scp $< prastog3@login.clsp.jhu.edu:/home/prastog3/
+	ssh prastog3@login.clsp.jhu.edu "rsync --progress -av -e ' ssh -A -t prastogi@test1.hltcoe.jhu.edu ssh -A -t prastogi@r6n24 ' /home/prastog3/$(notdir $<) :/home/hltcoe/prastogi/ "
+
+data/wikimic_extract_sentence_boundary.txt.gz: data/wikimic_extract_sentence_boundary.pkl
+	python -c 'from __future__ import print_function; from cPickle import load; data = load(open("$<")); [print(s) for k in data for m in data[k] for s in m["sentences"]]' | gzip -9 > $@
+
+# There are 371 entities, each with 127642 sentences about them.
+# I want to parse these sentences as quickly and as good as possible.
+# For the kind of descriptions that I want to draw, extra accuracy may not
+# be necessary, but still it will be nice to be able to use PMP parses.
+# In 35 minutes, it parsed 44776 sentence,
+# In 110 minutes we parsed 156,652 sentences.
+# We have 415397 sentences, total time is 5 hours.
+data/wikimic_extract_sentence_boundary.pkl: data/wikimic_remove_translate_nonascii.pkl
+	./wikimic_extract_sentence_boundary.pkl.py --in_fn $< --out_fn $@
+
+data/wikimic_remove_translate_nonascii.pkl: data/wiki_link_individual_mentions.pkl
+	./wikimic_remove_translate_nonascii.pkl.py --in_fn $< --out_fn $@
+
+# ------------------------------------------------------------------------- #
+# Extract entity mentions from wiki link corpus that contains real mentions #
+# of entities in the form of links from web pages to wikipedia articles.    #
+# Data is stored as thrift communications. The pkl files contains a map     #
+# from entities in the `human_entity_fn` to a list of mentions stored in    #
+# the `thrift_data_dir`. The data in `thrift_data_dir` has to be read using #
+# the classes in `thrift_class_dir`                                         #
+# ------------------------------------------------------------------------- #
+# USAGE: See wiki_link_individual_mentions.ipynb
+# Basically it contains all the facts in the wikilinks data about `371`
+data/wiki_link_individual_mentions.pkl: data/wiki_link_thrift_class data/unique_human_entities
+	./extract_person_mentions_from_wikilink_data.py \
+	  --thrift_class_dir $< \
+	  --human_entity_fn $(word 2,$+) \
+	  --thrift_data_dir /export/b15/prastog3/wikilinks \
+	  --out_fn $@
+
+# ------------------------------------------------------------------------- #
+# Create thrift classes to read the wikilinks dataset that was released by  #
+# Sameer Singh et. al. This dataset was created by mining web links         #
+# pointing to Wikipedia pages.                                              #
+# ------------------------------------------------------------------------- #
+data/wiki_link_thrift_class: data/wiki-link-v0.1.thrift
+	thrift -gen py:new_style $< ; mv gen-py $@
+
+# ------------------------------------------------------------------------ #
+# A single list of human entities that were present in the ACE 2005 Corpus #
+# ------------------------------------------------------------------------ #
 data/unique_human_entities: data/category_to_entities
 	cat $</* | sort -u > $@
 
+# ----------------------------------------------------------------- #
+# Create list of wiki entities that fall in a category acc. to wiki #
+# The list is not exhaustive, it only contains entities that were   #
+# well populated within the ACE 2005 corpus.                        #
+# ----------------------------------------------------------------- #
 data/category_to_entities: data/category_to_data
 	-mkdir $@; \
 	for f in `\ls -b $<`; do awk '{print $$1}' $</$$f | sort -u > $@/$$f ; done
 
+# ----------------------------------------------------------------------- #
+# The category to data files contain data from the ACE 2005 corpus about  #
+# mention of entities that are in `mention_and_type_for_individuals` file #
+# ----------------------------------------------------------------------- #
 # The categories were generated using
 # hn 54 data/analyze_categories_of_individuals.txt | tn 53 | awk -F'"' '{printf "\"%s\" ", $2}'
-data/category_to_data:
+data/category_to_data: data/parsed_mentions
 	for f in "21st-century American writers" "American people of Irish descent" "20th-century American writers" "American Roman Catholics" "American male writers" "American political writers" "20th-century American politicians" "Presidential Medal of Freedom recipients" "21st-century American politicians" "Democratic Party United States Senators" "CNN people" "Given names" "1946 births" "American people of English descent" "American memoirists" "Democratic Party members of the United States House of Representatives" "American television reporters and correspondents" "American Jews" "Recipients of the Bronze Star Medal" "American military personnel of the Vietnam War" "American male film actors" "Presidents of the United States" "1943 births" "English masculine given names" "1942 births" "American people of Scottish descent" "American Presbyterians" "Republican Party members of the United States House of Representatives" "1954 births" "George W. Bush Administration cabinet members" "1953 births" "2004 deaths" "American women writers" "1944 births" "Republican Party state governors of the United States" "Democratic Party (United States) presidential nominees" "Grammy Award winners" "1947 births" "American people of German descent" "New York Democrats" "20th-century women writers" "20th-century American businesspeople" "American anti-communists" "United States presidential candidates, 2008" "20th-century American male actors" "United States Army soldiers" "21st-century women writers" "1948 births" "United States presidential candidates, 2004" "Recipients of the Order of the Cross of Terra Mariana, 1st Class" "1945 births" "Recipients of the Purple Heart medal" "New York Republicans" ; do \
 	 echo $$f;  ./category_to_data.sh $@ "$$f" | sort -u ; \
 	done; touch $@
@@ -120,6 +216,9 @@ data/category_to_data:
 # Filter the input file of mentions to wikilists and keep #
 # only lists that have at least N distinct mentions       #
 # ------------------------------------------------------- #
+data/mention_to_wikilist_filter_by_list_size_property_count: data/mention_to_wikilist_filter_by_list_size data/parsed_mentions
+	./mention_to_wikilist_filter_by_list_size_property_count.py $+ # > $@
+
 data/mention_to_wikilist_filter_by_list_size: data/mention_to_wikilist
 	./mention_to_wikilist_filter_by_list_size.py $< --thresh 10 # > $@
 
@@ -201,20 +300,25 @@ data/wikilink_category_cache: data/wikilink_category_cache.raw
 data/wikilink_category_cache.raw: data/wikilink_url
 	-mkdir $@; cd $@; wget -i ../../$<
 
-data/wikilink_url_hash_revision: data/wikilink_url
-	grep '%23' $< > $@
-
-# Note that "#" and unicode characters need to be decoded.
-# such as ñ
+# ----------------------------------------- #
+# Create URL's from wikipedia page headers. #
+# ----------------------------------------- #
 data/wikilink_url: data/wikilinks
-	awk '{printf("https://en.wikipedia.org/w/api.php?action=query&titles=%s&format=json&prop=categories&clshow=!hidden&cllimit=max&redirects\n", $$1)}' $< > $@
+	awk '{printf("https://en.wikipedia.org/w/api.php?action=query&titles=%s&format=json&prop=categories&clshow=!hidden&cllimit=max&redirects\n", $$1)}' $< | \
+	  python3 -c 'import sys, rasengan; [print(rasengan.wiki_encode_url(url.strip())) for url in sys.stdin]' > $@
 
+# -------------------------------------------------------------------------- #
+# Extract header of links to Wikipedia of all entries in the ACE 2005 corpus #
+# -------------------------------------------------------------------------- #
 data/wikilinks: $(ACEtoWIKI)
 	awk -F'\t' '{print $$1}' $< | sort -u | \
 	  grep -v -E '(MISSING SENSE|NO PAGE|NO_ANNOTATION)' | \
 	  sed  's#http://en.wikipedia.org/wiki/##g; s.#.%23.g' | \
 	  tr ' ' '\n' | sort -u > $@
 
+# ---------------------------------------------------------------------- #
+# Prepare the ACE 2005 Corpus by adding its files to a single directory. #
+# ---------------------------------------------------------------------- #
 $(ACE): $(ACE1)
 	-mkdir $@; \
 	for d in bc bn cts nw un wl; do \
