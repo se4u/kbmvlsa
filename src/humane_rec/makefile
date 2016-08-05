@@ -96,9 +96,33 @@ data/unique_human_entities_wikidata_id: data/unique_human_entities
 	  --wikidata_to_freebase_id_fn ~/data/freebase_to_wikidata/freebase_to_wikidata.compressed \
 	  --shelf_fn data/unique_human_entities_wikidata_id.cache \
 	  --out_fn $@
+
+# -------------------------------------------------------------------------- #
+# ######################## EXPERIMENTS SECTION ############################# #
+# -------------------------------------------------------------------------- #
+EXPERIMENT_CATEGORY_LIST := data/list_of_categories_for_wikilink_experiments.txt
+
+show_data_for_categories: data/list_of_wiki_link_entities
+	for f in $$( cat $(EXPERIMENT_CATEGORY_LIST)   ); do \
+	  echo $$( join $< data/category_to_entities/$$f | wc -l) data/category_to_entities/$$f;\
+	done | sort -k 1 -n -r \
+	| tee /dev/fd/2 \
+	| awk 'BEGIN{a=0;b=0}{a=a+$$1; b=b+1}END{print a, b}'
+
+data/list_of_wiki_link_entities: data/wiki_link_individual_mentions.pkl
+	python -c 'from __future__ import print_function; import cPickle as p; [print(k) for k in p.load(open("$<"))]' | sort > $@
+
+# Experiment 1 : Based on the descriptors for all the entities in
+# the categories, infer the commonalities between these people.
+
+# Experiment 2 : Rank the commonalities inferred either automatically
+# or manually to then rank the remaining entities.
+
+
+
 # -------------------------------------------------------------- #
 # - Don't Do BOW / Linguistic methods
-#    - may not need fiscriminative feature selection.
+#    - may not need discriminative feature selection.
 #    - then add discriminative feature selection.
 # - Do BOW features
 #    - feature selection by picking feature that are most
@@ -108,15 +132,19 @@ data/unique_human_entities_wikidata_id: data/unique_human_entities
 
 # The final step to extracting the governing tokens from sentences.
 # Compute the fixed point of a set of rules.
-data/wikimic_identify_governors.pkl: data/wikimic_create_entity_token_set.pkl
-	./wikimic_identify_governors.pkl.py --in_fn $< --out_fn $@
+data/wikimic_identify_governors_procoref~%.spkl: data/wikimic_create_entity_token_set_procoref~%.spkl
+	./wikimic_identify_governors.py --in_fn $< --out_fn $@
 
 # -------------------------------------------------------------- #
 # ETS includes the coreference entities.                         #
 # We have now included the coreferent tokens including pronouns. #
 # -------------------------------------------------------------- #
-data/wikimic_create_entity_token_set.pkl: data/wikimic_tokenize_parse_sentence.pkl
-	./wikimic_create_entity_token_set.pkl.py --in_fn $< --out_fn $@
+# data/wikimic_create_entity_token_set_1.spkl
+# data/wikimic_create_entity_token_set_1.spkl
+data/wikimic_create_entity_token_set_procoref~%.spkl: data/wikimic_tokenize_parse_sentence.spkl
+	./wikimic_create_entity_token_set.py \
+	  --in_fn $< --out_fn $@ \
+	  --pronomial_coref $*
 
 # --------------------------------------------------------------------------- #
 # Unfortunately, the easiest way to parse and tokenize involves transferring  #
@@ -125,16 +153,21 @@ data/wikimic_create_entity_token_set.pkl: data/wikimic_tokenize_parse_sentence.p
 # Then on r6n24 I will run a command to parse this data and store to a file.  #
 # Then I will copy the data back and store into a pickle.                     #
 # --------------------------------------------------------------------------- #
+# At this point the file is big enough that it makes sense to switch to
+# `streaming-pkl`, and load the dict, one key at a time.
+data/%.spkl: data/%.pkl
+	./create_spkl.py --in_fn $< --out_fn $@
+
 data/wikimic_tokenize_parse_sentence.pkl: data/wikimic_tokenize_parse_sentence.conll.gz data/wikimic_extract_sentence_boundary.txt.gz data/wikimic_extract_sentence_boundary.pkl
-	./wikimic_tokenize_parse_sentence.pkl.py \
+	./wikimic_tokenize_parse_sentence.py \
 	  --in_parse_gz $< \
 	  --in_sent_gz $(word 2,$+) \
 	  --in_fn $(word 3,$+) \
 	  --out_fn $@
 
 data/wikimic_tokenize_parse_sentence.conll.gz:
-	ssh prastog3@login.clsp.jhu.edu "rsync --progress -av -e ' ssh -A -t prastogi@test1.hltcoe.jhu.edu ssh -A -t prastogi@r6n24 ' :/home/hltcoe/prastogi/$(notdir $<) /home/prastog3/ "
-	scp prastog3@login.clsp.jhu.edu:/home/prastog3/$(notdir $<) $@
+	ssh prastog3@login.clsp.jhu.edu "rsync --progress -av -e ' ssh -A -t prastogi@test1.hltcoe.jhu.edu ssh -A -t prastogi@r6n24 ' :/home/hltcoe/prastogi/$(notdir $@) /home/prastog3/ "
+	scp prastog3@login.clsp.jhu.edu:/home/prastog3/$(notdir $@) $(dir $@)
 
 parse_on_r6n24: # Do not run docker in tty mode.
 	zcat wikimic_extract_sentence_boundary.txt.gz \
@@ -156,10 +189,10 @@ data/wikimic_extract_sentence_boundary.txt.gz: data/wikimic_extract_sentence_bou
 # In 110 minutes we parsed 156,652 sentences.
 # We have 415397 sentences, total time is 5 hours.
 data/wikimic_extract_sentence_boundary.pkl: data/wikimic_remove_translate_nonascii.pkl
-	./wikimic_extract_sentence_boundary.pkl.py --in_fn $< --out_fn $@
+	./wikimic_extract_sentence_boundary.py --in_fn $< --out_fn $@
 
 data/wikimic_remove_translate_nonascii.pkl: data/wiki_link_individual_mentions.pkl
-	./wikimic_remove_translate_nonascii.pkl.py --in_fn $< --out_fn $@
+	./wikimic_remove_translate_nonascii.py --in_fn $< --out_fn $@
 
 # ------------------------------------------------------------------------- #
 # Extract entity mentions from wiki link corpus that contains real mentions #
