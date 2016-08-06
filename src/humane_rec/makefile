@@ -51,6 +51,9 @@ echo_%:
 demo:
 	./demonstrate_similarity_idea.py
 
+CLSP_DIR := /home/prastog3/projects/kbvn/src/humane_rec
+demo_emb:
+	./demonstrate_similarity_idea.emb.py
 
 # --------------------------------------------------- #
 # I need to tunnel from local -> clsp -> test1 -> r6n #
@@ -130,10 +133,22 @@ data/list_of_wiki_link_entities: data/wiki_link_individual_mentions.pkl
 #    - that were given to me
 # -------------------------------------------------------------- #
 
+get_stats_%: data/entity_descriptors_procoref~%.psv
+	source $(HOME)/.bashrc ;\
+	wc -l $< ;\
+	cat $< | awk '{printf "%d\n", NF-2; }' | maxRowByColumn ;\
+	cat $< | awk '{printf "%d\n", NF-2; }' | sumColumns ;\
+	cat $< \
+	 | awk '{printf "%d\n", NF-2; }'  \
+	 | python -c 'import sys; from numpy import histogram as h; (a,b) = h([int(_.strip()) for _ in list(sys.stdin)], [0, 5, 25, 125, 625, 3250]); print zip(zip(b[0:], b[1:]), a)'
+
 # The final step to extracting the governing tokens from sentences.
-# Compute the fixed point of a set of rules.
+data/entity_descriptors_procoref~%.psv: data/wikimic_identify_governors_procoref~%.spkl
+	./entity_descriptors_procoref.py $< > $@
+
+# Compute the fixed point of a set of rules for extracting governors.
 data/wikimic_identify_governors_procoref~%.spkl: data/wikimic_create_entity_token_set_procoref~%.spkl
-	./wikimic_identify_governors.py --in_fn $< --out_fn $@
+	./wikimic_identify_governors.py --in_fn $< --out_fn $@ --debug_print 0
 
 # -------------------------------------------------------------- #
 # ETS includes the coreference entities.                         #

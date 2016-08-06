@@ -5,9 +5,9 @@
 | Description : Demonstrate the idea of finding common concepts between people.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 16:20:04 2016 (-0400)
-| Last-Updated: Mon Jul 25 02:33:15 2016 (-0400)
+| Last-Updated: Fri Aug  5 18:33:53 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 42
+|     Update #: 51
 
 Data Structures
 ---------------
@@ -132,12 +132,25 @@ def tolerant_remove(l, v):
 
 def main():
     with rasengan.debug_support():
-        yaml_data = yaml.load(open('data/women_writer_manual_clues.yaml'))
-        entity_tags = dict([(a, set(rasengan.flatten(b[1::2])))
-                            for a, b in yaml_data.items()])
-        total_tags = set(
-            rasengan.flatten([(rasengan.flatten(b[1::2])) for b in yaml_data.values()]))
         embeddings = pkl.load(open('data/demonstrate_similarity_idea.emb.pkl'))
+        if cfg.use_big_tag_set:
+            entities = list(e.strip()
+                            for e in open('data/category_to_entities/American_women_writers'))
+            entity_tags = {}
+            for row in open('data/entity_descriptors_procoref~1.psv'):
+                _e, _tags = [e.strip() for e in row.strip().split('|||')]
+                if _e in entities:
+                    entity_tags[_e] = [t.lower()
+                                       for t
+                                       in (e.strip().split(':')[0] for e in _tags.split())
+                                       if t.lower() in embeddings]
+            total_tags = set(rasengan.flatten(entity_tags.values()))
+        else:
+            yaml_data = yaml.load(open('data/women_writer_manual_clues.yaml'))
+            entity_tags = dict([(a, set(rasengan.flatten(b[1::2])))
+                                for a, b in yaml_data.items()])
+            total_tags = set(
+                rasengan.flatten([(rasengan.flatten(b[1::2])) for b in yaml_data.values()]))
 
         if cfg.introduce_NULL_embedding:
             embeddings[cfg.NULL_KEY] = numpy.zeros(
@@ -167,6 +180,36 @@ def main():
                 tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
                 tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
                 tolerant_remove(b, cfg.fourth_mode_tags_to_remove[a])
+            if cfg.demo_sixth_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fourth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fifth_mode_tags_to_remove[a])
+            if cfg.demo_seventh_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fourth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fifth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.sixth_mode_tags_to_remove[a])
+            if cfg.demo_eighth_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fourth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fifth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.sixth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.seventh_mode_tags_to_remove[a])
+            if cfg.demo_nineth_mode:
+                tolerant_remove(b, cfg.first_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.second_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.third_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fourth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.fifth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.sixth_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.seventh_mode_tags_to_remove[a])
+                tolerant_remove(b, cfg.eighth_mode_tags_to_remove[a])
             print '%-25s' % a, '|||', ', '.join(b)
             problem[a] = DataFrame(
                 data=numpy.concatenate([embeddings[e][None, :]
@@ -175,23 +218,26 @@ def main():
 
         people_without_relevant_tags = [
             'Geraldine_Ferraro', 'Elizabeth_Smart', 'Judy_Woodruff']
-
-        initial_assignment = {
-            'Condoleezza_Rice': 0,
-            'Carly_Fiorina': 1,
-            'Geraldine_Ferraro': 2,
-            'Judy_Woodruff': 3,
-            'Elizabeth_Smart': 4,
-            'Martha_Stewart': 5,
-            'Hillary_Rodham_Clinton': 6}
-        initial_assignment = {
-            'Condoleezza_Rice': 0,
-            'Carly_Fiorina': 0,
-            'Geraldine_Ferraro': 0,
-            'Judy_Woodruff': 0,
-            'Elizabeth_Smart': 0,
-            'Martha_Stewart': 0,
-            'Hillary_Rodham_Clinton': 0}
+        if cfg.use_big_tag_set:
+            initial_assignment = dict((__a, __b)
+                                      for __b, __a in enumerate(entities))
+        else:
+            initial_assignment = {
+                'Condoleezza_Rice': 0,
+                'Carly_Fiorina': 1,
+                'Geraldine_Ferraro': 2,
+                'Judy_Woodruff': 3,
+                'Elizabeth_Smart': 4,
+                'Martha_Stewart': 5,
+                'Hillary_Rodham_Clinton': 6}
+            initial_assignment = {
+                'Condoleezza_Rice': 0,
+                'Carly_Fiorina': 0,
+                'Geraldine_Ferraro': 0,
+                'Judy_Woodruff': 0,
+                'Elizabeth_Smart': 0,
+                'Martha_Stewart': 0,
+                'Hillary_Rodham_Clinton': 0}
 
         print 'Initial chosen tags::', chosen_tags(problem, initial_assignment)
         initial_objective = dp_objective_efficient_impl(
