@@ -1,0 +1,437 @@
+#!/usr/bin/env python
+'''
+| Filename    : test_identify_governors.py
+| Description : Test the identification of descriptors.
+| Author      : Pushpendre Rastogi
+| Created     : Fri Aug  5 14:55:58 2016 (-0400)
+| Last-Updated: Fri Aug  5 15:20:41 2016 (-0400)
+|           By: Pushpendre Rastogi
+|     Update #: 9
+'''
+l = [[0, 15],
+     '''
+1	Her	_	PRON	PRP$	_	3	poss	_	_
+2	new	_	ADJ	JJ	_	3	amod	_	_
+3	book	_	NOUN	NN	_	6	nsubj	_	_
+4	is	_	VERB	VBZ	_	6	cop	_	_
+5	a	_	DET	DT	_	6	det	_	_
+6	memoir	_	NOUN	NN	_	0	ROOT	_	_
+7	of	_	ADP	IN	_	6	prep	_	_
+8	growing	_	VERB	VBG	_	7	pcomp	_	_
+9	up	_	PRT	RP	_	8	prt	_	_
+10	in	_	ADP	IN	_	8	prep	_	_
+11	segregated	_	ADJ	JJ	_	12	amod	_	_
+12	Alabama	_	NOUN	NNP	_	10	pobj	_	_
+13	and	_	CONJ	CC	_	6	cc	_	_
+14	the	_	DET	DT	_	15	det	_	_
+15	ways	_	NOUN	NNS	_	6	conj	_	_
+16	her	_	PRON	PRP$	_	17	poss	_	_
+17	family	_	NOUN	NN	_	18	nsubj	_	_
+18	dealt	_	VERB	VBD	_	15	rcmod	_	_
+19	with	_	ADP	IN	_	18	prep	_	_
+20	the	_	DET	DT	_	21	det	_	_
+21	racism	_	NOUN	NN	_	19	pobj	_	_
+22	of	_	ADP	IN	_	21	prep	_	_
+23	the	_	DET	DT	_	24	det	_	_
+     24	time	_	NOUN	NN	_	22	pobj	_	_''',
+     [0],
+     '''1	Carly	_	NOUN	NNP	_	5	nsubj	_	_
+2	is	_	VERB	VBZ	_	5	cop	_	_
+3	an	_	DET	DT	_	5	det	_	_
+4	honest	_	ADJ	JJ	_	5	amod	_	_
+5	executive	_	NOUN	NN	_	0	ROOT	_	_
+     6	.	_	.	.	_	5	punct	_	_''',
+     [1],
+     '''1	That	_	ADP	IN	_	5	nsubjpass	_	_
+2	Carly	_	NOUN	NNP	_	3	nsubj	_	_
+3	lied	_	VERB	VBD	_	1	rcmod	_	_
+4	was	_	VERB	VBD	_	5	auxpass	_	_
+5	suspected	_	VERB	VBN	_	0	ROOT	_	_
+6	by	_	ADP	IN	_	5	prep	_	_
+7	everyone	_	NOUN	NN	_	6	pobj	_	_
+     8	.	_	.	.	_	5	punct	_	_''',
+     [3], '''1	We	_	PRON	PRP	_	2	nsubj	_	_
+2	heard	_	VERB	VBD	_	0	ROOT	_	_
+3	about	_	ADP	IN	_	2	prep	_	_
+4	Carly	_	ADV	RB	_	5	advmod	_	_
+5	missing	_	VERB	VBG	_	6	amod	_	_
+6	classes	_	NOUN	NNS	_	3	pobj	_	_
+     7	.	_	.	.	_	2	punct	_	_''',
+     [31, 32], '''1	author	_	NOUN	NN	_	0	ROOT	_	_
+2	,	_	.	,	_	1	punct	_	_
+3	niece	_	NOUN	NN	_	1	appos	_	_
+4	of	_	ADP	IN	_	3	prep	_	_
+5	Martin	_	NOUN	NNP	_	8	nn	_	_
+6	Luther	_	NOUN	NNP	_	8	nn	_	_
+7	King	_	NOUN	NNP	_	8	nn	_	_
+8	Jr.	_	NOUN	NNP	_	4	pobj	_	_
+9	;	_	.	:	_	8	punct	_	_
+10	Star	_	NOUN	NNP	_	11	nn	_	_
+11	Parker	_	NOUN	NNP	_	8	conj	_	_
+12	,	_	.	,	_	11	punct	_	_
+13	author	_	NOUN	NN	_	11	appos	_	_
+14	,	_	.	,	_	11	punct	_	_
+15	political	_	ADJ	JJ	_	16	amod	_	_
+16	commentator	_	NOUN	NN	_	11	appos	_	_
+17	,	_	.	,	_	11	punct	_	_
+18	2010	_	NUM	CD	_	20	num	_	_
+19	Congressional	_	ADJ	JJ	_	20	amod	_	_
+20	candidate	_	NOUN	NN	_	11	appos	_	_
+21	;	_	.	:	_	8	punct	_	_
+22	Colin	_	NOUN	NNP	_	23	nn	_	_
+23	Powell	_	NOUN	NNP	_	8	conj	_	_
+24	,	_	.	,	_	23	punct	_	_
+25	65th	_	NOUN	NNP	_	28	nn	_	_
+26	United	_	NOUN	NNP	_	27	nn	_	_
+27	States	_	NOUN	NNP	_	28	nn	_	_
+28	Secretary	_	NOUN	NNP	_	23	appos	_	_
+29	of	_	ADP	IN	_	28	prep	_	_
+30	State	_	NOUN	NNP	_	29	pobj	_	_
+31	;	_	.	:	_	8	punct	_	_
+32	Condoleezza	_	NOUN	NNP	_	33	nn	_	_
+33	Rice	_	NOUN	NNP	_	8	conj	_	_
+34	,	_	.	,	_	33	punct	_	_
+35	66th	_	NOUN	NNP	_	38	nn	_	_
+36	United	_	NOUN	NNP	_	37	nn	_	_
+37	States	_	NOUN	NNP	_	38	nn	_	_
+38	Secretary	_	NOUN	NNP	_	33	appos	_	_
+39	of	_	ADP	IN	_	38	prep	_	_
+40	State	_	NOUN	NNP	_	39	pobj	_	_
+41	;	_	.	:	_	8	punct	_	_
+42	Jackie	_	NOUN	NNP	_	43	nn	_	_
+43	Robinson	_	NOUN	NNP	_	8	conj	_	_
+44	,	_	.	,	_	43	punct	_	_
+45	baseball	_	NOUN	NN	_	46	nn	_	_
+46	player	_	NOUN	NN	_	43	appos	_	_
+47	-LRB-	_	.	-LRB-	_	49	punct	_	_
+48	changed	_	VERB	VBN	_	49	amod	_	_
+49	parties	_	NOUN	NNS	_	43	appos	_	_
+50	after	_	ADP	IN	_	49	prep	_	_
+51	Goldwater	_	NOUN	NNP	_	52	nn	_	_
+52	nomination	_	NOUN	NN	_	50	pobj	_	_
+53	-RRB-	_	.	-RRB-	_	49	punct	_	_
+54	;	_	.	:	_	8	punct	_	_
+55	Thomas	_	NOUN	NNP	_	56	nn	_	_
+56	Sowell	_	NOUN	NNP	_	8	conj	_	_
+57	,	_	.	,	_	56	punct	_	_
+58	economist	_	NOUN	NN	_	56	appos	_	_
+59	,	_	.	,	_	58	punct	_	_
+60	writer	_	NOUN	NN	_	58	conj	_	_
+61	and	_	CONJ	CC	_	58	cc	_	_
+62	commentator	_	NOUN	NN	_	58	conj	_	_
+     63	;	_	.	.	_	1	punct	_	_''',
+     [15, 16], '''1	While	_	ADP	IN	_	4	mark	_	_
+2	MK	_	NOUN	NNP	_	4	nsubj	_	_
+3	totally	_	ADV	RB	_	4	advmod	_	_
+4	understands	_	VERB	VBZ	_	21	advcl	_	_
+5	that	_	ADP	IN	_	10	mark	_	_
+6	CNN	_	NOUN	NNP	_	10	nsubj	_	_
+7	has	_	VERB	VBZ	_	10	aux	_	_
+8	n't	_	ADV	RB	_	10	neg	_	_
+9	been	_	VERB	VBN	_	10	aux	_	_
+10	doing	_	VERB	VBG	_	4	ccomp	_	_
+11	any	_	DET	DT	_	14	det	_	_
+12	serious	_	ADJ	JJ	_	14	amod	_	_
+13	news	_	NOUN	NN	_	14	nn	_	_
+14	reporting	_	NOUN	NN	_	10	dobj	_	_
+15	since	_	ADP	IN	_	18	mark	_	_
+16	Judy	_	NOUN	NNP	_	17	nn	_	_
+17	Woodruff	_	NOUN	NNP	_	18	nsubj	_	_
+18	left	_	VERB	VBD	_	10	advcl	_	_
+19	,	_	.	,	_	21	punct	_	_
+20	he	_	PRON	PRP	_	21	nsubj	_	_
+21	thinks	_	VERB	VBZ	_	0	ROOT	_	_
+22	they	_	PRON	PRP	_	23	nsubj	_	_
+23	hit	_	VERB	VBD	_	21	ccomp	_	_
+24	a	_	DET	DT	_	26	det	_	_
+25	new	_	ADJ	JJ	_	26	amod	_	_
+26	low	_	NOUN	NN	_	23	dobj	_	_
+27	by	_	ADP	IN	_	23	prep	_	_
+28	putting	_	VERB	VBG	_	27	pcomp	_	_
+29	Twitter	_	NOUN	NNP	_	32	nn	_	_
+30	and	_	CONJ	CC	_	29	cc	_	_
+31	Myspace	_	NOUN	NNP	_	29	conj	_	_
+32	comments	_	NOUN	NNS	_	28	dobj	_	_
+33	on	_	ADP	IN	_	28	prep	_	_
+34	their	_	PRON	PRP$	_	35	poss	_	_
+35	crawl	_	NOUN	NN	_	33	pobj	_	_
+     36	.	_	.	.	_	21	punct	_	_''',
+     [1, 22, 23, 26], '''1	In	_	ADP	IN	_	26	prep	_	_
+2	her	_	PRON	PRP$	_	6	poss	_	_
+3	newly	_	ADV	RB	_	4	advmod	_	_
+4	published	_	VERB	VBN	_	6	amod	_	_
+5	750-page	_	NOUN	NN	_	6	nn	_	_
+6	book	_	NOUN	NN	_	1	pobj	_	_
+7	,	_	.	,	_	6	punct	_	_
+8	Memoir	_	NOUN	NNP	_	6	appos	_	_
+9	of	_	ADP	IN	_	8	prep	_	_
+10	My	_	PRON	PRP$	_	11	poss	_	_
+11	Years	_	NOUN	NNPS	_	9	pobj	_	_
+12	in	_	ADP	IN	_	11	prep	_	_
+13	Washington	_	NOUN	NNP	_	12	pobj	_	_
+14	:	_	.	:	_	26	punct	_	_
+15	No	_	NOUN	NNP	_	17	nn	_	_
+16	Higher	_	NOUN	NNP	_	17	nn	_	_
+17	Honor	_	NOUN	NNP	_	26	nsubj	_	_
+18	,	_	.	,	_	17	punct	_	_
+19	former	_	ADJ	JJ	_	20	amod	_	_
+20	Secretary	_	NOUN	NNP	_	24	nn	_	_
+21	of	_	ADP	IN	_	20	prep	_	_
+22	State	_	NOUN	NNP	_	21	pobj	_	_
+23	Condoleezza	_	NOUN	NNP	_	24	nn	_	_
+24	Rice	_	NOUN	NNP	_	17	appos	_	_
+25	proudly	_	ADV	RB	_	26	advmod	_	_
+26	describes	_	VERB	VBZ	_	0	ROOT	_	_
+27	her	_	PRON	PRP$	_	28	poss	_	_
+28	efforts	_	NOUN	NNS	_	26	dobj	_	_
+29	to	_	PRT	TO	_	30	aux	_	_
+30	defeat	_	VERB	VB	_	28	infmod	_	_
+31	Armenian	_	ADJ	JJ	_	33	amod	_	_
+32	Genocide	_	NOUN	NNP	_	33	nn	_	_
+33	resolutions	_	NOUN	NNS	_	30	dobj	_	_
+34	on	_	ADP	IN	_	30	prep	_	_
+35	two	_	NUM	CD	_	37	num	_	_
+36	separate	_	ADJ	JJ	_	37	amod	_	_
+37	occasions	_	NOUN	NNS	_	34	pobj	_	_
+     38	.	_	.	.	_	26	punct	_	_''',
+     [29, 30], '''1	from	_	ADP	IN	_	20	prep	_	_
+2	HP	_	NOUN	NNP	_	1	pobj	_	_
+3	From	_	ADP	IN	_	2	prep	_	_
+4	Wikinews	_	NOUN	NNP	_	3	pobj	_	_
+5	,	_	.	,	_	20	punct	_	_
+6	the	_	DET	DT	_	9	det	_	_
+7	free	_	ADJ	JJ	_	9	amod	_	_
+8	news	_	NOUN	NN	_	9	nn	_	_
+9	source	_	NOUN	NN	_	20	nsubj	_	_
+10	you	_	PRON	PRP	_	12	nsubj	_	_
+11	can	_	VERB	MD	_	12	aux	_	_
+12	write	_	VERB	VB	_	9	rcmod	_	_
+13	!	_	.	.	_	9	punct	_	_
+14	Unchecked	_	NOUN	NNP	_	15	nn	_	_
+15	Jump	_	NOUN	NNP	_	9	dep	_	_
+16	to	_	ADP	IN	_	15	prep	_	_
+17	:	_	.	:	_	16	punct	_	_
+18	navigation	_	NOUN	NN	_	16	pobj	_	_
+19	,	_	.	,	_	20	punct	_	_
+20	search	_	VERB	VB	_	0	ROOT	_	_
+21	Wednesday	_	NOUN	NNP	_	33	nsubjpass	_	_
+22	,	_	.	,	_	21	punct	_	_
+23	February	_	NOUN	NNP	_	21	appos	_	_
+24	9	_	NUM	CD	_	23	num	_	_
+25	,	_	.	,	_	21	punct	_	_
+26	2005	_	NUM	CD	_	21	amod	_	_
+27	New	_	NOUN	NNP	_	31	nn	_	_
+28	York	_	NOUN	NNP	_	30	nn	_	_
+29	-	_	.	HYPH	_	30	punct	_	_
+30	Carly	_	NOUN	NNP	_	31	nn	_	_
+31	Fiorina	_	NOUN	NNP	_	33	nsubjpass	_	_
+32	was	_	VERB	VBD	_	33	auxpass	_	_
+33	ousted	_	VERB	VBN	_	20	ccomp	_	_
+34	by	_	ADP	IN	_	33	prep	_	_
+35	the	_	DET	DT	_	36	det	_	_
+36	board	_	NOUN	NN	_	34	pobj	_	_
+37	of	_	ADP	IN	_	36	prep	_	_
+38	directors	_	NOUN	NNS	_	37	pobj	_	_
+39	of	_	ADP	IN	_	38	prep	_	_
+40	HP	_	NOUN	NNP	_	39	pobj	_	_
+41	yesterday	_	NOUN	NN	_	33	tmod	_	_
+42	,	_	.	,	_	20	punct	_	_
+43	much	_	ADJ	JJ	_	20	dobj	_	_
+44	to	_	ADP	IN	_	43	prep	_	_
+45	the	_	DET	DT	_	46	det	_	_
+46	delight	_	NOUN	NN	_	44	pobj	_	_
+47	of	_	ADP	IN	_	46	prep	_	_
+48	Wall	_	NOUN	NNP	_	49	nn	_	_
+49	Street	_	NOUN	NNP	_	47	pobj	_	_
+     50	.	_	.	.	_	20	punct	_	_''',
+     [4, 5, 6], '''1	I	_	PRON	PRP	_	4	nsubj	_	_
+2	will	_	VERB	MD	_	4	aux	_	_
+3	never	_	ADV	RB	_	4	neg	_	_
+4	forgive	_	VERB	VB	_	0	ROOT	_	_
+5	Carleton	_	NOUN	NNP	_	7	nn	_	_
+6	Sneed	_	NOUN	NNP	_	7	nn	_	_
+7	Fiorina	_	NOUN	NNP	_	4	dobj	_	_
+8	and	_	CONJ	CC	_	7	cc	_	_
+9	Michael	_	NOUN	NNP	_	10	nn	_	_
+10	'Curly	_	ADV	RB	_	12	poss	_	_
+11	'	_	PRT	POS	_	10	possessive	_	_
+12	Capellas	_	NOUN	NNS	_	7	conj	_	_
+13	for	_	ADP	IN	_	12	prep	_	_
+14	killing	_	VERB	VBG	_	13	pcomp	_	_
+15	Hewlett	_	NOUN	NNP	_	16	nn	_	_
+16	Packard	_	NOUN	NNP	_	14	dobj	_	_
+17	,	_	.	,	_	16	punct	_	_
+18	Compaq	_	NOUN	NNP	_	16	conj	_	_
+19	,	_	.	,	_	16	punct	_	_
+20	Digital	_	NOUN	NNP	_	16	conj	_	_
+21	and	_	CONJ	CC	_	16	cc	_	_
+22	the	_	DET	DT	_	24	det	_	_
+23	Alpha	_	NOUN	NNP	_	24	nn	_	_
+24	AXP	_	NOUN	NNP	_	16	conj	_	_
+     25	.	_	.	.	_	4	punct	_	_''',
+     [0, 12], '''1	Carly	_	ADV	RB	_	2	nsubj	_	_
+2	stressed	_	VERB	VBD	_	0	ROOT	_	_
+3	several	_	ADJ	JJ	_	4	amod	_	_
+4	points	_	NOUN	NNS	_	2	dobj	_	_
+5	that	_	DET	WDT	_	7	dobj	_	_
+6	I	_	PRON	PRP	_	7	nsubj	_	_
+7	suppose	_	VERB	VBP	_	4	rcmod	_	_
+8	will	_	VERB	MD	_	11	aux	_	_
+9	be	_	VERB	VB	_	11	cop	_	_
+10	a	_	DET	DT	_	11	det	_	_
+11	centerpiece	_	NOUN	NN	_	7	ccomp	_	_
+12	of	_	ADP	IN	_	11	prep	_	_
+13	her	_	PRON	PRP$	_	15	poss	_	_
+14	upcoming	_	ADJ	JJ	_	15	amod	_	_
+15	book	_	NOUN	NN	_	12	pobj	_	_
+     16	.	_	.	.	_	2	punct	_	_''',
+     [8], '''1	After	_	ADP	IN	_	11	prep	_	_
+2	being	_	VERB	VBG	_	3	auxpass	_	_
+3	dismissed	_	VERB	VBN	_	1	pcomp	_	_
+4	by	_	ADP	IN	_	3	prep	_	_
+5	HP	_	NOUN	NNP	_	7	poss	_	_
+6	's	_	PRT	POS	_	5	possessive	_	_
+7	board	_	NOUN	NN	_	4	pobj	_	_
+8	,	_	.	,	_	11	punct	_	_
+9	she	_	PRON	PRP	_	11	nsubj	_	_
+10	has	_	VERB	VBZ	_	11	aux	_	_
+11	dabbled	_	VERB	VBN	_	0	ROOT	_	_
+12	in	_	ADP	IN	_	11	prep	_	_
+     13	politics	_	NOUN	NNS	_	12	pobj	_	_''',
+     [33, 34], '''1	toe-sucker	_	ADV	RB	_	15	nsubj	_	_
+2	now	_	ADV	RB	_	1	dep	_	_
+3	tonsiling	_	VERB	VBG	_	1	dep	_	_
+4	for	_	ADP	IN	_	3	prep	_	_
+5	Fox	_	NOUN	NNP	_	6	nn	_	_
+6	News	_	NOUN	NNP	_	4	pobj	_	_
+7	,	_	.	,	_	1	punct	_	_
+8	was	_	VERB	VBD	_	15	cop	_	_
+9	on	_	ADP	IN	_	15	prep	_	_
+10	Ronn	_	NOUN	NNP	_	11	nn	_	_
+11	Owens	_	NOUN	NNP	_	13	nn	_	_
+12	KGO	_	NOUN	NNP	_	13	nn	_	_
+13	radio	_	NOUN	NN	_	9	pobj	_	_
+14	Monday	_	NOUN	NNP	_	15	nn	_	_
+15	morning	_	NOUN	NN	_	0	ROOT	_	_
+16	,	_	.	,	_	15	punct	_	_
+17	blasting	_	VERB	VBG	_	15	partmod	_	_
+18	the	_	DET	DT	_	20	det	_	_
+19	Obama	_	NOUN	NNP	_	20	nn	_	_
+20	administration	_	NOUN	NN	_	17	dobj	_	_
+21	,	_	.	,	_	15	punct	_	_
+22	-LRB-	_	.	-LRB-	_	15	punct	_	_
+23	again	_	ADV	RB	_	15	advmod	_	_
+24	-RRB-	_	.	-RRB-	_	15	punct	_	_
+25	,	_	.	,	_	15	punct	_	_
+26	plugging	_	VERB	VBG	_	15	dep	_	_
+27	his	_	PRON	PRP$	_	29	poss	_	_
+28	new	_	ADJ	JJ	_	29	amod	_	_
+29	book	_	NOUN	NN	_	26	dobj	_	_
+30	,	_	.	,	_	26	punct	_	_
+31	and	_	CONJ	CC	_	26	cc	_	_
+32	endorsing	_	VERB	VBG	_	26	conj	_	_
+33	,	_	.	,	_	32	punct	_	_
+34	Carly	_	NOUN	NNP	_	35	nn	_	_
+35	Fiorina	_	NOUN	NNP	_	32	dobj	_	_
+36	,	_	.	,	_	32	punct	_	_
+37	for	_	ADP	IN	_	32	prep	_	_
+38	the	_	DET	DT	_	41	det	_	_
+39	GOP	_	NOUN	NNP	_	41	nn	_	_
+40	Senate	_	NOUN	NNP	_	41	nn	_	_
+41	nomination	_	NOUN	NN	_	37	pobj	_	_
+42	against	_	ADP	IN	_	41	prep	_	_
+43	Barbara	_	NOUN	NNP	_	44	nn	_	_
+44	Boxer	_	NOUN	NNP	_	42	pobj	_	_
+     45	.	_	.	.	_	15	punct	_	_''',
+     [7, 8], '''1	The	_	DET	DT	_	4	det	_	_
+2	New	_	NOUN	NNP	_	3	nn	_	_
+3	York	_	NOUN	NNP	_	4	nn	_	_
+4	Post	_	NOUN	NNP	_	5	nsubj	_	_
+5	reports	_	VERB	VBZ	_	0	ROOT	_	_
+6	that	_	ADP	IN	_	11	mark	_	_
+7	,	_	.	,	_	11	punct	_	_
+8	Martha	_	NOUN	NNP	_	9	nn	_	_
+9	Stewart	_	NOUN	NNP	_	11	nsubj	_	_
+10	,	_	.	,	_	11	punct	_	_
+11	attended	_	VERB	VBD	_	5	ccomp	_	_
+12	a	_	DET	DT	_	14	det	_	_
+13	star-studded	_	ADJ	JJ	_	14	amod	_	_
+14	dinner	_	NOUN	NN	_	11	dobj	_	_
+15	to	_	PRT	TO	_	16	aux	_	_
+16	celebrate	_	VERB	VB	_	14	infmod	_	_
+17	the	_	DET	DT	_	18	det	_	_
+18	books	_	NOUN	NNS	_	19	nsubj	_	_
+19	launch	_	VERB	VB	_	16	ccomp	_	_
+20	but	_	CONJ	CC	_	11	cc	_	_
+21	abandoned	_	VERB	VBD	_	11	conj	_	_
+22	ship	_	NOUN	NN	_	21	dobj	_	_
+23	before	_	ADP	IN	_	27	mark	_	_
+24	any	_	DET	DT	_	25	det	_	_
+25	food	_	NOUN	NN	_	27	nsubjpass	_	_
+26	was	_	VERB	VBD	_	27	auxpass	_	_
+27	served	_	VERB	VBN	_	21	advcl	_	_
+     28	.	_	.	.	_	5	punct	_	_''',
+     [0, 1], '''1	Carly	_	NOUN	NNP	_	2	nn	_	_
+2	Fiorina	_	NOUN	NNP	_	10	nsubj	_	_
+3	,	_	.	,	_	2	punct	_	_
+4	former	_	ADJ	JJ	_	5	amod	_	_
+5	CEO	_	NOUN	NN	_	2	appos	_	_
+6	of	_	ADP	IN	_	5	prep	_	_
+7	Hewlett	_	NOUN	NNP	_	8	nn	_	_
+8	Packard	_	NOUN	NNP	_	6	pobj	_	_
+9	,	_	.	,	_	2	punct	_	_
+10	told	_	VERB	VBD	_	0	ROOT	_	_
+11	the	_	DET	DT	_	13	det	_	_
+12	assembled	_	VERB	VBN	_	13	amod	_	_
+13	troops	_	NOUN	NNS	_	10	dobj	_	_
+14	that	_	ADP	IN	_	19	mark	_	_
+15	the	_	DET	DT	_	17	det	_	_
+16	book	_	NOUN	NN	_	17	nn	_	_
+17	business	_	NOUN	NN	_	19	nsubjpass	_	_
+18	remains	_	VERB	VBZ	_	19	auxpass	_	_
+19	stuck	_	VERB	VBN	_	10	ccomp	_	_
+20	in	_	ADP	IN	_	19	prep	_	_
+21	an	_	DET	DT	_	23	det	_	_
+22	old	_	ADJ	JJ	_	23	amod	_	_
+23	paradigm	_	NOUN	NN	_	20	pobj	_	_
+     24	.	_	.	.	_	10	punct	_	_''',
+     [0], '''1	Fiorina	_	NOUN	NNP	_	2	nsubj	_	_
+2	looks	_	VERB	VBZ	_	0	ROOT	_	_
+3	very	_	ADV	RB	_	4	advmod	_	_
+4	beautiful	_	ADJ	JJ	_	2	acomp	_	_
+     5	.	_	.	.	_	2	punct	_	_''',
+     [2, 3], '''1	Only	_	ADV	RB	_	4	advmod	_	_
+2	the	_	DET	DT	_	4	det	_	_
+3	Prophet	_	NOUN	NNP	_	4	nn	_	_
+4	Isaac	_	NOUN	NNP	_	5	nsubj	_	_
+5	knew	_	VERB	VBD	_	0	ROOT	_	_
+6	how	_	ADV	WRB	_	10	advmod	_	_
+7	they	_	PRON	PRP	_	10	nsubj	_	_
+8	become	_	VERB	VBP	_	10	cop	_	_
+9	so	_	ADV	RB	_	10	advmod	_	_
+     10	dominant	_	ADJ	JJ	_	5	ccomp	_	_''',
+     [0, 1], '''1	Carly	_	ADV	RB	_	2	nn	_	_
+2	Fiorina	_	NOUN	NNP	_	4	nsubj	_	_
+3	,	_	.	,	_	4	punct	_	_
+4	writes	_	VERB	VBZ	_	0	ROOT	_	_
+5	about	_	ADP	IN	_	4	prep	_	_
+6	her	_	PRON	PRP$	_	7	poss	_	_
+7	career	_	NOUN	NN	_	5	pobj	_	_
+8	before	_	ADV	RB	_	4	prep	_	_
+9	and	_	CONJ	CC	_	8	cc	_	_
+10	after	_	ADP	IN	_	8	conj	_	_
+11	becoming	_	VERB	VBG	_	10	pcomp	_	_
+12	CEO	_	NOUN	NN	_	11	xcomp	_	_
+13	of	_	ADP	IN	_	12	prep	_	_
+14	Hewlett-Packard	_	NOUN	NNP	_	13	pobj	_	_
+15	.	_	.	.	_	4	punct	_	_''']
+from rasengan import entity_descriptors
+
+
+def f(p):
+    return [_.strip().split('\t') for _ in p.strip().split('\n')]
+
+for (a, b) in zip(l[::2], l[1::2]):
+    c = entity_descriptors(a, f(b), debug_print=True)
+    if len(a) == 0:
+        assert len(c) == 0

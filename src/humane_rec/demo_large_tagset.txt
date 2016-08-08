@@ -1,0 +1,16 @@
+| Init   |  I Obj |  F Obj | Final          | Final after ignoring Init |
+|--------+--------+--------+----------------+---------------------------|
+| had    | 1.0278 |  1.233 | had            | called, known, a (0.4598) |
+| years  | 0.7401 | 0.8219 | years          |                           |
+| that   | 0.6682 | 0.7254 | that,what,some |                           |
+| served | 0.4636 | 0.5709 | served,a       |                           |
+| a      | 0.3646 | 0.5801 | the,one,a      |                           |
+| did    | 0.2677 | 0.8426 | took,did,had   |                           |
+| book   | 0.1356 | 0.5497 | time,left,was  |                           |
+1. The token itself is not discriminative. (Unigram frequency very high overall, df too high)
+   4, 3, 8, 1, 4 -- 1, 2, 24, 1, 8
+2. The token does not appear often enough.
+3. If this was the concept in my mind will I have picked these entities ?
+4. We may try to remove function words but there is not a good
+   definition of them, and it seems that function words should be
+   filtered more cogently.

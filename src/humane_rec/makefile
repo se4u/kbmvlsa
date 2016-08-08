@@ -132,6 +132,36 @@ data/list_of_wiki_link_entities: data/wiki_link_individual_mentions.pkl
 #    - discriminative between random entities and the entities
 #    - that were given to me
 # -------------------------------------------------------------- #
+# for f in eddd3 4b43 0967 5d65 7a65 a295 e854 27b2 ec22 42ca; do \
+#   echo; echo ${f}*.mode_5; \
+#   grep -E 'mode_idx= [0-9]* initial' ${f}* \
+#      | sed 's#http://en.wikipedia.org/wiki/##g' \
+#      | sed 's# [A-Za-z,_().-]*:##g' \
+#      | cut -d ' ' -f 10- ; \
+#   echo ${f}*.baseline; \
+#   cat ${f}*baseline; \
+# done
+my_mode_%:
+	for f in eddd3 4b43 0967 5d65 7a65 a295 e854 27b2 ec22 42ca; do \
+	  a=$$(\ls data/random/details/$$f*); \
+	  cn=$${a#*\.}; \
+	  time ./demonstrate_similarity_idea.py \
+	    --emb_pkl_fn /Users/pushpendrerastogi/data/embedding/mvlsa/combined_embedding_0.emb.pkl \
+	    --ent_file data/category_to_entities/$$cn \
+	    --feat_file $$a \
+	    --mode_count $* \
+	  > data/random/results/$$f.mode_$* ; \
+	done
+
+bupper:
+	for f in eddd3 4b43 0967 5d65 7a65 a295 e854 27b2 ec22 42ca; do \
+	  bash -i -c "printf 'Total categories'; wc -l data/random/$$f*; cat data/random/$$f* | sed -E 's#^ *##g;s#:[0-9]*##g;' | common_terms | head -10" > data/random/results/$$f.$@ ; \
+	done
+
+baseline:
+	for f in eddd3 4b43 0967 5d65 7a65 a295 e854 27b2 ec22 42ca; do \
+	  bash -i -c "printf 'Total categories'; wc -l data/random/$$f*; cat data/random/$$f* | lower | sed -E 's#^ *##g;s#:[0-9]*##g;' | common_terms | head -10" > data/random/results/$$f.$@ ; \
+	done
 
 get_stats_%: data/entity_descriptors_procoref~%.psv
 	source $(HOME)/.bashrc ;\
