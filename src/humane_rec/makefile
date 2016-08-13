@@ -52,6 +52,7 @@ demo:
 	./demonstrate_similarity_idea.py
 
 CLSP_DIR := /home/prastog3/projects/kbvn/src/humane_rec
+
 demo_emb:
 	./demonstrate_similarity_idea.emb.py
 
@@ -175,6 +176,9 @@ get_stats_%: data/entity_descriptors_procoref~%.psv
 # The final step to extracting the governing tokens from sentences.
 data/entity_descriptors_procoref~%.psv: data/wikimic_identify_governors_procoref~%.spkl
 	./entity_descriptors_procoref.py $< > $@
+
+data/entity_descriptors_procoref~%~noaux.psv: data/wikimic_identify_governors_procoref~%.spkl
+	./entity_descriptors_procoref.py $< --remove_auxiliary_verb 1 > $@
 
 # Compute the fixed point of a set of rules for extracting governors.
 data/wikimic_identify_governors_procoref~%.spkl: data/wikimic_create_entity_token_set_procoref~%.spkl

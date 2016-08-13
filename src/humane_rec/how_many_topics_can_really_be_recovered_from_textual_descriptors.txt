@@ -1,0 +1,51 @@
+Recovery : (y)es, (n)o, (m)aybe
+
+The people are famous for everything except being a soldier.
+
+| ID       | Topic                                                         | Good Mode               | Objective        | Form Response                                                 | Recovery |
+|----------+---------------------------------------------------------------+-------------------------+------------------+---------------------------------------------------------------+----------|
+| eddd3fec | 1945_births                                                   |                         |                  | n (govt officials)                                            | n        |
+| 4b43e48c | American_television_reporters_and_correspondents              | 0, 2, 3                 | 49.9, 38.9, 32.4 | n (women in journalism)                                       | *y*      |
+| 0967512c | Recipients_of_the_Purple_Heart_medal                          | 0, 1                    | 35.23, 55.17     | n (military / congress)                                       | n        |
+| 5d65143f | 20th-century_women_writers                                    | 0, 2, 3                 | 10.7, 4.7, 6.2   | y (female authors)                                            | *y*      |
+| 7a65ea6a | American_political_writers (conflat w/ politicians who write) | NA                      |                  | NA                                                            | m        |
+| a29527b6 | Recipients_of_the_Bronze_Star_Medal                           | NA                      |                  | n (bill sponsors / leaders laws)                              | n        |
+| e854ce5a | English_masculine_given_names                                 | NA                      |                  |                                                               | n        |
+| 27b2dfdd | United_States_Army_soldiers                                   | 1,3 (only 3 w/ soldier) | 55.52, 46.67     | n  (Senator, Congressman, Corrupt)                            | n (*)    |
+| ec22cebf | 2004_deaths                                                   | 0, 2,                   | 20.72, 17.02     | n (Murdered men, Kennedy)                                     |          |
+| 42caadf1 | American_Presbyterians                                        | NA                      |                  | n (Official, businesspeople in congress, Scandal Politicians) |          |
+
+|----------+------------------------------------------------------------------------+----------------------------------+-------------+---------------------------------------------------------------+--------------------|
+| 204b36f3 | Republican_Party_state_governors_of_the_United_States                  |                                  |             |                                                               | y                  |
+| 2fbc5c61 | New_York_Republicans                                                   |                                  |             |                                                               | y (politicians)    |
+| 33da8f16 | Republican_Party_members_of_the_United_States_House_of_Representatives |                                  |             |                                                               | y                  |
+| 3438b579 | 20th-century_American_male_actors                                      |                                  |             |                                                               | y                  |
+| 4aafbf3f | CNN_people                                                             |                                  |             |                                                               | y                  |
+| 4f7a19f7 | New_York_Democrats                                                     |                                  |             |                                                               | y                  |
+| 58d50a45 | United_States_presidential_candidates,_2008                            |                                  |             |                                                               | y (cant tell year) |
+| 8048eaf7 | United_States_presidential_candidates,_2004                            |                                  |             |                                                               | y (cant tell year) |
+| abc57542 | 20th-century_American_politicians                                      |                                  |             |                                                               | y                  |
+| ad2571c0 | Democratic_Party_members_of_the_United_States_House_of_Representatives |                                  |             |                                                               | y                  |
+| d73d8797 | 20th-century_American_businesspeople                                   |                                  |             |                                                               | y                  |
+| d80da2b2 | American_Jews                                                          |                                  |             |                                                               | y                  |
+| ea2b06e9 | American_male_film_actors                                              |                                  |             |                                                               | y                  |
+| f8943605 | American_male_writers                                                  |                                  |             |                                                               | y                  |
+| f973a960 | 21st-century_American_politicians                                      |                                  |             |                                                               | y                  |
+
+| 0ae84bfe | American_memoirists                                                    | n (pliticians)              |                                                               |
+| 33cafbdf | George_W._Bush_Administration_cabinet_members                          | n                           |                                                               |
+| 40c8d2ae | American_people_of_Irish_descent                                       | n (5/44 irish)              |                                                               |
+| 48de6ab2 | American_anti-communists                                               | n                           |                                                               |
+| 602c56d7 | 21st-century_American_writers                                          | n (also politician)         |                                                               |
+| 660e4a20 | 21st-century_women_writers                                             | m                           |                                                               |
+| 761368f9 | Presidents_of_the_United_States                                        | m                           |                                                               |
+| 7d68bfb7 | 20th-century_American_writers                                          | n                           |                                                               |
+| 89c0c894 | American_women_writers                                                 | m                           |                                                               |
+| b03c48de | Presidential_Medal_of_Freedom_recipients                               | n (soldier/politics)        |                                                               |
+| b6d2dfc5 | American_people_of_German_descent                                      | n                           |                                                               |
+| babe72fc | American_military_personnel_of_the_Vietnam_War                         | n (soldier easy/vietnam no) |                                                               |
+| c2eb3242 | American_people_of_English_descent                                     | n                           |                                                               |
+| cc97a9c8 | Recipients_of_the_Order_of_the_Cross_of_Terra_Mariana,_1st_Class       | n                           |                                                               |
+| cf8586af | Grammy_Award_winners                                                   | n (clinton/gore won grammy) |                                                               |
+| d3a9ea55 | American_people_of_Scottish_descent                                    |                             |                                                               |
+| dcd77ffc | Democratic_Party_United_States_Senators                                |                             |                                                               |
