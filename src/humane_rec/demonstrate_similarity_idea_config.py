@@ -4,14 +4,16 @@
 | Description : A config file to hold demo algorithm configurations.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 23:34:29 2016 (-0400)
-| Last-Updated: Mon Aug  8 09:37:17 2016 (-0400)
+| Last-Updated: Sat Aug 13 21:34:34 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 55
+|     Update #: 65
 '''
 from rasengan import Namespace
 import numpy
 import numpy.linalg
 fast_relax = Namespace()
+variational_inference = Namespace()
+dc_programming = Namespace()
 
 
 class Sequential_Policy(object):
@@ -73,7 +75,7 @@ class Fixed_L2_Belief_Tolerance_Convergence(object):
 # -------------- #
 # Configure Demo #
 # -------------- #
-use_big_tag_set = True
+use_big_tag_set = False
 introduce_NULL_embedding = True
 NULL_KEY = '--NULL--'
 scale_to_unit = True
@@ -154,3 +156,16 @@ fast_relax.respect_initial_assignment_for_initializing_beliefs = False
 fast_relax.has_converged = Fixed_Iter_Convergence(50)
 # fast_relax.has_converged = Fixed_L2_Belief_Tolerance_Convergence(10, 1e-6)
 fast_relax.verbose = True
+# ------------------------------- #
+# Configure Variational_Inference #
+# ------------------------------- #
+variational_inference.node_pick_policy = Sequential_Policy()
+variational_inference.respect_initial_assignment_for_initializing_beliefs = False
+variational_inference.has_converged = Fixed_Iter_Convergence(50)
+# variational_inference.has_converged = Fixed_L2_Belief_Tolerance_Convergence(10, 1e-6)
+variational_inference.verbose = True
+variational_inference.lambda_ = 0.0
+# ------------------------ #
+# Configure DC Programming #
+# ------------------------ #
+dc_programming.impose_integrality = False
