@@ -5,9 +5,9 @@
 | Description : Demonstrate the idea of finding common concepts between people.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 16:20:04 2016 (-0400)
-| Last-Updated: Sat Aug 13 21:35:29 2016 (-0400)
+| Last-Updated: Sun Aug 14 00:48:55 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 190
+|     Update #: 200
 
 Data Structures
 ---------------
@@ -223,9 +223,12 @@ def dc_programming(problem, assignment):
                        for entity, x in zip(problem, X)])
     objective_2 = cvxpy.sum_squares(
         sum([(problem[entity].values.T * x) for entity, x in zip(problem, X)]))
+    t = cvxpy.Variable()
+    constraints.append(objective_2 == t)
     prob = cvxpy.Problem(
-        cvxpy.Minimize(objective_1 - objective_2), constraints)
-    result = prob.solve(method='dccp')
+        cvxpy.Minimize(objective_1 - t), constraints)
+    assert dccp.problem.is_dccp(prob)
+    result = prob.solve(method='dccp', tau=1, ccp_times=1)
     blfs = rasengan.OrderedDict_Indexable_By_StringKey_Or_Index()
     for entity_idx in range(len(problem)):
         blfs[problem.getkey(entity_idx)] = X[entity_idx].value

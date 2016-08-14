@@ -4,9 +4,9 @@
 | Description : A config file to hold demo algorithm configurations.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Jul 24 23:34:29 2016 (-0400)
-| Last-Updated: Sat Aug 13 21:34:34 2016 (-0400)
+| Last-Updated: Sun Aug 14 00:31:50 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 65
+|     Update #: 67
 '''
 from rasengan import Namespace
 import numpy
