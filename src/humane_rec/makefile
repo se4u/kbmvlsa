@@ -105,6 +105,28 @@ data/unique_human_entities_wikidata_id: data/unique_human_entities
 # ######################## EXPERIMENTS SECTION ############################# #
 # -------------------------------------------------------------------------- #
 EXPERIMENT_CATEGORY_LIST := data/list_of_categories_for_wikilink_experiments.txt
+# ------------------------------------------- #
+# CONSTANT                 MEAN RANK: 145.13  #
+# COUNT                    MEAN RANK: 170.57  #
+# LOG_COUNT                MEAN RANK: 161.50  #
+# SQRT_COUNT               MEAN RANK: 172.83  #
+# FREQ                     MEAN RANK: 181.41  #
+# SQ_FREQ                  MEAN RANK: 208.54  #
+# SQRT_FREQ                MEAN RANK: 136.40  #
+# GM_SQRT_FREQ_SQRT_COUNT  MEAN RANK: 141.50  #
+# --------------------------------------------#
+# By intervening I can get a jump in the ranks.
+rank_according_to_modes:
+	for f in CONSTANT COUNT LOG_COUNT SQRT_COUNT FREQ SQ_FREQ SQRT_FREQ GM_SQRT_FREQ_SQRT_COUNT ; \
+	do \
+	  echo; \
+	  echo $$f; \
+	  ./rank_according_to_modes.py --intervene_modes 1 --cnt_transform $$f > data/rank_according_to_modes.$${f}.intervene~1.txt; \
+	  ./rank_according_to_modes.py --intervene_modes 0 --cnt_transform $$f > data/rank_according_to_modes.$${f}.intervene~0.txt; \
+	done
+
+data/rank_according_to_modes.txt:
+	./rank_according_to_modes.py > $@
 
 show_data_for_categories: data/list_of_wiki_link_entities
 	for f in $$( cat $(EXPERIMENT_CATEGORY_LIST)   ); do \
