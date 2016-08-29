@@ -265,7 +265,7 @@ data/wikimic_extract_sentence_boundary.pkl: data/wikimic_remove_translate_nonasc
 data/wikimic_remove_translate_nonascii.pkl: data/wiki_link_individual_mentions.pkl
 	./wikimic_remove_translate_nonascii.py --in_fn $< --out_fn $@
 
-# ------------------------------------------------------------------------- #
+# ----------------------- WIKILINKS DATA PROCESSING ----------------------- #
 # Extract entity mentions from wiki link corpus that contains real mentions #
 # of entities in the form of links from web pages to wikipedia articles.    #
 # Data is stored as thrift communications. The pkl files contains a map     #
@@ -275,11 +275,74 @@ data/wikimic_remove_translate_nonascii.pkl: data/wiki_link_individual_mentions.p
 # ------------------------------------------------------------------------- #
 # USAGE: See wiki_link_individual_mentions.ipynb
 # Basically it contains all the facts in the wikilinks data about `371`
-data/wiki_link_individual_mentions.pkl: data/wiki_link_thrift_class data/unique_human_entities
+data/wiki_link_individual_mentions.pkl: data/wiki_link /export/b15/prastog3/wikilinks
 	./extract_person_mentions_from_wikilink_data.py \
 	  --thrift_class_dir $< \
-	  --human_entity_fn $(word 2,$+) \
-	  --thrift_data_dir /export/b15/prastog3/wikilinks \
+	  --thrift_data_dir $(word 2,$+) \
+	  --out_fn $@ # --human_entity are  HARDCODED in file.
+
+data/chosen_url: data/wikilink_category_to_url_and_count_reverse_index.pkl data/chosen_wikilink_categories
+	./chosen_url.py --caturl_pkl $< --chosen_cat $(word 2,$+) > $@
+
+# -------------------------------------------------------------------- #
+# Based on the counts of the wikilink categories, pick a few good ones #
+# The basic principle is that I want to chose middle of the road       #
+# categories that are neither dominated by a single entity. nor are    #
+# too voluminous, neither are they too small                           #
+# -------------------------------------------------------------------- #
+data/chosen_wikilink_categories: data/wikilink_category_to_count_n_ratio.tsv
+	awk '{if($$2 >= 10 && $$2 <= 300 && $$4 <= 30 && $$4 >= 5 && match($$1, "[0-9]") == 0){print $$0}}' $<  \
+	  | sort -k 4 -r -n | pyshuf --N 100 --seed 1234 > $@
+
+data/wikilink_category_to_count_n_ratio.tsv: data/wikilink_category_to_count.tsv
+	awk '{print $1, $2, $3, int($3/$2)}' $<  > $@
+# ------------------------------------------------------------- #
+# Create a reverse index of Categories to Urls and their Counts #
+# ------------------------------------------------------------- #
+rsync_2:
+	for f in data/wikilink_category_to_count.tsv \
+                 data/wikilink_category_to_url_and_count_reverse_index.pkl \
+	         wikilink_category_to_url_and_count_reverse_index.py; do\
+	  rsync -vz prastog3@b15:~/projects/kbvn/src/humane_rec/$$f ./$$f ; done
+
+# This also creates data/wikilink_category_to_count.tsv
+data/wikilink_category_to_url_and_count_reverse_index.pkl: data/dbpedia_cat_index.pkl data/wikilink_dbpedia_categories.pkl data/dbpedia_people.list
+	./wikilink_category_to_url_and_count_reverse_index.py \
+	 --ci_pkl_fn $< \
+	 --wdc_pkl_fn $(word 2,$+) \
+	 --out_pkl_fn $@ \
+	 --out_tsv_fn data/wikilink_category_to_count.tsv \
+	 --admissible_url_fn $(word 3,$+)
+
+# --------------------------------------------------------------------------- #
+# Compile a list of URLs that we know to be of the person type using dbpedia. #
+# --------------------------------------------------------------------------- #
+data/dbpedia_people.list: data/dbpedia_person.classes
+	bzcat $(HOME)/data/dbpedia/instance_types_en.ttl.bz2  \
+	 | fgrep -f $< \
+	 | cut -d' ' -f 1 \
+	 | python -c 'from __future__ import print_function; import sys; [print(e.strip()[29:-1]) for e in sys.stdin]' > $@
+
+# --------------------------------------------------------------------- #
+# Find the categories of the URLs in Wikilinks by looking up in DBPedia #
+# --------------------------------------------------------------------- #
+rsync_1:
+	for f in dbpedia_cat_index.pkl wikilink_dbpedia_categories.pkl; do\
+	  rsync -vz prastog3@b15:~/projects/kbvn/src/humane_rec/data/$$f data/ ; done
+
+# Executed on CLSP because it needs high memory.
+# dbpedia_cat_index maps categories to their numerical id.
+# wikilink_dbpedia_categories maps urls to their categories and counts.
+data/dbpedia_cat_index.pkl data/wikilink_dbpedia_categories.pkl: data/wiki_link_url_counts.pkl ~/Downloads/dbpedia
+	./wikilink_dbpedia_categories.py
+
+# ------------------------------------------------------------------------------- #
+# Count the number of times a wikipedia url is mentioned in the wikilinks dataset #
+# ------------------------------------------------------------------------------- #
+data/wiki_link_url_counts.pkl: data/wiki_link /export/b15/prastog3/wikilinks
+	./count_mentions_from_wikilink_data.py
+	  --thrift_class_dir $< \
+	  --thrift_data_dir $(word 2,$+) \
 	  --out_fn $@
 
 # ------------------------------------------------------------------------- #
@@ -287,7 +350,7 @@ data/wiki_link_individual_mentions.pkl: data/wiki_link_thrift_class data/unique_
 # Sameer Singh et. al. This dataset was created by mining web links         #
 # pointing to Wikipedia pages.                                              #
 # ------------------------------------------------------------------------- #
-data/wiki_link_thrift_class: data/wiki-link-v0.1.thrift
+data/wiki_link: data/wiki-link-v0.1.thrift
 	thrift -gen py:new_style $< ; mv gen-py $@
 
 # ------------------------------------------------------------------------ #

@@ -4,11 +4,11 @@
 | Description : Rank entities according to modes.
 | Author      : Pushpendre Rastogi
 | Created     : Fri Aug 12 19:24:44 2016 (-0400)
-| Last-Updated: Sun Aug 14 20:21:17 2016 (-0400)
+| Last-Updated: Mon Aug 15 01:17:11 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 83
+|     Update #: 84
 '''
-import numpy as np
+import numpy
 from rasengan import debug_support, tictoc, groupby
 import cPickle as pkl
 import math
@@ -16,8 +16,14 @@ import numpy as np
 from collections import Counter
 
 
+def scale_to_unit(v):
+    assert v.ndim == 1
+    n = numpy.linalg.norm(v)
+    return (v if n == 0 else v / n)
+
+
 def get_mean_vec_from_modes(modes):
-    return [np.mean([dcr2emb[m] for m in mode], axis=0)
+    return [numpy.mean([dcr2emb[m] for m in mode], axis=0)
             for mode in modes]
 
 
@@ -48,11 +54,11 @@ def get_cat2mode():
 
 def tolerant_dot(mv, dcr, dcr2emb):
     if dcr in dcr2emb:
-        return np.dot(mv, dcr2emb[dcr])
+        return numpy.dot(mv, dcr2emb[dcr])
 
     dcr = dcr.lower()
     if dcr in dcr2emb:
-        return np.dot(mv, dcr2emb[dcr])
+        return numpy.dot(mv, dcr2emb[dcr])
 
     return float('-inf')
 
@@ -73,6 +79,8 @@ args = arg_parser.parse_args()
 
 with tictoc('Loading emb pkl'):
     dcr2emb = pkl.load(open('data/demonstrate_similarity_idea.emb.pkl'))
+    for e in dcr2emb:
+        dcr2emb[e] = scale_to_unit(dcr2emb[e])
     cat2mode = get_cat2mode()
     CONSTANT = (lambda x, t: 1)
     COUNT = (lambda x, t: x)
@@ -143,4 +151,4 @@ with debug_support():
         pass
     rank_times = Counter([e[1] for e in idi_list]).items()
     print rank_times
-    print 'MEAN RANK:', np.mean(map(lambda x: x[0] * x[1], rank_times))
+    print 'MEAN RANK:', numpy.mean(map(lambda x: x[0] * x[1], rank_times))

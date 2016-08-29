@@ -1,3 +1,5 @@
 *.pkl binary
 *.txt binary
 *.pdf binary
+*.gliff binary
+*.png binary
