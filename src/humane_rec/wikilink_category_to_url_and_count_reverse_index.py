@@ -4,9 +4,9 @@
 | Description : Create a memory efficient object that can serve as a reverse index.
 | Author      : Pushpendre Rastogi
 | Created     : Mon Aug 29 15:13:48 2016 (-0400)
-| Last-Updated: Mon Aug 29 16:00:09 2016 (-0400)
+| Last-Updated: Thu Sep  1 12:36:29 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 9
+|     Update #: 10
 '''
 from collections import defaultdict, MutableMapping
 import cPickle as pkl
@@ -75,9 +75,6 @@ def main():
         admissible_url = set([e.strip() for e in open(args.admissible_url_fn)])
     with rasengan.tictoc('Creating WRI'):
         wri = WikilinkReverseIndex(ci, url_to_cat_cnt, admissible_url)
-    with open(args.out_tsv_fn, 'w') as f:
-        for (a, b) in wri.iteritems():
-            f.write('%s\t%d\t%d\n'%(a, len(b), sum([e[1] for e in b])))
     with open(args.out_pkl_fn, 'wb') as f:
         pkl.dump(wri, f)
 if __name__ == '__main__':

@@ -281,7 +281,7 @@ data/wiki_link_individual_mentions.pkl: data/wiki_link /export/b15/prastog3/wiki
 	  --thrift_data_dir $(word 2,$+) \
 	  --out_fn $@ # --human_entity are  HARDCODED in file.
 
-data/chosen_url: data/wikilink_category_to_url_and_count_reverse_index.pkl data/chosen_wikilink_categories
+data/chosen_url_%: data/wikilink_category_to_url_and_count_reverse_index.pkl data/chosen_wikilink_categories_%
 	./chosen_url.py --caturl_pkl $< --chosen_cat $(word 2,$+) > $@
 
 # -------------------------------------------------------------------- #
@@ -290,9 +290,9 @@ data/chosen_url: data/wikilink_category_to_url_and_count_reverse_index.pkl data/
 # categories that are neither dominated by a single entity. nor are    #
 # too voluminous, neither are they too small                           #
 # -------------------------------------------------------------------- #
-data/chosen_wikilink_categories: data/wikilink_category_to_count_n_ratio.tsv
+data/chosen_wikilink_categories_%: data/wikilink_category_to_count_n_ratio.tsv
 	awk '{if($$2 >= 10 && $$2 <= 300 && $$4 <= 30 && $$4 >= 5 && match($$1, "[0-9]") == 0){print $$0}}' $<  \
-	  | sort -k 4 -r -n | pyshuf --N 100 --seed 1234 > $@
+	  | sort -k 4 -r -n | pyshuf --N $* --seed 1234 > $@
 
 data/wikilink_category_to_count_n_ratio.tsv: data/wikilink_category_to_count.tsv
 	awk '{print $1, $2, $3, int($3/$2)}' $<  > $@
@@ -305,7 +305,9 @@ rsync_2:
 	         wikilink_category_to_url_and_count_reverse_index.py; do\
 	  rsync -vz prastog3@b15:~/projects/kbvn/src/humane_rec/$$f ./$$f ; done
 
-# This also creates data/wikilink_category_to_count.tsv
+data/wikilink_category_to_count.tsv: data/wikilink_category_to_url_and_count_reverse_index.pkl
+	./wikilink_category_to_count.py $< > $@
+
 data/wikilink_category_to_url_and_count_reverse_index.pkl: data/dbpedia_cat_index.pkl data/wikilink_dbpedia_categories.pkl data/dbpedia_people.list
 	./wikilink_category_to_url_and_count_reverse_index.py \
 	 --ci_pkl_fn $< \
