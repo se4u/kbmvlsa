@@ -1,4 +1,9 @@
 \documentclass{article}
+% ------------ xcolor ----------- %
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\definecolor{lightred}{rgb}{1.0,0.8,0.8}
+\definecolor{lightorange}{rgb}{1.0,0.9,0.8}
+\definecolor{lightgrey}{rgb}{0.96,0.97,0.98}
 % if you need to pass options to natbib, use, e.g.:
 % \PassOptionsToPackage{numbers, compress}{natbib}
 % before loading nips_2016
@@ -21,6 +26,29 @@
 % ---------------- todocmd ----------------- %
 \usepackage[]{todonotes} % insert [disable] to disable all notes.
 \newcommand{\Todo}[1]{\todo[author=Pushpendre,size=\small,inline]{#1}}
+% --------- tcolorbox ------------%
+% From: http://tex.stackexchange.com/questions/66154
+% how-to-construct-a-coloured-box-with-rounded-corners
+\usepackage{tcolorbox}% http://ctan.org/pkg/tcolorbox
+\makeatletter
+\newcommand{\mybox}[2][lightred]{%
+  \setbox0=\hbox{#1}%
+  \setlength{\@tempdima}{\dimexpr\wd0+13pt}%
+  \begin{tcolorbox}[%
+    hbox,% tex.stackexchange.com/questions/238205 (Restrict width)
+    halign=justify,
+    nobeforeafter,% Inline box.
+    colframe=black,% Color of the frame. Green by default.
+    colback=#1,% Color of the background
+    boxrule=.5pt,% The size of border.
+    arc=5pt,% The Arc radius.
+    left=4pt,right=0pt,top=0pt,bottom=0pt,% The padding inside
+    boxsep=2pt]% width=\@tempdima
+    #2
+  \end{tcolorbox}
+}
+\makeatother
+
 % --------- refcmd ------------ %
 \newcommand{\figref}[1]{Figure~\ref{#1}}
 \newcommand{\tabref}[1]{Table~\ref{#1}}
@@ -31,16 +59,16 @@
 \newcommand{\algref}[1]{Algorithm~\ref{#1}}
 \renewcommand{\eqref}[1]{Equation~\ref{#1}}
 % ------------ watermark -------------- %
-\usepackage{draftwatermark}
-\SetWatermarkText{Confidential}
-\SetWatermarkScale{.3}
+% \usepackage{draftwatermark}
+% \SetWatermarkText{Confidential}
+% \SetWatermarkScale{.3}
 % ------------ Paper Specific Math -------- %
 \newcommand{\Vo}{V^{\textrm{out}}}
 \newcommand{\Vp}[1]{V^{[.#1]}}
 \newcommand{\vo}[1]{v^{\textrm{out}}_{#1}}
 \newcommand{\ip}[2]{\left\langle#1, #2\right\rangle}
 \newcommand{\wv}{Word2Vec\xspace}
-\title{Cocoon: The Correct Way to Create Compositional $N$-Gram Embeddings}
+\title{Cocoon: The Correct Way to Compose $N$-Gram Embeddings}
 \author{Pushpendre}
 \begin{document}
 \maketitle
@@ -145,7 +173,7 @@ Although the strategy presented above is simple, efficient and fast however it
 is undesirable for trigrams and longer $n$-grams because it ignores the words in
 the middle. Even for encoding bigrams this strategy is undesirable because
 both the left and right contexts of a bigram are affected by both the words in the
-bigrams. \figref{pretty-example-2} gives an example.
+bigrams. \mybox{figref{pretty-example-2}} gives an example.
 We now present our strategy to eliminate these shortcomings. Let us reconsider
 the example in \figref{fig:pretty-example}. Intuitively the right context of
 \textit{squeaky wheel} should be a combination of the right context
@@ -180,7 +208,9 @@ Our model decomposes the embedding of a word into two components that are
 separately responsible for encoding the left and the right contexts. To
 establish the usefulness of our model we perform the following experiments.
 
-Train the model with $M=0, 1$ and $2$. For each setting of $M$ we test
+We trained our model with $M=0, 1$ and $2$ using the \mybox{the word2vecf
+  toolkit} on the \mybox{1 billion words wikipedia corpus}.
+For each setting of $M$ we test
 whether the embeddings are performant as embeddings for words themselves.
 We check the performance of $[v_w^{(m,0)}; v_w^{(m,1)}]$ as embeddings of
 the word $w$ on the word similarity and word analogy tasks and compare them to
@@ -192,7 +222,7 @@ standard \wv.
     Method       & WN-353 & MEN & SimLex & Analogy \\
     MVLSA        &                        \\
     Glove        &                        \\
-    Word2Vec     &                        \\
+    Word2Vec     &       & & \mybox{TODO}                \\
     \hline
     Cocoon (M=0) &                        \\
     Cocoon (M=1) &                        \\
@@ -225,7 +255,7 @@ Question Type Classifcation}
     NB-SVM            &    &    &      &      &      \\
     MNB               &    &    &      &      &      \\
     Paragraph Vector  &    &    &      &      &      \\
-    bow               &    &    &      &      &      \\
+    bow               &    &    &  \mybox{TODO}    &      &      \\
     Combine Skip      &    &    &      &      &      \\
     Combine Skip + NB &    &    &      &      &      \\\hline
     Cocoon            &    &    &      &      &      \\
@@ -236,8 +266,25 @@ Question Type Classifcation}
   \label{tab:classification}
 \end{table}
 
+
 \section{Discussion}
 \label{sec:discussion}
+\subsection{Prior Work}
+\label{sec:prior-work}
+\begin{itemize}
+\item \wv
+\item Paragraph-Vectors
+\item Skip-Thought Vectors
+\item Averaging Trick
+\item SemEval-2012 Task 6: A Pilot on Semantic Textual Similarity
+\item UMBC EBIQUITY-CORE: Semantic Textual Similarity Systems
+  \url{swoogle.umbc.edu/SimService/GetSimilarity}
+\item A Study on Similarity and Relatedness Using Distributional and
+  WordNet-based Approaches
+\item MELODI: Semantic Similarity of Words and Compositional Phrases
+  using Latent Vector Weighting
+\item SEMILAR: The Semantic Similarity Toolkit. \url{semanticsimilarity.org}
+\end{itemize}
 
 \bibliographystyle{abbrv}
 \bibliography{reference}
