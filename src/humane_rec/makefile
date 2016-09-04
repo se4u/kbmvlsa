@@ -281,8 +281,9 @@ data/wiki_link_individual_mentions.pkl: data/wiki_link /export/b15/prastog3/wiki
 	  --thrift_data_dir $(word 2,$+) \
 	  --out_fn $@ # --human_entity are  HARDCODED in file.
 
-data/chosen_url_%: data/wikilink_category_to_url_and_count_reverse_index.pkl data/chosen_wikilink_categories_%
-	./chosen_url.py --caturl_pkl $< --chosen_cat $(word 2,$+) > $@
+data/chosen_url_%_mthresh~10: data/wikilink_category_to_url_and_count_reverse_index.pkl data/chosen_wikilink_categories_%_mthresh~10
+	./chosen_url.py --caturl_pkl $< --chosen_cat $(word 2,$+) --mention_thresh 10 > $@
+	echo $@ ; cut -d' ' -f 2 $@  | sort -u | wc -l
 
 # -------------------------------------------------------------------- #
 # Based on the counts of the wikilink categories, pick a few good ones #
@@ -290,12 +291,15 @@ data/chosen_url_%: data/wikilink_category_to_url_and_count_reverse_index.pkl dat
 # categories that are neither dominated by a single entity. nor are    #
 # too voluminous, neither are they too small                           #
 # -------------------------------------------------------------------- #
-data/chosen_wikilink_categories_%: data/wikilink_category_to_count_n_ratio.tsv
-	awk '{if($$2 >= 10 && $$2 <= 300 && $$4 <= 30 && $$4 >= 5 && match($$1, "[0-9]") == 0){print $$0}}' $<  \
-	  | sort -k 4 -r -n | pyshuf --N $* --seed 1234 > $@
+# for n in 100 1000 1500 2000; do m data/chosen_wikilink_categories_${n}_mthresh~10; done
+# I don't want any of the
+data/chosen_wikilink_categories_%_mthresh~10: data/wikilink_category_to_count_n_ratio_10.tsv
+	awk '{if($$2 >= 10 && $$2 <= 300 && $$4 >= 5 && $$4 <= 50 && match($$1, "[0-9]") == 0){print $$0}}' $<  \
+	| sort -k 4 -r -n \
+	| if [[ $* == all ]] ; then tee ; else pyshuf --N $* --seed 1234 ; fi > $@
 
-data/wikilink_category_to_count_n_ratio.tsv: data/wikilink_category_to_count.tsv
-	awk '{print $1, $2, $3, int($3/$2)}' $<  > $@
+data/wikilink_category_to_count_n_ratio_%.tsv: data/wikilink_category_to_count_%.tsv
+	awk '{print $$1, $$2, $$3, ($$2==0)?0:int($$3/$$2)}' $<  > $@
 # ------------------------------------------------------------- #
 # Create a reverse index of Categories to Urls and their Counts #
 # ------------------------------------------------------------- #
@@ -305,8 +309,8 @@ rsync_2:
 	         wikilink_category_to_url_and_count_reverse_index.py; do\
 	  rsync -vz prastog3@b15:~/projects/kbvn/src/humane_rec/$$f ./$$f ; done
 
-data/wikilink_category_to_count.tsv: data/wikilink_category_to_url_and_count_reverse_index.pkl
-	./wikilink_category_to_count.py $< > $@
+data/wikilink_category_to_count_%.tsv: data/wikilink_category_to_url_and_count_reverse_index.pkl
+	./wikilink_category_to_count.py --mention_thresh $* --in_pkl_fn $< --out_fn $@
 
 data/wikilink_category_to_url_and_count_reverse_index.pkl: data/dbpedia_cat_index.pkl data/wikilink_dbpedia_categories.pkl data/dbpedia_people.list
 	./wikilink_category_to_url_and_count_reverse_index.py \
