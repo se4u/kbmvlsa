@@ -269,7 +269,7 @@ data/wikimic_remove_translate_nonascii.pkl: data/wiki_link_individual_mentions.p
 # ----------------------------------- #
 # The Cat People Mentions in Wikilink #
 # ----------------------------------- #
-data/catpeople_wikilink_mentions.pkl: data/wiki_link /export/b15/prastog3/wikilinks
+data/catpeople_wikilink_mentions.shelf: data/wiki_link /export/b15/prastog3/wikilinks data/cat-people
 	./extract_person_mentions_from_wikilink_data.py \
 	  --thrift_class_dir $< \
 	  --thrift_data_dir $(word 2,$+) \
