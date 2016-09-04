@@ -265,6 +265,29 @@ data/wikimic_extract_sentence_boundary.pkl: data/wikimic_remove_translate_nonasc
 data/wikimic_remove_translate_nonascii.pkl: data/wiki_link_individual_mentions.pkl
 	./wikimic_remove_translate_nonascii.py --in_fn $< --out_fn $@
 
+
+# ----------------------------------- #
+# The Cat People Mentions in Wikilink #
+# ----------------------------------- #
+data/catpeople_wikilink_mentions.pkl: data/wiki_link /export/b15/prastog3/wikilinks
+	./extract_person_mentions_from_wikilink_data.py \
+	  --thrift_class_dir $< \
+	  --thrift_data_dir $(word 2,$+) \
+	  --out_fn $@ \
+	  --human_entity_fn $(word 3,$+)
+
+# ---------------------- #
+# The Cat People Dataset #
+# ---------------------- #
+# 7814 Categories # 58943 Unique URLs
+data/cat-people: data/chosen_url_all_mthresh~10
+	cp $<  $@
+
+# 100 Categories # 2519 Unique URLs
+data/cat-people-dev: data/chosen_url_100_mthresh~10
+	cp $< $@
+
+
 # ----------------------- WIKILINKS DATA PROCESSING ----------------------- #
 # Extract entity mentions from wiki link corpus that contains real mentions #
 # of entities in the form of links from web pages to wikipedia articles.    #
