@@ -4,9 +4,9 @@
 | Description : Remove nonascii characters, Segment sentences, remove noisy long sentences.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Sep  4 16:58:25 2016 (-0400)
-| Last-Updated: Sun Sep  4 20:01:37 2016 (-0400)
+| Last-Updated: Mon Sep  5 02:02:54 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 18
+|     Update #: 19
 '''
 from rasengan import clean_text, sentence_segmenter, tictoc
 from shelve import DbfilenameShelf
@@ -68,7 +68,7 @@ for url in urls:
                 # might have removed some extremely long sentences.
                 (e_sent - sum(1 for (a, b)
                               in seg[:e_sent]
-                              if b - a <= MAX_CHAR_IN_SENT)),
+                              if b - a > MAX_CHAR_IN_SENT)),
                 e_start,
                 e_start + len_mention]
             out_mentions.append(out_mention)
