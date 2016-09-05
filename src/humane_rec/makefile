@@ -197,18 +197,24 @@ get_stats_%: data/entity_descriptors_procoref~%.psv
 # --------------------------------------------------------------------------- #
 # ######################## Cat People Data Processing ####################### #
 # --------------------------------------------------------------------------- #
-data/catpeople_baseline_nb.dev: data/catpeople_clean_segmented_context.shelf data/cat-people-dev.fold.pkl
+data/catpeople_baseline_nb.dev: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf data/cat-people-dev.fold.pkl
 	./catpeople_baseline_nb.py --in_shelf $< --fold_fn $(word 2,$+)
 
-data/catpeople_clean_segmented_context.shelf: data/catpeople_wikilink_mentions.shelf.dat
+ifeq ($(shell domainname),clsp)
+  CATPEOPLE_DIR := /export/b15/prastog3
+else
+  CATPEOPLE_DIR := data
+endif
+
+$(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf: $(CATPEOPLE_DIR)/catpeople_wikilink_mentions.shelf.dat
 	./catpeople_clean_segmented_context.py \
-	  --in_shelf data/catpeople_wikilink_mentions.shelf \
-	  --out_shelf $@ 2> $@.log
+	  --in_shelf $(basename $<) \
+	  --out_shelf $@ # 2> $@.log
 
 # ----------------------------------- #
 # The Cat People Mentions in Wikilink #
 # ----------------------------------- #
-data/catpeople_wikilink_mentions.shelf: data/wiki_link /export/b15/prastog3/wikilinks data/cat-people
+$(CATPEOPLE_DIR)/catpeople_wikilink_mentions.shelf.dat: data/wiki_link /export/b15/prastog3/wikilinks data/cat-people
 	./extract_person_mentions_from_wikilink_data.py \
 	  --thrift_class_dir $< \
 	  --thrift_data_dir $(word 2,$+) \

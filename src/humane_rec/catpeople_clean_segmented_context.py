@@ -4,9 +4,9 @@
 | Description : Remove nonascii characters, Segment sentences, remove noisy long sentences.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Sep  4 16:58:25 2016 (-0400)
-| Last-Updated: Sun Sep  4 19:04:17 2016 (-0400)
+| Last-Updated: Sun Sep  4 20:01:37 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 17
+|     Update #: 18
 '''
 from rasengan import clean_text, sentence_segmenter, tictoc
 from shelve import DbfilenameShelf
@@ -59,17 +59,18 @@ for url in urls:
                     seg[e_sent][0]:seg[e_sent][1]]
                 continue
             e_start = mention_start - seg[e_sent][0]
-            out_mention = dict(
-                sentences=[text[a:b]
-                           for (a, b) in seg
-                           # Remove too long sentences.
-                           if b - a <= MAX_CHAR_IN_SENT],
+            out_mention = [
+                [text[a:b]
+                 for (a, b) in seg
+                 # Remove too long sentences.
+                 if b - a <= MAX_CHAR_IN_SENT],
                 # Adjust pointer to sentence that contain the entity since we
                 # might have removed some extremely long sentences.
-                e_sent=(e_sent - sum(1 for (a, b)
-                                     in seg[:e_sent] if b - a <= MAX_CHAR_IN_SENT)),
-                e_start=e_start,
-                e_end=e_start + len_mention)
+                (e_sent - sum(1 for (a, b)
+                              in seg[:e_sent]
+                              if b - a <= MAX_CHAR_IN_SENT)),
+                e_start,
+                e_start + len_mention]
             out_mentions.append(out_mention)
             pass
         out_shelf[url] = out_mentions
