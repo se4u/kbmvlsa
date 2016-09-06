@@ -127,7 +127,7 @@ sentence averaged over the entire corpus.
 softmax over the inner products of the embeddings of the two tokens. I.e.
 \begin{equation}
   \label{eq:w2vec2}
-  p(s_k | s_j) = \frac{\exp\left(\ip{\vo{s_k}}{v_{s_j}}\right)}{\exp\left(\sum_{w \in W}\ip{\vo{w}}{v_{s_j}}\right)}
+  p(s_k | s_j) = \frac{\exp\left(\ip{\vo{s_k}}{v_{s_j}}\right)}{\sum_{w \in W}\exp\left(\ip{\vo{w}}{v_{s_j}}\right)}
 \end{equation}
 
 \subsection{Our Method}
@@ -161,7 +161,7 @@ $v_w^0$ encodes the left context and $v_W^1$ encodes the right context.
 This strategy can be implemented by replacing the probability distribution in
 \eqref{eq:w2vec2} as follows:
 \begin{equation}\label{eq:w2vec3}
-  p(s_k | s_j) = \frac{\exp\left(\ip{\vo{s_k}}{v_{s_j}^{[k>j]}}\right)}{\exp\left(\sum_{w \in W}\ip{\vo{w}}{v_{s_j}^{[k<j]}}\right)}
+  p(s_k | s_j) = \frac{\exp\left(\ip{\vo{s_k}}{v_{s_j}^{[k>j]}}\right)}{\sum_{w \in W}\exp\left(\ip{\vo{w}}{v_{s_j}^{[k>j]}}\right)}
 \end{equation}
 
 The above strategy gives us a simple and efficient way of creating embeddings
@@ -192,7 +192,7 @@ $0$-right contexts of a word. However the original \wv objective in
 \eqref{eq:w2vec1} can be generalized as follows:
 \begin{align}\label{eq:general}
   &\frac{1}{|S|} \sum_{s \in S} \frac{1}{|s|} \sum_{j} \sum_{m \in [0, M]} \sum_{k \in [j-c,m) \cup (m,j+c]} \log p_m(s_k | s_j)\\
-  &p_m(s_k | s_j) = \frac{\exp\left(\ip{\vo{s_k}}{v_{s_j}^{(m,[k>j])}}\right)}{\exp\left(\sum_{w \in W}\ip{\vo{w}}{v_{s_j}^{(m,[k<j])}}\right)}
+  &p_m(s_k | s_j) = \frac{\exp\left(\ip{\vo{s_k}}{v_{s_j}^{(m,[k>j])}}\right)}{\sum_{w \in W}\exp\left(\ip{\vo{w}}{v_{s_j}^{(m,[k>j])}}\right)}
 \end{align}
 Optimizing this procedure results in $2M+2$ word vectors. These vectors can be
 averaged to compute the embeddings of an $n$-gram by averaging the suitable
