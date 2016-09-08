@@ -4,9 +4,9 @@
 | Description : The Baseline NB experiment.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Sep  4 18:32:35 2016 (-0400)
-| Last-Updated: Thu Sep  8 02:04:17 2016 (-0400)
+| Last-Updated: Thu Sep  8 02:25:05 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 154
+|     Update #: 162
 This script implements the NB baseline described in Section 3.1 of the humane_rec paper.
 '''
 import random
@@ -110,10 +110,17 @@ class TextualClueObject(object):
 
 class NBRecommender(object):
 
-    def __init__(self, clue_obj, threshold=True, ngram_occurrence=5.0 / 10.0):
+    def __init__(self, clue_obj,
+                 threshold=False,
+                 alpha=1,
+                 adaptive_alpha=False,
+                 ngram_occurrence=5.0 / 10.0,):
         self.clue_obj = clue_obj
         self.w = {}
-        self.alpha = len(clue_obj.S) * ngram_occurrence
+        if adaptive_alpha:
+            self.alpha = len(clue_obj.S) * ngram_occurrence
+        else:
+            self.alpha = alpha
         for feat in clue_obj.fS:
             wprime = (sum(1 for e in clue_obj.S if feat in clue_obj.features[e])
                       / self.alpha)
@@ -133,7 +140,7 @@ class NBRecommender(object):
 
 class FunctionWordRemover(object):
 
-    def __init__(self, rec_obj, remove_bigram=True):
+    def __init__(self, rec_obj, remove_bigram=True, limit_features=20):
         from rasengan.function_words import get_function_words
         self.rec_obj = rec_obj
         self.w = dict(rec_obj.w)
@@ -153,6 +160,12 @@ class FunctionWordRemover(object):
                 pt = ((index - ct) / catpeople_baseline_nb_config.MAX_TOK - 1)
                 if pt in bad_idx or ct in bad_idx:
                     del self.w[index]
+        if limit_features:
+            good_feat = set(
+                sorted(self.w.iterkeys(), key=lambda x: self.w[x], reverse=True)[:limit_features])
+            for feat in self.w.keys():
+                if feat not in good_feat:
+                    del self.w[feat]
 
     def __call__(self, Se):
         cn = self.rec_obj.clue_obj.create_ngrams
@@ -162,6 +175,7 @@ class FunctionWordRemover(object):
         return val
 
     def report(self, limit=20):
+        print 'Total Features', len(self.w)
         for idx, (a, b) in enumerate(
                 sorted(self.w.iteritems(), key=lambda x: x[1], reverse=True)):
             if idx < limit:
@@ -173,11 +187,11 @@ class Performance_Aggregator(object):
     def __init__(self):
         self.record = defaultdict(list)
 
-    def __call__(self, cat, scores, Q, verbose=True):
+    def __call__(self, cat, scores, S_size, Q, verbose=True):
         fold = self.position(scores, set(Q))
         self.record[cat].append(fold)
         if verbose:
-            print self.report_fold(cat, fold)
+            print self.report_fold(cat, fold, S_size)
 
     def position(self, scores, Q):
         return (Q,
@@ -189,15 +203,15 @@ class Performance_Aggregator(object):
                                      reverse=True))
                  if entity in Q])
 
-    def report_fold(self, cat, fold):
+    def report_fold(self, cat, fold, S_size=-1):
         arr = [0] * len(fold[1])
         for _, i in fold[2]:
             arr[i] = 1
         ap = average_precision(arr)
         random.shuffle(arr)
         rap = average_precision(arr)
-        return '%-40s(needles=%-3d,haystack=%-3d) %.3f %.3f' % (
-            cat, len(fold[0]), len(arr), ap, rap)
+        return '%-40s(Training=%-3d,needles=%-3d,haystack=%-3d) %.3f %.3f' % (
+            cat, S_size, len(fold[0]), len(arr), ap, rap)
 
     def __str__(self):
         return '\n'.join(self.report_fold(cat, fold)
@@ -219,38 +233,41 @@ def main():
     for cat_idx, (cat, folds) in enumerate(cat_folds.items()[:10]):
         print >> sys.stderr, 'cat_idx = %.2f\r' % (cat_idx),
         for (train_idx, test_idx) in folds:
-            S = get(cat2url[cat], train_idx)
-            EmS = minus(E, S)
-            Q = get(cat2url[cat], test_idx)
-            EmSQ = minus(EmS, Q)
-            # --------------------- #
-            # Extract Textual Clues #
-            # --------------------- #
-            clue_obj = TextualClueObject(S, url_mention, TM)
-            # ------------------------------------ #
-            # Hypothesize Recommendation Criterion #
-            # ------------------------------------ #
-            rec_obj = NBRecommender(clue_obj)
-            # ------------------------------- #
-            # Update Recommendation Criterion #
-            # ------------------------------- #
-            updated_rec_obj = FunctionWordRemover(rec_obj)
-            updated_rec_obj.report()
-            # ------------------- #
-            # Apply The Criterion #
-            # ------------------- #
-            scores = {}
-            with rasengan.warn_ctm('Restricted Entities to 400'):
-                for e_idx, e in enumerate(EmSQ[:400] + Q):
-                    try:
-                        scores[e] = updated_rec_obj(url_mention[e])
-                    except KeyError as e:
-                        print >> sys.stderr, e
-                        continue
-            # ------------------- #
-            # Measure Performance #
-            # ------------------- #
-            performance_aggregator(cat, scores, Q)
+            for train_set_size in [0.5, 1]:
+                S = get(
+                    cat2url[cat], train_idx[:int(len(train_idx) * train_set_size)])
+                EmS = minus(E, S)
+                Q = get(cat2url[cat], test_idx)
+                EmSQ = minus(EmS, Q)
+                # --------------------- #
+                # Extract Textual Clues #
+                # --------------------- #
+                clue_obj = TextualClueObject(S, url_mention, TM)
+                # ------------------------------------ #
+                # Hypothesize Recommendation Criterion #
+                # ------------------------------------ #
+                rec_obj = NBRecommender(clue_obj)
+                # ------------------------------- #
+                # Update Recommendation Criterion #
+                # ------------------------------- #
+                updated_rec_obj = FunctionWordRemover(rec_obj)
+                updated_rec_obj.report()
+                # ------------------- #
+                # Apply The Criterion #
+                # ------------------- #
+                scores = {}
+                with rasengan.warn_ctm('Restricted Entities to 400'):
+                    for e_idx, e in enumerate(EmSQ[:400] + Q):
+                        try:
+                            scores[e] = updated_rec_obj(url_mention[e])
+                        except KeyError as e:
+                            print >> sys.stderr, e
+                            continue
+                # ------------------- #
+                # Measure Performance #
+                # ------------------- #
+                performance_aggregator(cat, scores, len(S), Q)
+                continue
             continue
         continue
     # print performance_aggregator
