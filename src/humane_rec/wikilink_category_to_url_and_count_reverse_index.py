@@ -4,9 +4,9 @@
 | Description : Create a memory efficient object that can serve as a reverse index.
 | Author      : Pushpendre Rastogi
 | Created     : Mon Aug 29 15:13:48 2016 (-0400)
-| Last-Updated: Thu Sep  1 12:36:29 2016 (-0400)
+| Last-Updated: Mon Sep  5 13:12:45 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 10
+|     Update #: 11
 '''
 from collections import defaultdict, MutableMapping
 import cPickle as pkl
@@ -59,9 +59,11 @@ def main():
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument('--seed', default=0, type=int, help='Default={0}')
     arg_parser.add_argument(
-        '--ci_pkl_fn', default='data/dbpedia_cat_index.pkl', type=str)
+        '--ci_pkl_fn', default='data/dbpedia_cat_index.pkl', type=str,
+        help='A map from categories to integer')
     arg_parser.add_argument(
-        '--wdc_pkl_fn', default='data/wikilink_dbpedia_categories.pkl', type=str)
+        '--wdc_pkl_fn', default='data/wikilink_dbpedia_categories.pkl', type=str,
+        help='A list from url to their categories')
     arg_parser.add_argument(
         '--out_pkl_fn', default='data/wikilink_category_to_url_and_count_reverse_index.pkl', type=str)
     arg_parser.add_argument(
