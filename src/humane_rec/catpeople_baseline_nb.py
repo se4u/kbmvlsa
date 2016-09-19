@@ -4,9 +4,9 @@
 | Description : The Baseline NB experiment.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Sep  4 18:32:35 2016 (-0400)
-| Last-Updated: Mon Sep 19 00:34:26 2016 (-0400)
+| Last-Updated: Mon Sep 19 02:07:08 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 282
+|     Update #: 288
 This script implements the NB baseline described in Section 3.1 of the humane_rec paper.
 '''
 import random
@@ -20,93 +20,12 @@ from shelve import DbfilenameShelf
 import cPickle as pkl
 import rasengan
 from rasengan import TokenMapper
-from collections import Counter, defaultdict
-import itertools
-from rasengan.rank_metrics import average_precision
+from collections import defaultdict
+from performance_aggregator import PerformanceAggregator
 import catpeople_baseline_nb_config
-from rasengan.function_words import get_function_words
-
-
-def get(l, idi):
-    return [l[i] for i in idi]
-
-
-def minus(E, S):
-    S = set(S)
-    return [e for e in E if e not in S]
-
-
-class TextualClueObject(object):
-
-    def __init__(self, S, url_mentions, token_map_obj,
-                 max_tok=catpeople_baseline_nb_config.MAX_TOK,
-                 entire=True,
-                 binarized_mnb=True):
-        self.S = S
-        self.Se_list = [url_mentions[e] for e in S]
-        self.entire = entire
-        # self.lower = lower
-        self.binarized_mnb = binarized_mnb
-        self.max_tok = max_tok
-        self.BOS = max_tok - 1
-        # Sets self.features, self.fS
-        self.order_unigrams_and_bigrams()
-        self.tmo = token_map_obj
-
-    def order_unigrams_and_bigrams(self):
-        self.fS = {}
-        self.features = {}
-        for e, Se in itertools.izip(self.S, self.Se_list):
-            e_feat = self.create_ngrams(Se, 1)
-            e_feat.update(self.create_ngrams(Se, 2))
-            self.features[e] = e_feat
-        self.fS = set(rasengan.flatten((
-            list(v) for v in self.features.itervalues())))
-        return
-
-    def create_ngrams(self, Se, n, predicate=None, verbose=False):
-        # NOTE: We are implementing the Binarized MNB model where we dont
-        # multiple count features that occur in a single
-        # document/utterange/sentence.
-        assert self.binarized_mnb
-        features = {}
-        max_tok = self.max_tok
-        total_iter = 0
-        if predicate is None:
-            predicate = lambda x: True
-        for mention in Se:
-            tokens = (rasengan.flatten(mention[0])
-                      if self.entire
-                      else mention[0][mention[1]])
-            if n == 1:
-                for t in tokens:
-                    total_iter += 1
-                    if predicate(t):
-                        features[t] = None
-            elif n == 2:
-                # This is the BOS token idx
-                pt = self.BOS
-                for ct in tokens:
-                    total_iter += 1
-                    bigram_feature = max_tok * (1 + pt) + ct
-                    pt = ct
-                    if predicate(bigram_feature):
-                        features[bigram_feature] = None
-            elif n == 12:
-                pt = self.BOS
-                for ct in tokens:
-                    total_iter += 1
-                    bigram_feature = max_tok * (1 + pt) + ct
-                    pt = ct
-                    if predicate(bigram_feature):
-                        features[bigram_feature] = None
-                    if predicate(ct):
-                        features[ct] = None
-            else:
-                raise NotImplementedError
-        if verbose:
-            print 'Total_iter', total_iter
-        return features
+from textual_clue import TextualClueObject
+from util_catpeople import get, minus, remove_unigrams, remove_bigrams, color
+from fabulous.color import fg256
 
 
 class NBRecommender(object):
@@ -133,31 +52,11 @@ class NBRecommender(object):
                    if feat in w)
 
 
-def remove_unigrams(w, tmo):
-    bad_idx = []
-    for e in get_function_words():
-        e = e.lower()
-        try:
-            idx = tmo([e])[0]
-            del w[idx]
-            bad_idx.append(idx)
-        except KeyError:
-            continue
-    return w, bad_idx
-
-
-def remove_bigrams(w, bad_idx):
-    for index in w.keys():
-        ct = index % catpeople_baseline_nb_config.MAX_TOK
-        pt = ((index - ct) / catpeople_baseline_nb_config.MAX_TOK - 1)
-        if pt in bad_idx or ct in bad_idx:
-            del w[index]
-    return w
-
-
 class FunctionWordRemover(object):
 
-    def __init__(self, rec_obj, remove_bigram=True, limit_features=0, hack_features=False):
+    def __init__(self, rec_obj,
+                 remove_bigram=True,
+                 limit_features=0):
         self.rec_obj = rec_obj
         self.w = dict(rec_obj.w)
         tmo = rec_obj.clue_obj.tmo
@@ -166,15 +65,9 @@ class FunctionWordRemover(object):
             self.w = remove_bigrams(self.w, bad_idx)
         if limit_features:
             good_feat = set(
-                sorted(self.w.iterkeys(), key=lambda x: self.w[x], reverse=True)[:limit_features])
-
-        if hack_features:
-            rasengan.warn('Hacking the features')
-            good_feat = set(
-                self.rec_obj.clue_obj.tmo([ee])[0] for ee in ['emigrant', 'emigrate', 'india', 'british', 'indian', 'london'])
-            for feat in self.w.keys():
-                if feat not in good_feat:
-                    del self.w[feat]
+                sorted(self.w.iterkeys(),
+                       key=lambda x: self.w[x],
+                       reverse=True)[:limit_features])
 
     def __call__(self, Se, ename=''):
         cn = self.rec_obj.clue_obj.create_ngrams
@@ -193,71 +86,26 @@ class FunctionWordRemover(object):
                 print (self.rec_obj.clue_obj.tmo[a], b)
 
 
-class Performance_Aggregator(object):
-
-    def __init__(self, args=None):
-        self.record = defaultdict(list)
-        self.args = args
-
-    def __call__(self, cat, scores, S_size, Q, verbose=True):
-        fold = self.position(scores, set(Q))
-        self.record[cat].append(fold)
-        if verbose:
-            print self.report_fold(cat, fold, S_size)
-
-    def position(self, scores, Q):
-        return (Q,
-                scores,
-                [(entity, rank)
-                 for rank, (entity, score)
-                 in enumerate(sorted(scores.iteritems(),
-                                     key=lambda x: x[1],
-                                     reverse=True))
-                 if entity in Q])
-
-    def get_fold_stats(self, fold):
-        arr = [0] * len(fold[1])
-        for _, i in fold[2]:
-            arr[i] = 1
-        ap = average_precision(arr)
-        # mean_reciprocal_rank(arr)
-        mrr = 1.0 / (1 + min(e[1] for e in fold[2]))
-        p_at_10 = float(sum(arr[:10]))
-        p_at_100 = float(sum(arr[:100]))
-        random.shuffle(arr)
-        rap = average_precision(arr)
-        # The Random MRR can be deterministically computed.
-        rmrr = 1.0 / (1.0 + float(len(fold[1])) / (len(fold[2]) + 1))
-        rp_at_10 = float(sum(arr[:10]))
-        rp_at_100 = float(sum(arr[:100]))
-        return [ap, rap, p_at_10, rp_at_10, p_at_100, rp_at_100, mrr, rmrr]
-
-    def report_fold(self, cat, fold, S_size=-1):
-        return '%-40s(Training=%-3d,needles=%-3d,haystack=%-3d) (AUPR %.3f %.3f) (P@10 %d %d) (P@100 %d %d) (MRR %.3f %.3f)' % tuple(
-            [cat, S_size, len(fold[0]), len(fold[1])] + self.get_fold_stats(fold))
-
-    def __str__(self):
-        fold_stats = [self.get_fold_stats(fold)
-                      for cat in self.record
-                      for fold in self.record[cat]]
-        return '(AUPR %.3f %.3f) (P@10 %.3f %.3f) (P@100 %.3f %.3f) (MRR %.3f %.3f)' % tuple(
-            np.array(fold_stats).mean(axis=0).tolist())
-
-
 def setup():
+    ''' Load the catpeople data.
+    '''
     url_mention = DbfilenameShelf(args.in_shelf, protocol=-1, flag='r')
     TM = url_mention['__TOKEN_MAPPER__']
     TM.finalize(catpeople_baseline_nb_config.MAX_TOK)
     E = url_mention['__URL_LIST__']
     cat_folds = pkl.load(open(args.fold_fn))
-    cat2url = dict((caturl_group[0].split()[0], [e.strip().split()[1] for e in caturl_group])
+    cat2url = dict((caturl_group[0].split()[0],
+                    [e.strip().split()[1] for e in caturl_group])
                    for caturl_group
-                   in rasengan.groupby(args.cat2url_fn, predicate=lambda x: x.split()[0]))
-    performance_aggregator = Performance_Aggregator(args=args)
+                   in rasengan.groupby(args.cat2url_fn,
+                                       predicate=lambda x: x.split()[0]))
+    performance_aggregator = PerformanceAggregator(args=args)
     return (url_mention, TM, E, cat_folds, cat2url, performance_aggregator)
 
 
 def show():
+    ''' show all the mentions that a particular person appears in.
+    '''
     (url_mention, TM, E, cat_folds, cat2url, performance_aggregator) = setup()
     mentions = url_mention[args.single_person]
     idx = 0
@@ -267,15 +115,10 @@ def show():
             print idx, ' '.join(TM[sentence])
             idx += 1
 
-from fabulous.color import fg256
-
-
-def color(f):
-    assert 0 <= f <= 1
-    return tuple([int(f * 7) * 32] * 3)
-
 
 def diverse_categories():
+    ''' Show the selected features
+    '''
     (url_mention, TM, E, cat_folds, cat2url, performance_aggregator) = setup()
     for cat_idx, (cat, folds) in enumerate(cat_folds.items()):
         train_idx, test_idx = folds[0]
@@ -305,6 +148,8 @@ def diverse_categories():
 
 
 def data_stats():
+    ''' Show Statistics about the CatPeople Dataset
+    '''
     (url_mention, TM, E, cat_folds, cat2url, performance_aggregator) = setup()
     print 'Total Number of entities', len(E)
     print 'Total Number of Categories', len(cat2url)
@@ -364,6 +209,8 @@ def eval():
 
 
 def read_report(report_pkl_fn):
+    ''' The main reporting function
+    '''
     perf_obj = pkl.load(open(report_pkl_fn))
     try:
         print perf_obj.args.ngram_occurrence

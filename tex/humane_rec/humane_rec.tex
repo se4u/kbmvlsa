@@ -19,6 +19,7 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{enumitem}       % Allow for Alphabetical Labeling
 % -------------- ams ------------------- %
 \usepackage{amssymb,amsmath,amsthm,graphicx,url,xspace,booktabs,microtype}
 \newcommand{\union}{\cup}
@@ -49,7 +50,16 @@
 \newcommand{\Todo}[1]{\todo[author=Pushpendre,size=\small,inline]{#1}}
 % --------------- rowcolor ------------------- %
 \usepackage{colortbl}
-% Insert \rowcolors{1}{}{lightgray} after centering
+% -------- noteboxcmd -------- %
+\usepackage{thmtools}
+\usepackage[dvipsnames]{xcolor}
+\declaretheorem[%
+style=plain,%
+thmbox={style=S,bodystyle=\normalfont},%
+name=Note,%
+within=section,%
+shaded={rulecolor=Lavender,rulewidth=2pt},%
+]{notebox}
 
 \title{You want Mr. Lebowski or the Dude? A Humane Post-Embeddings Model for Disambiguation
   of Content Based Entity Centric Recommendations From Textual Cues.}
@@ -198,6 +208,10 @@ model design. A logistic normal distribution can be used as a
 prior. In the next section we overcome this limitation and present a simple
 method to incorporate such information into the NB model with bigram features.
 
+\subsection{IDF Weighted Naive Bayes}
+\label{ssec:idf-weighted-nb}
+This method changes Step 3 of the Supervised Naive Bayes method and removes
+words that are too common from the recommendation criterion.
 
 \subsection{Kernel Machine Baseline: Distance between Set of Bag of $n$-grams
   and Bag of $n$-grams}
@@ -209,8 +223,7 @@ by extracting textual clues for each entity $e \in \mathcal{S}$. However once
 we extract the unigram and bigram features from $\mathcal{S}$ we then represent
 them through their associated embeddings as well. These features are weighted
 and then converted into a single kernel function which is then computed against
-all entities in \ems. More clearly we follow the
-following steps:
+all entities in \ems. More clearly we follow the following steps:
 \paragraph{Step 1: Extract Textual Clues}
 Let $S_e$ be the set of textual contexts that an entity $e \in \mathcal{S}$
 appears in. We extract the unigram and bigram features from each context in
@@ -411,18 +424,18 @@ We can see that some of the categories perform quite well with just this
 heuristic while others do not.
 We analyzed the category of \verb|Indian_emigrants_to_the_United_Kingdom| in
 detail and found the following two sources of errors.
-\begin{enumerate}
+\begin{enumerate}[label=(\Alph*)]
 \item The descriptive features were not present in the text. For example, the
   entity \verb|Anurag_Dikshit| does not have features like \textit{british},
   \textit{uk}. Instead he lives in \textit{Gibraltar} which is a british
   principality. Essentially the relevant feature was missing.
-  We call this the \textit{type 1} error.
+  We call this the \textit{type A} error.
 \item Wrong descriptive features were chosen from the example entities.
-  We call the prescence of noisy features \textit{type 2} errors.
+  We call the prescence of noisy features \textit{type B} errors.
 \item The descriptive features were erroneously present in the text for the wrong
   entities. For example, the entity \textit{Nina\_Sudden} contains the words
   \textit{indian}, and \textit{british} even though she is not indian. These are
-  \textit{type 3} errors.
+  \textit{type C} errors.
 \end{enumerate}
 In the paper \verb|recovery.tex| we analyse \textit{type 1, 2} errors.
 
@@ -447,12 +460,16 @@ In the paper \verb|recovery.tex| we analyse \textit{type 1, 2} errors.
 Given the above results and the above analysis, how can we reduce each of these
 three types of errors?
 \begin{description}
-\item[Type 1 Error] Requires a very notion of query expansion which in turn
+\item[Type A Error] Requires a notion of query expansion which in turn
   requires a notion of word similarity. We can
   incorporate methods like feature expansion based on PPDB, or $k$-nn type
   methods based on a metric between; a set of bag of vectors and a bag of
   vectors.
-\item[Type 2 Error] We need to discard some of the features that are present in
+
+  Methods such as the kernel machine can alleviate such errors.
+  Such features can help reign in problems that arise due to a large tail of bad
+  rankings of relevant entries.
+\item[Type B Error] We need to discard some of the features that are present in
   the entities, even though they may be present in all of the examples.
   Essentially requires a prior on the types
   of features that can possibly be useful, which in turn requires a prior on the
@@ -461,17 +478,19 @@ three types of errors?
   keeping only those features that appear in a specified percentage of the
   entities are useful but what should one do if the wrong feature is present in
   all of the entities?
-\item[Type 3 Error] Two approaches can be used to reduce such errors.
+
+  One method is to predict the query relevance of a term. The simplest method for
+  doing so is the IDF heuristic which lowers the weight associated to terms that
+  are too common. This heuristic can be combined with the feature thresholding approach
+  to make tighter filters. For example we can filter out words that have high document
+  frequency.
+\item[Type C Error] Two approaches can be used to reduce such errors.
   First, better feature engineering can
   reduce these errors. For example, instead of using only tokens one can use
   tuples of features and dependency parses, that should reduce the false
-  occurrence of descriptive features in the wrong entities. Of course changing
-  the feature representation in this way can increase the type 1 errors, but it
-  should decrease the type 2 errors as well.
+  occurrence of descriptive features in the wrong entities.
 
-  The second method is to
-
-  A third method is to use a supervised learning technique such as learning to
+  The second method is to use a supervised learning technique such as learning to
   rank and then to learn the weights of features that are conjunctions of the
   original features. Or to learn \textit{VETO} features and to use them through
   a \textit{cascade of classifiers} based approach. Of course once we move to
@@ -487,7 +506,73 @@ three types of errors?
   University Press, pp. 420–445.
 \end{description}
 
+\begin{notebox}
+  \textbf{Plan Of Action}
+  We will first tackle Type B errors using IDF based method,
+  then Type C errors using the Parse tree based feature extraction,
+  then Type A errors using the embedding features.
+\end{notebox}
 
+\subsection{IDF Weighted Naive Bayes}
+\label{ssec:results-idf-weighted-naive}
+\begin{table}[htbp]
+  \centering
+\rowcolors{1}{}{lightgrey}
+  \begin{tabular}{r  c  c c }\toprule
+                 & Feature Selection (Top 20\%) & Feature Selection (Top 70\%) & Feature Selection (Top 60\%) \\
+MA-AUPR          &                         \\
+MA-Rand-AUPR     &                         \\
+MA-P-Top10       &                         \\
+MA-P-Top10-Rand  &                         \\
+MA-P-Top100      &                         \\
+MA-P-Top100-Rand &                         \\
+MA-MRR           &                         \\
+MA-Rand-MRR      &                         \\
+\bottomrule\end{tabular}
+  \caption{print 100\% Training. 100 Categories from Dev data.}
+  \label{tab:summary-idf-weighted-naive}
+\end{table}
+
+\subsection{Dependency Based Feature Extraction}
+\label{ssec:results-dependency}
+\begin{table}[htbp]
+  \centering
+\rowcolors{1}{}{lightgrey}
+  \begin{tabular}{r  c  c c }\toprule
+                 & Feature Selection (Top 20\%) & Feature Selection (Top 70\%) & Feature Selection (Top 60\%) \\
+MA-AUPR          &                         \\
+MA-Rand-AUPR     &                         \\
+MA-P-Top10       &                         \\
+MA-P-Top10-Rand  &                         \\
+MA-P-Top100      &                         \\
+MA-P-Top100-Rand &                         \\
+MA-MRR           &                         \\
+MA-Rand-MRR      &                         \\
+\bottomrule\end{tabular}
+  \caption{print 100\% Training. 100 Categories from Dev data.}
+  \label{tab:summary-dependency}
+\end{table}
+
+
+\subsection{Embedding Based Kernel Machine}
+\label{ssec:results-embedding-based-km}
+\begin{table}[htbp]
+  \centering
+\rowcolors{1}{}{lightgrey}
+  \begin{tabular}{r  c  c c }\toprule
+                 & Feature Selection (Top 20\%) & Feature Selection (Top 70\%) & Feature Selection (Top 60\%) \\
+MA-AUPR          &                         \\
+MA-Rand-AUPR     &                         \\
+MA-P-Top10       &                         \\
+MA-P-Top10-Rand  &                         \\
+MA-P-Top100      &                         \\
+MA-P-Top100-Rand &                         \\
+MA-MRR           &                         \\
+MA-Rand-MRR      &                         \\
+\bottomrule\end{tabular}
+  \caption{print 100\% Training. 100 Categories from Dev data.}
+  \label{tab:summary-embedding-based-km}
+\end{table}
 
 % \begin{table}[htbp]
 %   \centering
@@ -528,7 +613,7 @@ three types of errors?
 \section{To Do}
 \label{sec:todo}
 \begin{enumerate}
-\item I promised results with extra metrics.
+\item [X] I promised results with extra metrics.
 \item I promised experiments using kernel based aproach.
 \item I promised experiments using a leraning to rank appraoch.
 \item I promised to scale up the experiments.
