@@ -17,51 +17,6 @@ CLSP_DIR := /home/prastog3/projects/kbvn/src/humane_rec
 demo_emb:
 	./demonstrate_similarity_idea.emb.py
 
-# --------------------------------------------------- #
-# I need to tunnel from local -> clsp -> test1 -> r6n #
-# --------------------------------------------------- #
-
-curl_call: # tunnel
-	./curl_call.sh "Carly Fiorina, former CEO of Hewlett Packard, told the assembled troops Carly Fiorina, former CEO of Hewlett Packard, told the assembled troops."
-
-tunnel:
-	./multi_hop_tnl.sh prastog3@login.clsp.jhu.edu prastogi@test1.hltcoe.jhu.edu prastogi@r6n23
-
-# After getting the freebase id, filter these ids out from the cluweb data that
-# Xuchen had. There are 13217 files and 100 files take 23 seconds and creates
-# 145k lines with 43M data. A single thread will finish in one hour and create
-# 6 GB data.
-# md5sum data/cluweb_freebase_mentions_of_mids
-# fd1c29bbd17c5f9e993833cc3e826602 *data/cluweb_freebase_mentions_of_mids
-# This file is also backed up at
-# /export/projects/prastogi/kbvn/cluweb_freebase_mentions_of_mids
-CLUDIR := /export/common/data/processed/clueweb09-freebase-annotation/extractedAnnotation
-data/cluweb_freebase_mentions_of_mids: data/list_of_mid_to_extract
-	find $(CLUDIR) -name *.gz | xargs -I % zgrep -F -f data/list_of_mid_to_extract % > $@
-
-data/list_of_mid_to_extract: data/unique_human_entities_in_freebase
-	awk '{print $$2}' $< > $@
-
-data/unique_human_entities_in_freebase: data/unique_human_entities_wikidata_id
-	grep -v NOT_IN_FREEBASE $< > $@
-
-# 123 people are not in freebase.
-# But only 72 of those ar real. Rest 51 are names of things, not actual things.
-# grep -v name data/unique_human_entities_not_in_freebase
-# These include people like:
-# http://en.wikipedia.org/wiki/Heidi_Collins NOT_IN_FREEBASE
-# http://en.wikipedia.org/wiki/Martin_Savidge NOT_IN_FREEBASE
-# http://en.wikipedia.org/wiki/Leslie_L._Byrne NOT_IN_FREEBASE
-data/unique_human_entities_not_in_freebase: data/unique_human_entities_wikidata_id
-	grep NOT_IN_FREEBASE $< > $@
-
-data/unique_human_entities_wikidata_id: data/unique_human_entities
-	./unique_human_entities_wikidata_id.py \
-	  --human_entity_url_fn $< \
-	  --wikidata_to_freebase_id_fn ~/data/freebase_to_wikidata/freebase_to_wikidata.compressed \
-	  --shelf_fn data/unique_human_entities_wikidata_id.cache \
-	  --out_fn $@
-
 # -------------------------------------------------------------------------- #
 # ######################## EXPERIMENTS SECTION ############################# #
 # -------------------------------------------------------------------------- #
@@ -98,14 +53,6 @@ show_data_for_categories: data/list_of_wiki_link_entities
 
 data/list_of_wiki_link_entities: data/wiki_link_individual_mentions.pkl
 	python -c 'from __future__ import print_function; import cPickle as p; [print(k) for k in p.load(open("$<"))]' | sort > $@
-
-# Experiment 1 : Based on the descriptors for all the entities in
-# the categories, infer the commonalities between these people.
-
-# Experiment 2 : Rank the commonalities inferred either automatically
-# or manually to then rank the remaining entities.
-
-
 
 # -------------------------------------------------------------- #
 # - Don't Do BOW / Linguistic methods
@@ -155,9 +102,10 @@ get_stats_%: data/entity_descriptors_procoref~%.psv
 	cat $< \
 	 | awk '{printf "%d\n", NF-2; }'  \
 	 | python -c 'import sys; from numpy import histogram as h; (a,b) = h([int(_.strip()) for _ in list(sys.stdin)], [0, 5, 25, 125, 625, 3250]); print zip(zip(b[0:], b[1:]), a)'
-# --------------------------------------------------------------------------- #
-# ######################## Cat People Data Processing ####################### #
-# --------------------------------------------------------------------------- #
+
+# -------------------------- #
+# Cat People Data Processing #
+# -------------------------- #
 data/catpeople_baseline_nb.dev: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf data/cat-people-dev.fold.pkl
 	./catpeople_baseline_nb.py --in_shelf $< --fold_fn $(word 2,$+)
 
