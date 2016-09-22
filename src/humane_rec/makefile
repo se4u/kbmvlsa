@@ -9,11 +9,22 @@ default:
 echo_%:
 	echo $($*)
 CLSP_DIR := /home/prastog3/projects/kbvn/src/humane_rec
+CLSP_CATPEOPLE_DIR := /export/b15/prastog3
 ifeq ($(shell domainname),clsp)
-  CATPEOPLE_DIR := /export/b15/prastog3
+  CATPEOPLE_DIR := $(CLSP_CATPEOPLE_DIR)
 else
   CATPEOPLE_DIR := data
 endif
+
+
+rsync1:
+	rsync -avz *.py prastog3@b15:$(CLSP_DIR)/
+	rsync -avz makefile prastog3@b15:$(CLSP_DIR)/
+	rsync -avz data/cat-people-dev* prastog3@b15:$(CLSP_DIR)/data/
+
+rsync2:
+	rsync -avz prastog3@b15:$(CLSP_CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf* $(CATPEOPLE_DIR)/
+
 
 # --------- #
 # Reporting #
@@ -29,12 +40,20 @@ catpeople_statistics:
 # Cat People Experiments #
 # ---------------------- #
 data/performance_aggregator_%.pkl: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf data/cat-people-dev.fold.pkl
-	./catpeople_baseline_nb.py --in_shelf $< --fold_fn $(word 2,$+) --report_pkl_fn $@
+	echo ./catpeople_baseline_nb.py --report_pkl_fn $@ --df_lim 0.2
 
+show_step3_features:
+	./catpeople_baseline_nb.py   --evaluate 0 --show_step3_features 1 --df_lim 0.2
 
 # -------------------------- #
 # Cat People Data Processing #
 # -------------------------- #
+update_shelf: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
+	./catpeople_baseline_nb.py \
+	  --evaluate 0 \
+	  --update_shelf 1 \
+	  --in_shelf $(basename $<)
+
 $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf: $(CATPEOPLE_DIR)/catpeople_wikilink_mentions.shelf.dat
 	./catpeople_clean_segmented_context.py \
 	  --in_shelf $(basename $<) \

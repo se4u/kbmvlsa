@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Mon Sep 19 01:58:06 2016 (-0400)
-| Last-Updated: Mon Sep 19 02:01:16 2016 (-0400)
+| Last-Updated: Mon Sep 19 12:10:40 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 5
+|     Update #: 10
 '''
 from collections import defaultdict
 from rasengan.rank_metrics import average_precision
@@ -14,7 +14,7 @@ import random
 import numpy
 
 
-class PerformanceAggregator(object):
+class Performance_Aggregator(object):
 
     def __init__(self, args=None):
         self.record = defaultdict(list)
@@ -62,10 +62,18 @@ class PerformanceAggregator(object):
                     [cat, S_size, len(fold[0]), len(fold[1])]
                     + self.get_fold_stats(fold))
 
+    def fold_stats(self, add_cat=False):
+        if add_cat:
+            return [[cat, fold_idx] + self.get_fold_stats(fold)
+                    for cat in self.record
+                    for fold_idx, fold in enumerate(self.record[cat])]
+        else:
+            return [self.get_fold_stats(fold)
+                    for cat in self.record
+                    for fold in self.record[cat]]
+
     def __str__(self):
-        fold_stats = [self.get_fold_stats(fold)
-                      for cat in self.record
-                      for fold in self.record[cat]]
+        fold_stats = self.fold_stats()
         return ('(AUPR %.3f %.3f) (P@10 %.3f %.3f) (P@100 %.3f %.3f) '
                 '(MRR %.3f %.3f)') % tuple(
                     numpy.array(fold_stats).mean(axis=0).tolist())

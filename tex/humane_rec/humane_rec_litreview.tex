@@ -1,0 +1,252 @@
+\documentclass[14pt]{article}
+% ------ removeindent -------- %
+\setlength\parindent{0pt}
+% ------- number enumerate environment by letter --- %
+% \renewcommand{\labelenumi}{\alph{enumi}.}
+
+\title{Deep Frozen Recommendations}
+\author{Pushpendre}
+
+\begin{document}
+\maketitle
+\texttt{Keywords: Latent Topic, Cold Start, Ad Hoc Information Retrieval}
+
+https://github.com/lyst/lightfm
+https://github.com/elegans-io/cold-start-recommender
+Ask the GRU: Multi-Task Learning for Deep Text Recommendations
+We employed four data sets: Delicious, Lastfm, DBLP, and Movielens. The first
+two data sets were recommended as benchmark data sets for studying recommender
+systems by the 2011 HetRec conference1 .
+Cold Start Recommendations - Item Cold Start, without data from other users.
+Learning attribute-to-feature mappings for cold-start recommendations
+IR with Latent/Inferred query
+
+
+Triangulated Content based recommendations.
+
+Our problem is of the form of information retrieval with a latent query,
+where the query has to be inferred from a few documents that satisfy the query.
+It can also be considered as \textit{extreme cold-start for content based recommendation} where we are only
+given \textit{textual} clues that describe the items, a few examples of
+desirable items and we need to rank the rest of items by their
+likelihood of being desirable.
+
+Information Retrieval when the query in unknown.
+Content based filtering for the individual.
+HumaneRec: Human level Content based filtering with no other users and only the
+understanding of text.
+This is good for serving documents to small number of users in a company or a
+government organization. This tests the limits of text understanding.
+We don't use any data except for the text.
+
+Removing the training wheels; Are we there yet? Content based Recommendations with nothing but the text.
+
+quote from http://www.fxpal.com/publications/FXPAL-PR-06-383.pdf
+Although there are different approaches to learning a model of the user’s interest with
+content-based recommendation, no content-based recommendation system can give
+good recommendations if the content does not contain enough information to
+distinguish items the user likes from items the user doesn’t like. In recommending
+some items, e.g., jokes or poems, there often isn’t enough information in the word
+frequency to model the user’s interests. While it would be possible to tell a lawyer
+joke from a chicken joke based upon word frequencies, it would be difficult to
+distinguish a funny lawyer joke from other lawyer jokes. As a consequence, other
+recommendation technologies, such as collaborative recommenders [35], should be
+used in such situations.
+
+
+The Binding Concept: What's common between people?
+
+Content based recommendation with minimal supervision.
+
+The content-based approach to recommendation
+has its roots in the information retrieval (IR) community,
+and employs many of the same techniques.
+Text documents are recommended based on a comparison
+between their content and a user profile.
+
+
+When we contrast content-based and collaborative recommendations we need to be
+clear what we mean by the terms. Systems in industry and acedemia exist which
+combine elements of the two approaches, so it would be useful to define a
+``pure'' case of each. We consider a pure content based recommendation system to
+be one in which recommendations are made for a user based solely on a profile
+built up by analyzing the content of items which that user has rated in the
+past.
+ Examples of such systems are InfoFinder [5],
+NewsWeeder [6], and systems developed for the routing
+task at the TREC conferences [3].
+[3] Harman, D. Overview of the 3rd Text REtrieval Conference (TREC-3). In
+Proceedings of the 3rd Text REtrieval Conference (Gaithersburg, Md, Nov. 1994)
+[5] Krulwich, B., and Burkey, C. Learning user information interests through
+extraction of semantically significant phrases. In Proceedings of the AAAI
+Spring Symposium on Machine Learning in Information Access (Stanford, Calif.,
+March 1996).
+[6] Lang, K. Newsweeder: Learning to filter netnews. In Proceedings of the 12th
+International Conference on Machine Learning (Tahoe City, Calif.) 1995.
+
+A pure content-based system has several shortcomings.
+Generally, only a very shallow analysis of
+certain kinds of content can be supplied. In some
+domains the items are not amenable to any useful
+feature extraction methods with current technology
+(such as movies, music, restaurants). Even for text
+documents the representations capture only certain
+aspects of the content, and there are many others that
+would influence a user’s experience. For Web pages,
+for instance, IR techniques completely ignore aesthetic
+qualities, all multimedia information (including
+even text embedded in images), and network
+factors such as loading time.
+
+The problem is that many recommender systems are trained with data that anyway
+require large logs of user-item interaction, with that data is becomes painfully
+obvious that one should be using hybrid recommender systems. On the other hand,
+
+\begin{verbatim}
+ILP with positive only examples, randomly sampled negative, and properties (features) have their own distance metric
+Like ILP, a goal of ours is to have a concise rule, or concept definition, resulting from our query.
+https://en.m.wikipedia.org/wiki/Inductive_logic_programming
+\end{verbatim}
+
+ First, in ad hoc retrieval, we do not have any training examples
+available to guide the retrieval system for actively selecting
+the documents for feedback; the query is the only information that
+can be exploited.
+
+
+In a conventional information retrieval system,
+the documents in the collection remain relatively static
+while new queries are submitted to the system. This
+operational mode has been turned into ad-hoc retrieval
+in recent years, and become the most common for usertasks.
+In other words, the ad-hoc retrieval system is
+based on querying the information-items (documents)
+directly by the user and getting the relevant documents
+as a result to specified query. The most popular example
+of ad-hoc retrieval is the internet search engines.
+
+Ad-hoc is assumed to be dealing with the
+problem of helping a user to find information related to
+a current and specific problem. It attempts to represent
+current, rather than long term information needs.
+
+ A similar but distinct task is one in which the
+queries remain relatively static while a new document
+comes into the system (and leaves); stock-market and
+news wiring services are good examples of this task.
+This operational mode has been turned into filtering [3];
+formerly called SDI (selective dissemination of
+information) or current awareness [7]. However, users
+of this type of systems retrieve the relevant documents
+depending on a pre-defined information about user favorites.
+
+Filtering was one of the earliest application areas
+of mechanized IR.
+
+
+Learning and Revising User Profiles: The Identification of Interesting Web Sites
+
+\section{Work on Latent Topic Induction
+  From Queries}
+\label{sec:latent-topic}
+
+\section{Code Available}
+\label{sec:code-available}
+http://eugenelin89.github.io/recommender_content_based/
+
+
+https://github.com/learning-layers/TagRec
+
+
+I can use McCallum's code.
+
+Content-based recommendations with Poisson factorization
+http://github.premgopalan.com/collabtm.
+
+
+
+\begin{verbatim}
+# http://blog.untrod.com/2016/06/simple-similar-products-recommendation-engine-in-python.html
+
+# Comment
+index = similarities.MatrixSimilarity(tfidf[corpus]) # build dataset similarity matrix
+sims = index[a_vect] #calculate the query cosine similarity score. with others
+sims = sorted(enumerate(sims), key=lambda item: -item[1]) # sort
+\end{verbatim}
+
+https://bitbucket.org/mdekstrand/lenskit-error-analysis/
+http://mailman.cs.umn.edu/archives/lenskit/2014q4/000417.html
+
+LensKit has the tooling to let you build a content-based recommender. There are
+two ways to do this: Write new DAO components (e.g. an ItemInfoDAO) that allow
+your content-based components to get the content information, and then write
+your content-based algorithm. Second, Build a content-based model externally and
+write a thin LensKit wrapper around it.
+
+This package contains the scripts and sources to drive Michael Ekstrand and John
+Riedl's RecSys 2012 paper “When Recommenders Fail: Identifying and Predicting
+Recommender Failure for Evidence-Based Algorithm Selection and Combination”,
+
+
+
+
+Browsing and Keyword Based Profiles: A Cautionary Tale
+
+We can answer their problem
+Building user profiles can fail because of the following problem.
+
+\section{Overview of Trec}
+\label{sec:overview-trec}
+1. Machine Learning in Automated Text Categorization
+\url{http://arxiv.org/pdf/cs/0110053.pdf\%7C}
+A profile may be initially specified by the user, thereby resembling a standing
+IR query, and is updated by the system by using feedback information provided
+(either implicitly or explicitly) by the user on the relevance or non-relevance of the
+delivered messages. In the TREC community [Lewis 1995c] this is called adaptive
+filtering, while the case in which no user-specified profile is available is called either
+routing or batch filtering, depending on whether documents have to be ranked in
+decreasing order of estimated relevance or just accepted/rejected. Batch filtering
+thus coincides with single-label TC under |C| = 2 categories; since this latter is
+a completely general TC task some authors [Hull 1994; Hull et al. 1996; Schapire
+et al. 1998; Schutze et al. 1995], somewhat confusingly, use the term “filtering” in
+place of the more appropriate term “categorization”.
+
+2. A comparison of classifiers and document representations for the routing problem
+In this paper, we compare learning techniques based on statistical
+classification to traditional methods of relevance feedback for the
+document routing problem. We consider three classification techniques
+which have decision rules that are derived via explicit error
+minimization: linear discriminant analysis, logistic regression, and
+neural networks. We demonstrate that the classifiers perform 10-
+15\% better than relevance feedback via Rocchio expansion for the
+TREC-2 and TREC-3 routing tasks.
+Our results indicate that features based on latent semantic indexing
+are more effective for techniques such as linear discriminant analysis
+and logistic regression, which have no way to protect against
+overfitting. Neural networks perform equally well with either set of
+features and can take advantage of the additional information available
+when both feature sets are used as input.
+
+3. Combining Content and Collaboration in Text Filtering
+
+
+
+Overview of the 3rd TREC
+
+
+Overview of the 6th TREC
+
+
+The Trec-9 Filtering Track
+The TREC-9 Filtering Track Final Report
+
+
+Overview of Trec-2008 Enterprise Track
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
+
+\end{document}

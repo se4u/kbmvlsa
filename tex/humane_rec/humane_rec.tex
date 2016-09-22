@@ -213,6 +213,7 @@ method to incorporate such information into the NB model with bigram features.
 This method changes Step 3 of the Supervised Naive Bayes method and removes
 words that are too common from the recommendation criterion.
 
+We count the Document Frequency of a feature $f$ as $|\{C_e : f \in C_e\}|$.
 \subsection{Kernel Machine Baseline: Distance between Set of Bag of $n$-grams
   and Bag of $n$-grams}
 \label{sec:kernel-machine}
@@ -260,15 +261,15 @@ Select the set of features to construct the hypothesis but rank the articles to
 break ties by selecting the most matching $n$-gram for features that don't occur
 in the test bag.
 
-\subsection{Naive Bayes Baseline With Carefully Selected Descriptors}
-\label{ssec:baseline-wsim}
+% \subsection{Naive Bayes Baseline With Carefully Selected Descriptors}
+% \label{ssec:baseline-wsim}
 
 
-\subsection{Supervised Naive Bayes Baseline With Embeddings and Veto}
-\label{ssec:baseline-wsim-veto}
+% \subsection{Supervised Naive Bayes Baseline With Embeddings and Veto}
+% \label{ssec:baseline-wsim-veto}
 
-\subsection{Post Token Embedding Instantiation}
-\label{ssec:method-tokenemb}
+% \subsection{Post Token Embedding Instantiation}
+% \label{ssec:method-tokenemb}
 
 \section{The Cat-People Dataset}
 \label{sec:cat-people-dataset}
@@ -518,16 +519,16 @@ three types of errors?
 \begin{table}[htbp]
   \centering
 \rowcolors{1}{}{lightgrey}
-  \begin{tabular}{r  c  c c }\toprule
-                 & Feature Selection (Top 20\%) & Feature Selection (Top 70\%) & Feature Selection (Top 60\%) \\
-MA-AUPR          &                         \\
-MA-Rand-AUPR     &                         \\
-MA-P-Top10       &                         \\
-MA-P-Top10-Rand  &                         \\
-MA-P-Top100      &                         \\
-MA-P-Top100-Rand &                         \\
-MA-MRR           &                         \\
-MA-Rand-MRR      &                         \\
+  \begin{tabular}{r  c}\toprule
+                 & Feature Selection (Top 70\%) \\
+MA-AUPR          & 0.250                        \\
+MA-Rand-AUPR     & 0.013                        \\
+MA-P-Top10       & 0.177                        \\
+MA-P-Top10-Rand  & 0.008                        \\
+MA-P-Top100      & 0.048                        \\
+MA-P-Top100-Rand & 0.008                        \\
+MA-MRR           & 0.383                        \\
+MA-Rand-MRR      & 0.009                        \\
 \bottomrule\end{tabular}
   \caption{print 100\% Training. 100 Categories from Dev data.}
   \label{tab:summary-idf-weighted-naive}
@@ -538,8 +539,8 @@ MA-Rand-MRR      &                         \\
 \begin{table}[htbp]
   \centering
 \rowcolors{1}{}{lightgrey}
-  \begin{tabular}{r  c  c c }\toprule
-                 & Feature Selection (Top 20\%) & Feature Selection (Top 70\%) & Feature Selection (Top 60\%) \\
+  \begin{tabular}{r  c   }\toprule
+                 & Feature Selection (Top 70\%) \\
 MA-AUPR          &                         \\
 MA-Rand-AUPR     &                         \\
 MA-P-Top10       &                         \\
@@ -559,8 +560,8 @@ MA-Rand-MRR      &                         \\
 \begin{table}[htbp]
   \centering
 \rowcolors{1}{}{lightgrey}
-  \begin{tabular}{r  c  c c }\toprule
-                 & Feature Selection (Top 20\%) & Feature Selection (Top 70\%) & Feature Selection (Top 60\%) \\
+  \begin{tabular}{r c }\toprule
+                 & Feature Selection (Top 70\%) \\
 MA-AUPR          &                         \\
 MA-Rand-AUPR     &                         \\
 MA-P-Top10       &                         \\
