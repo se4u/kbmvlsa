@@ -4,11 +4,19 @@
 | Description : Test the identification of descriptors.
 | Author      : Pushpendre Rastogi
 | Created     : Fri Aug  5 14:55:58 2016 (-0400)
-| Last-Updated: Fri Aug  5 15:20:41 2016 (-0400)
+| Last-Updated: Sun Sep 25 00:28:21 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 9
+|     Update #: 12
 '''
-l = [[0, 15],
+l = [
+[0],
+     '''1	Carly	_	NOUN	NNP	_	5	nsubj	_	_
+2	is	_	VERB	VBZ	_	5	cop	_	_
+3	an	_	DET	DT	_	5	det	_	_
+4	honest	_	ADJ	JJ	_	5	amod	_	_
+5	executive	_	NOUN	NN	_	0	ROOT	_	_
+     6	.	_	.	.	_	5	punct	_	_''',
+    [0, 15],
      '''
 1	Her	_	PRON	PRP$	_	3	poss	_	_
 2	new	_	ADJ	JJ	_	3	amod	_	_
@@ -34,13 +42,6 @@ l = [[0, 15],
 22	of	_	ADP	IN	_	21	prep	_	_
 23	the	_	DET	DT	_	24	det	_	_
      24	time	_	NOUN	NN	_	22	pobj	_	_''',
-     [0],
-     '''1	Carly	_	NOUN	NNP	_	5	nsubj	_	_
-2	is	_	VERB	VBZ	_	5	cop	_	_
-3	an	_	DET	DT	_	5	det	_	_
-4	honest	_	ADJ	JJ	_	5	amod	_	_
-5	executive	_	NOUN	NN	_	0	ROOT	_	_
-     6	.	_	.	.	_	5	punct	_	_''',
      [1],
      '''1	That	_	ADP	IN	_	5	nsubjpass	_	_
 2	Carly	_	NOUN	NNP	_	3	nsubj	_	_
@@ -253,7 +254,7 @@ l = [[0, 15],
 7	Fiorina	_	NOUN	NNP	_	4	dobj	_	_
 8	and	_	CONJ	CC	_	7	cc	_	_
 9	Michael	_	NOUN	NNP	_	10	nn	_	_
-10	'Curly	_	ADV	RB	_	12	poss	_	_
+10	Curly	_	ADV	RB	_	12	poss	_	_
 11	'	_	PRT	POS	_	10	possessive	_	_
 12	Capellas	_	NOUN	NNS	_	7	conj	_	_
 13	for	_	ADP	IN	_	12	prep	_	_
@@ -425,13 +426,15 @@ l = [[0, 15],
 13	of	_	ADP	IN	_	12	prep	_	_
 14	Hewlett-Packard	_	NOUN	NNP	_	13	pobj	_	_
 15	.	_	.	.	_	4	punct	_	_''']
-from rasengan import entity_descriptors
 
 
-def f(p):
-    return [_.strip().split('\t') for _ in p.strip().split('\n')]
+if __name__ == '__main__':
 
-for (a, b) in zip(l[::2], l[1::2]):
-    c = entity_descriptors(a, f(b), debug_print=True)
-    if len(a) == 0:
-        assert len(c) == 0
+    from rasengan import entity_descriptors
+    def f(p):
+        return [_.strip().split('\t') for _ in p.strip().split('\n')]
+
+    for (a, b) in zip(l[::2], l[1::2]):
+        c = entity_descriptors(a, f(b), debug_print=True)
+        if len(a) == 0:
+            assert len(c) == 0

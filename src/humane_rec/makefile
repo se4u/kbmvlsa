@@ -45,6 +45,11 @@ data/performance_aggregator_%.pkl: $(CATPEOPLE_DIR)/catpeople_clean_segmented_co
 show_step3_features:
 	./catpeople_baseline_nb.py   --evaluate 0 --show_step3_features 1 --df_lim 0.2
 
+
+
+experiment_univec:
+	./catpeople_experiment.py --config 1
+
 # -------------------------- #
 # Cat People Data Processing #
 # -------------------------- #
@@ -53,6 +58,41 @@ update_shelf: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
 	  --evaluate 0 \
 	  --update_shelf 1 \
 	  --in_shelf $(basename $<)
+
+unigram: $(CATPEOPLE_DIR)/catpeople_pp_0
+univec: $(CATPEOPLE_DIR)/catpeople_pp_1
+dsctok: $(CATPEOPLE_DIR)/catpeople_pp_4
+
+$(CATPEOPLE_DIR)/catpeople_pp_%: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
+	./catpeople_preprocessor.py --in_shelf $(basename $<) --config $*
+
+$(CATPEOPLE_DIR)/catpeople.parse.pkl: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat $(CATPEOPLE_DIR)/catpeople.parse.gz
+	./catpeople_preprocessor_parses_to_pkl.py \
+	  --in_shelf $(basename $<) \
+	  --parsefn $(word 2,$+) \
+	  --parse_pkl $@
+
+$(CATPEOPLE_DIR)/catpeople.parse.gz:
+	rsync -v r6n23:~/data/catpeople.parse.gz*  $(CATPEOPLE_DIR)/
+	rsync -v r6n25:~/data/catpeople.parse.gz*  $(CATPEOPLE_DIR)/
+	zcat $(CATPEOPLE_DIR)/catpeople.parse.gz[0123] | gzip > $@
+
+commands_to_run:
+	ssh r6n23 'nohup ~/data/catpeople_parser.sh 0 >&- 2>&- <&- &'
+	ssh r6n23 'nohup ~/data/catpeople_parser.sh 1 >&- 2>&- <&- &'
+	ssh r6n25 'nohup ~/data/catpeople_parser.sh 2 >&- 2>&- <&- &'
+	ssh r6n25 'nohup ~/data/catpeople_parser.sh 3 >&- 2>&- <&- &'
+
+deploy_catpeople.conll:
+	rsync -v /export/b15/prastog3/catpeople.conll.gz0 r6n23:~/data/
+	rsync -v /export/b15/prastog3/catpeople.conll.gz1 r6n23:~/data/
+	rsync -v catpeople_parser.sh r6n23:~/data/
+	rsync -v /export/b15/prastog3/catpeople.conll.gz2 r6n25:~/data/
+	rsync -v /export/b15/prastog3/catpeople.conll.gz3 r6n25:~/data/
+	rsync -v catpeople_parser.sh r6n25:~/data/
+
+$(CATPEOPLE_DIR)/catpeople.conll.gz: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
+	./catpeople_preprocessor.py --print_to_conll 1 --in_shelf $(basename $<)  --out_fn $@
 
 $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf: $(CATPEOPLE_DIR)/catpeople_wikilink_mentions.shelf.dat
 	./catpeople_clean_segmented_context.py \

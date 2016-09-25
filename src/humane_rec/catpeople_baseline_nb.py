@@ -4,9 +4,9 @@
 | Description : The Baseline NB experiment.
 | Author      : Pushpendre Rastogi
 | Created     : Sun Sep  4 18:32:35 2016 (-0400)
-| Last-Updated: Thu Sep 22 00:07:21 2016 (-0400)
+| Last-Updated: Fri Sep 23 14:06:21 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 343
+|     Update #: 346
 This script implements the NB baseline described in Section 3.1 of the humane_rec paper.
 '''
 import random
@@ -17,14 +17,15 @@ from math import log
 import argparse
 import sys
 from shelve import DbfilenameShelf
+from performance_aggregator import Performance_Aggregator
 import cPickle as pkl
 import rasengan
 from rasengan import TokenMapper
 from collections import defaultdict
-from performance_aggregator import Performance_Aggregator
 import catpeople_baseline_nb_config
 from textual_clue import TextualClueObject
 from util_catpeople import get, minus, remove_unigrams, remove_bigrams, color
+import util_catpeople
 from fabulous.color import fg256
 
 
@@ -138,11 +139,7 @@ def setup():
     E = url_mention['__URL_LIST__']
     DF = url_mention['__DF__']
     cat_folds = pkl.load(open(args.fold_fn))
-    cat2url = dict((caturl_group[0].split()[0],
-                    [e.strip().split()[1] for e in caturl_group])
-                   for caturl_group
-                   in rasengan.groupby(args.cat2url_fn,
-                                       predicate=lambda x: x.split()[0]))
+    cat2url = util_catpeople.load_cat2url(args.cat2url_fn)
     performance_aggregator = Performance_Aggregator(args=args)
     return (url_mention, TM, E, cat_folds, cat2url, performance_aggregator, DF)
 
@@ -273,10 +270,7 @@ def read_report(report_pkl_fn):
 
 def main():
     global args
-    import os
-    PFX = ('/export/b15/prastog3'
-           if os.uname()[1] == 'b15'
-           else 'data')
+    PFX = util_catpeople.get_pfx()
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument(
         '--seed', default=0, type=int, help='Default={0}')
