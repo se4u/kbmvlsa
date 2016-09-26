@@ -4,9 +4,9 @@
 | Description : The Experiment Loop
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 23 13:05:58 2016 (-0400)
-| Last-Updated: Mon Sep 26 02:11:51 2016 (-0400)
+| Last-Updated: Mon Sep 26 14:29:42 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 106
+|     Update #: 148
 '''
 import argparse
 import random
@@ -51,13 +51,13 @@ def sparse_multiply(a, b):
     # accidentally blow up the memory.
     assert a.shape == b.shape
     if a.shape[0] == 1:
-       a1 = a.shape[1]
-       return b * scipy.sparse.spdiags(a, 0, a1, a1)
+        a1 = a.shape[1]
+        return b * scipy.sparse.spdiags(a, 0, a1, a1)
     elif a.shape[1] == 1:
-       a0 = a.shape[0]
-       return scipy.sparse.spdiags(a, 0, a0, a0) * b
+        a0 = a.shape[0]
+        return scipy.sparse.spdiags(a, 0, a0, a0) * b
     else:
-       raise ValueError((a,b))
+        raise ValueError((a,b))
 
 def sparse_log1p(a):
     assert isinstance(a, numpy.matrixlib.defmatrix.matrix)
@@ -68,13 +68,13 @@ class ExperimentRunner(object):
     def is_malignull(self):
         return self.exp_prefix_is(MALIGNER) and self.expcfg.introduce_NULL_embedding
 
-    def __init__(self, datacfg, ppcfg, ppcfg_idx, expcfg):
+    def __init__(self, datacfg, ppcfg, expcfg):
         # Init Part 0
         self.datacfg = datacfg
         self.ppcfg = ppcfg
         self.expcfg = expcfg
         self.pa = Aggregator(
-                datacfg=datacfg, ppcfg=ppcfg, expcfg=expcfg)
+            datacfg=datacfg, ppcfg=ppcfg, expcfg=expcfg)
 
         with rasengan.tictoc('Init Part 1 : The Datacfg'):
             self.cp = DbfilenameShelf(
@@ -162,29 +162,28 @@ class ExperimentRunner(object):
                 l.append(ci)
         return l
 
+    def call_impl(self, cat, train_idx, test_idx):
+        with rasengan.tictoc('Fitting'):            # 2.1s
+            self.fit(self.smat[train_idx], train_idx=train_idx)
+        self.smat = self.smat.tocsr()
+        with rasengan.tictoc('Prediction'):         # 20s
+            scores = self.score(self.smat)
+        self.pa(cat, scores, train_idx, test_idx)
+
     def __call__(self):
+        print 'Total=', len(list(self.fold_iterator()))
         for cat, (train_idx, test_idx) in self.fold_iterator():
-            self.fit(self.smat[train_idx], train_idx=train_idx) # Fit
-            import pdb; pdb.set_trace()
-            E = self.smat.shape[0]
-            S = set(train_idx + test_idx)
-            # This should take time only once in the first fold.
-            # After that we should not have to change self.smat
-            # to any other format.
-            self.smat = self.smat.tocsr()
-            scores = self.score(self.smat) # Train Accuracy
-            # Collect Results
-            self.pa(cat, scores, train_idx, test_idx)
+            self.call_impl(cat, train_idx, test_idx)
         return
 
-
-    def get_top_occurring_col(self, mat, pct, reverse=False):
+    @staticmethod
+    def get_top_occurring_col(mat, pct, reverse=False):
         colsum = mat.sum(axis=0)
         assert colsum.shape == (1, mat.shape[1])
         entities = mat.shape[0]
         threshold = (pct * entities)/100.0
         if reverse:
-           return (colsum < threshold).nonzero()[1]
+            return (colsum < threshold).nonzero()[1]
         else:
             return (colsum >= threshold).nonzero()[1]
 
@@ -245,7 +244,7 @@ class ExperimentRunner(object):
 
     def extract_mode(self, problem, assignment):
         assert self.expcfg.malign_method == 'fast_align'
-        assert self.expcfg.kernel == 'cosine'
+        assert self.expcfg.malign_kernel == 'cosine'
         return maligner.fast_relax(problem, assignment, self.expcfg)
 
 
@@ -260,55 +259,125 @@ class ExperimentRunner(object):
             raise NotImplementedError()
         else:
             raise NotImplementedError()
-        if self.expcfg.l2r:
+        if self.expcfg.learn2rank:
             raise NotImplementedError()
         return
 
     def score(self, mat):
         if self.exp_prefix_is(NBDISCRT):
-            self.score_nb(mat)
+            return self.score_nb(mat)
         if self.exp_prefix_is(NBKERNEL):
-            self.score_nbkernel(mat)
+            return self.score_nbkernel(mat)
         elif self.exp_prefix_is(MALIGNER):
-            self.score_malign(mat)
+            return self.score_malign(mat)
         elif self.exp_prefix_is(KERMACH):
-            self.score_kernelmachine(mat)
-        else:
-            raise NotImplementedError()
-        return
+            return self.score_kernelmachine(mat)
+
+        raise NotImplementedError()
 
     def score_nb(self, mat):
-        pass
+        '''
+        mat : Is a matrix of features that each document corresponds to.
+        It may be real valued weights of unigrams or binary occurrences of
+        bigrams.
+
+        The output is a list of floats, one float for each row in the matrix.
+        '''
+        w = self.token_weight
+        return [sparse_multiply(mat[i], w).sum()
+                for i in xrange(mat.shape[0])]
 
     def score_nbkernel(self, mat):
-        pass
+        scorer = self.get_nbkernel_scorer()
+        return [scorer(mat[i]) for i in xrange(mat.shape[0])]
 
     def score_malign(self, mat):
-        pass
+        scorer = self.get_malign_scorer()
+        return [scorer(mat[i]) for i in xrange(mat.shape[0])]
 
     def score_kernelmachine(self, mat):
-        pass
+        scorer = self.get_kernelmachine_scorer()
+        return [scorer(mat[i]) for i in xrange(mat.shape[0])]
+
+    def get_nbkernel_scorer(self):
+
+        def scorer(row):
+            return score
+
+        return scorer
+
+    def get_kernelmachine_scorer(self):
+
+        def scorer(row):
+            return score
+
+        return scorer
+
+    def get_malign_scorer(self):
+        if self.expcfg.aggfn == 'avg':
+            vectors = []
+            if len(self.topics):
+                for tpc in self.topics:
+                    if isinstance(tpc, dict):
+                        tpc = tpc.values()
+                    elif isinstance(tpc, list):
+                        pass
+                    else:
+                        raise NotImplementedError(tpc)
+                    vectors.append(sum(self.vectors[i] for i in tpc) / len(tpc))
+            else:
+                vectors = 0
+            vectors = np.array(vectors)
+            assert vectors.shape[0] == len(self.topics)
+        else:
+            raise ValueError(self.expcfg.aggfn)
+
+        def scorer(row):
+            score = 0.0
+            columns = list(row.nonzero()[1])
+            if self.expcfg.kernel == 'vanilla':
+                # Score = average over score of each topic.
+                # Score of each topic = best score of topic with any token.
+                score = np.dot(vectors, self.vectors[columns].T).max(axis=1).mean()
+                # Score = average over score of each token.
+                # Score of each topic = best score of topic with any token.
+                # score = np.dot(vectors, self.vectors[columns].T).max(axis=0).mean()
+                # ------------------------------ #
+                # SLOW VERSION OF THE ABOVE CODE #
+                # ------------------------------ #
+                # for col in columns:
+                #     vec = self.vectors[col]
+                #     s = np.dot(vectors, vec).max()
+                #     score += s
+                return score
+            elif self.expcfg.kernel == 'l2':
+                raise NotImplementedError(self.expcfg.kernel)
+            else:
+                raise NotImplementedError(self.expcfg.kernel)
+
+        return scorer
 
     def fold_iterator(self):
         for cat, folds in self.cat_folds.iteritems():
             url_in_cat = self.cat2url[cat]
             mapper = lambda lst : [self.url_to_idx[url_in_cat[i]] for i in lst]
-            for fold in folds:
-                yield cat, (mapper(fold[0]), mapper(fold[1]))
+            for fold_idx, fold in enumerate(folds):
+                if fold_idx in self.expcfg.folds:
+                    yield cat, (mapper(fold[0]), mapper(fold[1]))
+            break
 
     def report(self):
         print self.pa
 
     def save_results(self, fn=None):
         if fn is None:
-           fn = args.out_pkl_fn
+            fn = args.out_pkl_fn
         pkl.dump(self.pa, open(fn, 'wb'))
 
 def main():
     rnr = ExperimentRunner(
         datacfg=DATACONFIG,
         ppcfg=CONFIG[args.ppcfg],
-        ppcfg_idx=args.ppcfg,
         expcfg=EXPCONFIG[args.expcfg],)
     rnr()
     rnr.save_results(fn=args.out_pkl_fn)
@@ -324,7 +393,8 @@ if __name__ == '__main__':
     random.seed(args.seed)
     np.random.seed(args.seed)
     if args.out_pkl_fn is None:
-        args.out_pkl_fn = (uc.get_pfx()
+        args.out_pkl_fn = (
+            uc.get_pfx()
             + 'catpeople_experiment.ppcfg~%d.expcfg~%d.pkl'%(args.ppcfg, args.expcfg))
     with rasengan.debug_support():
         main()

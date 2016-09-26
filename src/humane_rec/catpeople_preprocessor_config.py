@@ -31,18 +31,20 @@ NBKERNEL = 'NBKERNEL'
 KERMACH  = 'KERMACH'
 MALIGNER = 'MALIGNER'
 def expconfig_maker(name, **kwargs):
-    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=50)
+    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=50, learn2rank=False, folds=(0,))
     if name == NBKERNEL:
         defaults.update(dict(kernel='cosine'))
     if name == MALIGNER:
         defaults.update(dict(
-            kernel='cosine',
+            kernel='vanilla',
+            malign_kernel='cosine',
+            aggfn='avg',
             skim_pct=80,
             malign_method='fast_align',
             node_pick_policy=Sequential_Policy(),
             has_converged=Fixed_Iter_Convergence(50),
             respect_initial_assignment_for_initializing_beliefs=False,
-            verbose = True,
+            verbose = False,
             introduce_NULL_embedding = True,
             NULL_KEY = '--NULL--',
             scale_to_unit = True,

@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Mon Sep 19 01:58:06 2016 (-0400)
-| Last-Updated: Mon Sep 26 00:42:24 2016 (-0400)
+| Last-Updated: Mon Sep 26 15:20:21 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 17
+|     Update #: 24
 '''
 from collections import defaultdict
 from rasengan.rank_metrics import average_precision
@@ -36,7 +36,7 @@ class Aggregator(object):
         self.expcfg =  expcfg
 
     def __call__(self, cat, scores, train_idx, test_idx):
-        self.record[cat].append(scores, set(train_idx), set(test_idx))
+        self.record[cat].append([scores, set(train_idx), set(test_idx)])
         pass
 
     def convert(self, scores, keep, remove):
@@ -44,10 +44,7 @@ class Aggregator(object):
         for idx, s in enumerate(scores):
             if idx in remove:
                 pass
-            elif idx in keep:
-                ret.append(s, 1)
-            else:
-                ret.append(s, 0)
+            ret.append([s, int(idx in keep)])
         ret.sort(key=lambda x: x[0], reverse=True)
         return [e[1] for e in ret]
 
@@ -67,7 +64,10 @@ class Aggregator(object):
                     ranking_stats(self.convert(scores, keep=train_idx, remove=test_idx)))
                 test_fold_stats.append(
                     ranking_stats(self.convert(scores, keep=test_idx, remove=train_idx)))
-        return '\n'.join(self.stat_repr(train_fold_stats), self.stat_repr(test_fold_stats))
+        return '\n'.join(['--Train--',
+                          self.stat_repr(train_fold_stats),
+                          '--Test--',
+                          self.stat_repr(test_fold_stats)])
 
 
 
