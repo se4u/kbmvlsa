@@ -45,10 +45,9 @@ data/performance_aggregator_%.pkl: $(CATPEOPLE_DIR)/catpeople_clean_segmented_co
 show_step3_features:
 	./catpeople_baseline_nb.py   --evaluate 0 --show_step3_features 1 --df_lim 0.2
 
-
-
-experiment_univec:
-	./catpeople_experiment.py --config 1
+xp:
+	./catpeople_experiment.py --ppcfg 1 --expcfg 200;
+	./catpeople_experiment.py --ppcfg 1 --expcfg 300;
 
 # -------------------------- #
 # Cat People Data Processing #
@@ -58,6 +57,9 @@ update_shelf: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
 	  --evaluate 0 \
 	  --update_shelf 1 \
 	  --in_shelf $(basename $<)
+allpp:
+	for n in 0 1 4 7 8 11; do \
+	  $(MAKE) $(CATPEOPLE_DIR)/catpeople_pp_$$n; done
 
 unigram: $(CATPEOPLE_DIR)/catpeople_pp_0
 univec: $(CATPEOPLE_DIR)/catpeople_pp_1

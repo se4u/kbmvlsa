@@ -2,8 +2,10 @@
 from rasengan import NamespaceLite
 from functools import partial
 import os
-PROJECT_PATH = [('/export/b15/prastog3' if os.uname()[1] == 'b15' else 'data'),
-                '~/data/embedding/']
+from catpeople_maligner_config_helper import Sequential_Policy, Fixed_Iter_Convergence
+PROJECT_PATH = [('/export/b15/prastog3/' if os.uname()[1] == 'b15' else 'data/'),
+                '~/data/embedding/',
+                'data/']
 UNIGRAM   = 'UNIGRAM'
 UNIVEC    = 'UNIVEC'
 BIGRAM    = 'BIGRAM'
@@ -14,6 +16,37 @@ DSCTOKVEC = 'DSCTOKVEC'
 
 def config_maker(name, **kwargs):
     defaults = dict(only_entity_bearer=True, binarize_counts=True)
+    for (k,v) in defaults.iteritems():
+        if k not in kwargs:
+            kwargs[k] = v
+    return NamespaceLite(name, **kwargs)
+
+DATACONFIG = NamespaceLite('Data',
+                       fold_fn='cat-people-dev.fold.pkl',
+                       cat2url_fn='cat-people-dev',
+                       cp_fn='catpeople_clean_segmented_context.shelf')
+
+NBDISCRT = 'NBDISCRT'
+NBKERNEL = 'NBKERNEL'
+KERMACH  = 'KERMACH'
+MALIGNER = 'MALIGNER'
+def expconfig_maker(name, **kwargs):
+    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=50)
+    if name == NBKERNEL:
+        defaults.update(dict(kernel='cosine'))
+    if name == MALIGNER:
+        defaults.update(dict(
+            kernel='cosine',
+            skim_pct=80,
+            malign_method='fast_align',
+            node_pick_policy=Sequential_Policy(),
+            has_converged=Fixed_Iter_Convergence(50),
+            respect_initial_assignment_for_initializing_beliefs=False,
+            verbose = True,
+            introduce_NULL_embedding = True,
+            NULL_KEY = '--NULL--',
+            scale_to_unit = True,
+            mode_count=5,))
     for (k,v) in defaults.iteritems():
         if k not in kwargs:
             kwargs[k] = v
@@ -35,36 +68,41 @@ CONFIG = {
     11: config_maker(DSCTOK   , only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
     12: config_maker(DSCSUF   , only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
     13: config_maker(DSCTOKVEC, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl', parsefn='catpeople.parse.pkl'),
+    ## Dont Binarize Counts
+    14: config_maker(UNIGRAM   , binarize_counts=False, ),
+    15: config_maker(UNIVEC    , binarize_counts=False, vecfn='combined_embedding_0.emb.pkl'),
+    16: config_maker(BIGRAM    , binarize_counts=False, ),
+    17: config_maker(BIVEC     , binarize_counts=False, vecfn='combined_embedding_0.emb.pkl', aggfn='avg'),
+    18: config_maker(DSCTOK    , binarize_counts=False, parsefn='catpeople.parse.pkl'),
+    19: config_maker(DSCSUF    , binarize_counts=False, parsefn='catpeople.parse.pkl'),
+    20: config_maker(DSCTOKVEC , binarize_counts=False, vecfn='combined_embedding_0.emb.pkl', parsefn=''),
+    # Switch entity bearer to False
+    21: config_maker(UNIGRAM   , binarize_counts=False, only_entity_bearer=False, ),
+    22: config_maker(UNIVEC    , binarize_counts=False, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl'),
+    23: config_maker(BIGRAM    , binarize_counts=False, only_entity_bearer=False, ),
+    24: config_maker(BIVEC    , binarize_counts=False, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl', aggfn='avg'),
+    25: config_maker(DSCTOK   , binarize_counts=False, only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
+    26: config_maker(DSCSUF   , binarize_counts=False, only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
+    27: config_maker(DSCTOKVEC, binarize_counts=False, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl', parsefn='catpeople.parse.pkl'),
 }
-
-
-DATACONFIG = NamespaceLite('Data',
-                       fold_fn='cat-people-dev.fold.pkl',
-                       cat2url_fn='cat-people-dev',
-                       cp_fn='catpeople_clean_segmented_context.shelf')
-
-NB       = 'NB'
-NBKERNEL = 'NBKERNEL'
-KERMACH  = 'KERMACH'
-MALIGNER = 'MALIGNER'
-def expconfig_maker(name, **kwargs):
-    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=70, kernel='cosine')
-    for (k,v) in defaults.iteritems():
-        if k not in kwargs:
-            kwargs[k] = v
-    return NamespaceLite(name, **kwargs)
 
 EXPCONFIG = {
-    0: expconfig_maker(NB, ),
-    1: expconfig_maker(NB, rm_fn_word=False),
-    2: expconfig_maker(NB, top_token_pct=0),
-    3: expconfig_maker(NBKERNEL, ),
-    4: expconfig_maker(NBKERNEL, kernel='l2'),
-    5: expconfig_maker(KERMACH, kernel='rada'),
-    6: expconfig_maker(KERMACH, kernel='se'),
-    7: expconfig_maker(MALIGNER, ),
+    # NBDISCRT < 100
+    0: expconfig_maker(NBDISCRT, ),
+    1: expconfig_maker(NBDISCRT, rm_fn_word=False),
+    2: expconfig_maker(NBDISCRT, top_token_pct=0),
+    3: expconfig_maker(NBDISCRT, weight_method='log(1+tc)/df'),
+    # 100 < NBKERNEL < 200
+    100: expconfig_maker(NBKERNEL, ),
+    101: expconfig_maker(NBKERNEL, weight_method='log(1+tc)/df'),
+    # 200 < KERMACH < 300
+    200: expconfig_maker(KERMACH, kernel='rada'),
+    201: expconfig_maker(KERMACH, kernel='se'),
+    # 300 < MALIGNER
+    300: expconfig_maker(MALIGNER, ),
+    301: expconfig_maker(MALIGNER, top_token_pct=0),
+    302: expconfig_maker(MALIGNER, top_token_pct=0, skim_pct=0),
 }
-
 
 
 if __name__ == '__main__':
