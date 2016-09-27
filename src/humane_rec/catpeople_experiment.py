@@ -4,9 +4,9 @@
 | Description : The Experiment Loop
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 23 13:05:58 2016 (-0400)
-| Last-Updated: Mon Sep 26 14:29:42 2016 (-0400)
+| Last-Updated: Tue Sep 27 00:38:01 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 148
+|     Update #: 179
 '''
 import argparse
 import random
@@ -24,6 +24,7 @@ from pandas import DataFrame
 import maligner
 import rasengan
 import numpy.matrixlib.defmatrix
+import itertools
 
 
 def prefix(cfg, lst):
@@ -45,19 +46,18 @@ def set_column_of_sparse_matrix_to_zero(smat, col_idi):
     return smat
 
 def sparse_multiply(a, b):
-    assert isinstance(a, numpy.matrixlib.defmatrix.matrix)
-    assert isinstance(b, numpy.matrixlib.defmatrix.matrix)
-    # Only for this type do I have a guarantee that I wont
-    # accidentally blow up the memory.
     assert a.shape == b.shape
-    if a.shape[0] == 1:
-        a1 = a.shape[1]
-        return b * scipy.sparse.spdiags(a, 0, a1, a1)
-    elif a.shape[1] == 1:
-        a0 = a.shape[0]
-        return scipy.sparse.spdiags(a, 0, a0, a0) * b
-    else:
-        raise ValueError((a,b))
+    if isinstance(a, numpy.matrixlib.defmatrix.matrix):
+        if a.shape[0] == 1:
+            a1 = a.shape[1]
+            return b * scipy.sparse.spdiags(a, 0, a1, a1)
+        elif a.shape[1] == 1:
+            a0 = a.shape[0]
+            return scipy.sparse.spdiags(a, 0, a0, a0) * b
+        else:
+            raise ValueError((a,b))
+    elif (scipy.sparse.isspmatrix_csr(a) or scipy.sparse.isspmatrix_csc(a)):
+        return a.multiply(b)
 
 def sparse_log1p(a):
     assert isinstance(a, numpy.matrixlib.defmatrix.matrix)
@@ -73,14 +73,13 @@ class ExperimentRunner(object):
         self.datacfg = datacfg
         self.ppcfg = ppcfg
         self.expcfg = expcfg
-        self.pa = Aggregator(
-            datacfg=datacfg, ppcfg=ppcfg, expcfg=expcfg)
 
         with rasengan.tictoc('Init Part 1 : The Datacfg'):
             self.cp = DbfilenameShelf(
                 r'%s/%s'%(uc.get_pfx(),self.datacfg.cp_fn),
                 protocol=-1,
                 flag='r')
+            self.url_list = self.cp['__URL_LIST__']
             self.TM = self.cp['__TOKEN_MAPPER__']
             # self.TM.final must be patched to work with older
             # versions of TokenMapper that are in the pickle.
@@ -89,10 +88,16 @@ class ExperimentRunner(object):
             if self.is_malignull():
                 self.TM([self.expcfg.NULL_KEY])
             self.bos_idx = self.TM.finalize()
-            self.url_list = self.cp['__URL_LIST__']
+            self.pa = Aggregator(
+                datacfg=datacfg,
+                ppcfg=ppcfg,
+                expcfg=expcfg,
+                url_list=self.url_list,
+                TM=self.TM)
             self.cat_folds = pkl.load(uc.proj_open(self.datacfg.fold_fn))
             self.cat2url = uc.load_cat2url(uc.proj_open(self.datacfg.cat2url_fn))
             self.url_to_idx = dict((b,a) for a,b in enumerate(self.url_list))
+            self.scratch = {}
             pass
 
         with rasengan.tictoc('Init Part 2 : The PP CFG'):
@@ -105,17 +110,9 @@ class ExperimentRunner(object):
             self.NULL_VEC = np.zeros((1,self.vectors.shape[1]))
         if self.exp_prefix_is([NBKERNEL, KERMACH, MALIGNER]):
             assert self.pp_prefix_is([UNIVEC, BIVEC, DSCTOKVEC])
-
         if self.expcfg.rm_fn_word:
-            from rasengan.function_words import get_function_words
-            self.fnwords = []
-            for e in get_function_words():
-                try:
-                    self.fnwords.append(self.TM(e.lower()))
-                except KeyError:
-                    continue
-            self.fnwords = set(self.fnwords)
-            self.remove_fn_word() # Internally Manipulates smat
+            # Internally Manipulates smat
+            self.remove_fn_word()
         if self.expcfg.weight_method.endswith('/df'):
             self.populate_idf()
         return
@@ -135,7 +132,15 @@ class ExperimentRunner(object):
     def remove_fn_word(self):
         ''' Manipulate `self.smat` and remove indices corresponding to fn words.
         '''
-        column_idi = self.get_col_index_of_function_unigrams()
+        from rasengan.function_words import get_function_words
+        self.fnwords = []
+        for e in itertools.chain(get_function_words(), ['ago', 'well', 'years']):
+            try:
+                self.fnwords.append(self.TM(e.lower()))
+            except KeyError:
+                continue
+        column_idi =  set(self.fnwords)
+        self.pa['fnwords'] = column_idi
         if self.pp_prefix_is([UNIVEC, UNIGRAM, DSCTOK, DSCTOKVEC]):
             pass
         elif self.pp_prefix_is([BIVEC, BIGRAM]):
@@ -144,9 +149,6 @@ class ExperimentRunner(object):
             raise NotImplementedError(self.ppcfg._name)
         self.smat = set_column_of_sparse_matrix_to_zero(self.smat, column_idi)
         return
-
-    def get_col_index_of_function_unigrams(self ):
-        return self.fnwords
 
     def get_col_index_of_function_bigrams(self):
         fnwords = self.fnwords
@@ -168,11 +170,14 @@ class ExperimentRunner(object):
         self.smat = self.smat.tocsr()
         with rasengan.tictoc('Prediction'):         # 20s
             scores = self.score(self.smat)
-        self.pa(cat, scores, train_idx, test_idx)
+        self.pa(cat, scores, train_idx, test_idx, scratch=self.scratch)
+        self.scratch = {}
 
     def __call__(self):
         print 'Total=', len(list(self.fold_iterator()))
-        for cat, (train_idx, test_idx) in self.fold_iterator():
+        for fold_idx, (cat, (train_idx, test_idx)) in enumerate(self.fold_iterator()):
+            if self.expcfg.verbose:
+                print 'Working on %-4d'%fold_idx, cat,
             self.call_impl(cat, train_idx, test_idx)
         return
 
@@ -284,8 +289,10 @@ class ExperimentRunner(object):
         The output is a list of floats, one float for each row in the matrix.
         '''
         w = self.token_weight
-        return [sparse_multiply(mat[i], w).sum()
-                for i in xrange(mat.shape[0])]
+        self.scratch['score_nb_features'] = (self.TM[w.nonzero()[1]], w[:,w.nonzero()[1]])
+        if self.expcfg.verbose:
+            print 'Rating NB using features', self.scratch['score_nb_features']
+        return mat * w.T
 
     def score_nbkernel(self, mat):
         scorer = self.get_nbkernel_scorer()
@@ -364,7 +371,6 @@ class ExperimentRunner(object):
             for fold_idx, fold in enumerate(folds):
                 if fold_idx in self.expcfg.folds:
                     yield cat, (mapper(fold[0]), mapper(fold[1]))
-            break
 
     def report(self):
         print self.pa
@@ -380,8 +386,10 @@ def main():
         ppcfg=CONFIG[args.ppcfg],
         expcfg=EXPCONFIG[args.expcfg],)
     rnr()
-    rnr.save_results(fn=args.out_pkl_fn)
-    rnr.report()
+    with rasengan.tictoc('Saving Results'):
+        rnr.save_results(fn=args.out_pkl_fn)
+    with rasengan.tictoc('Reporting'):
+        rnr.report()
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description='')

@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Mon Sep 19 01:58:06 2016 (-0400)
-| Last-Updated: Mon Sep 26 15:20:21 2016 (-0400)
+| Last-Updated: Tue Sep 27 00:34:24 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 24
+|     Update #: 37
 '''
 from collections import defaultdict
 from rasengan.rank_metrics import average_precision
@@ -29,15 +29,25 @@ def ranking_stats(arr):
 
 
 class Aggregator(object):
-    def __init__(self, datacfg, ppcfg, expcfg):
+    def __init__(self, datacfg, ppcfg, expcfg, url_list, TM):
         self.record = defaultdict(list)
+        self.record2 = {}
         self.datacfg = datacfg
         self.ppcfg = ppcfg
         self.expcfg =  expcfg
+        self.url_list = url_list
+        self.TM = TM
 
-    def __call__(self, cat, scores, train_idx, test_idx):
-        self.record[cat].append([scores, set(train_idx), set(test_idx)])
+    def __call__(self, cat, scores, train_idx, test_idx, scratch=None):
+        print self.stat_repr(
+            ranking_stats(self.convert(scores, keep=train_idx, remove=test_idx)),
+            shim=' ',
+            domean=False)
+        self.record[cat].append([scores, set(train_idx), set(test_idx), scratch])
         pass
+
+    def __setitem__(self, key, value):
+        self.record2[key]=value
 
     def convert(self, scores, keep, remove):
         ret = []
@@ -49,17 +59,22 @@ class Aggregator(object):
         return [e[1] for e in ret]
 
     @staticmethod
-    def stat_repr(stats):
+    def stat_repr(stats, shim='\n', domean=True):
         STATS = 'AUPR RAUPR P@10 RP@10 P@100 RP@100 MRR RMRR'
-        return '\n'.join('%-6s %.3f'%(a,b) for (a,b) in zip(
-            STATS.split(),
-            numpy.array(stats).mean(axis=0).tolist()))
+        if domean:
+            mean = numpy.array(stats).mean(axis=0).tolist()
+        else:
+            mean = stats
+        return shim.join('%-6s %.4f'%(a,b)
+                         for (a,b)
+                         in zip(STATS.split(), mean))
 
     def __str__(self):
         train_fold_stats = []
         test_fold_stats = []
         for cat in self.record:
-            for scores, train_idx, test_idx in self.record[cat]:
+            for rec in self.record[cat]:
+                scores, train_idx, test_idx = rec[0], rec[1], rec[2]
                 train_fold_stats.append(
                     ranking_stats(self.convert(scores, keep=train_idx, remove=test_idx)))
                 test_fold_stats.append(
@@ -123,3 +138,8 @@ class Performance_Aggregator(object):
         return ('(AUPR %.3f %.3f) (P@10 %.3f %.3f) (P@100 %.3f %.3f) '
                 '(MRR %.3f %.3f)') % tuple(
                     numpy.array(fold_stats).mean(axis=0).tolist())
+
+
+if __name__ == '__main__':
+    import cPickle as pkl
+    print pkl.load(open('/export/b15/prastog3/catpeople_experiment.ppcfg~0.expcfg~0.pkl'))

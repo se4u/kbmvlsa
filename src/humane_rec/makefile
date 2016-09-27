@@ -9,11 +9,11 @@ default:
 echo_%:
 	echo $($*)
 CLSP_DIR := /home/prastog3/projects/kbvn/src/humane_rec
-CLSP_CATPEOPLE_DIR := /export/b15/prastog3
+CLSP_CPD := /export/b15/prastog3
 ifeq ($(shell domainname),clsp)
-  CATPEOPLE_DIR := $(CLSP_CATPEOPLE_DIR)
+  CPD := $(CLSP_CPD)
 else
-  CATPEOPLE_DIR := data
+  CPD := data
 endif
 
 
@@ -23,7 +23,7 @@ rsync1:
 	rsync -avz data/cat-people-dev* prastog3@b15:$(CLSP_DIR)/data/
 
 rsync2:
-	rsync -avz prastog3@b15:$(CLSP_CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf* $(CATPEOPLE_DIR)/
+	rsync -avz prastog3@b15:$(CLSP_CPD)/catpeople_clean_segmented_context.shelf* $(CPD)/
 
 
 # --------- #
@@ -36,48 +36,54 @@ catpeople_perf_metric:
 catpeople_statistics:
 	./catpeople_baseline_nb.py --evaluate 0 --data_stats 1 --cat2url_fn data/cat-people
 
-# ---------------------- #
-# Cat People Experiments #
-# ---------------------- #
-data/performance_aggregator_%.pkl: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf data/cat-people-dev.fold.pkl
+data/performance_aggregator_%.pkl: $(CPD)/catpeople_clean_segmented_context.shelf data/cat-people-dev.fold.pkl
 	echo ./catpeople_baseline_nb.py --report_pkl_fn $@ --df_lim 0.2
 
 show_step3_features:
 	./catpeople_baseline_nb.py   --evaluate 0 --show_step3_features 1 --df_lim 0.2
 
-xp:
-	./catpeople_experiment.py --ppcfg 1 --expcfg 200;
-	./catpeople_experiment.py --ppcfg 1 --expcfg 300;
-
-# -------------------------- #
-# Cat People Data Processing #
-# -------------------------- #
-update_shelf: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
+update_shelf: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	./catpeople_baseline_nb.py \
 	  --evaluate 0 \
 	  --update_shelf 1 \
 	  --in_shelf $(basename $<)
+
+# ---------------------- #
+# Cat People Experiments #
+# ---------------------- #
+# CPXP: First arg is ppcfg, second arg in expcfg #
+CPXP = $(CPD)/catpeople_experiment.ppcfg~$(1).expcfg~$(2).pkl
+xpmln: $(foreach expcfg,300 301 302,$(foreach ppcfg,1 8,$(call CPXP,$(ppcfg),$(expcfg))))
+xpnbk: $(foreach expcfg,100 101,$(foreach ppcfg,1 8,$(call CPXP,$(ppcfg),$(expcfg))))
+xpnb: $(foreach expcfg,0,$(foreach ppcfg,0 7,$(call CPXP,$(ppcfg),$(expcfg))))
+
+XTRACT = $(subst ~, ,$(subst ., --,$(1)))
+$(CPD)/catpeople_experiment%.pkl:
+	$(MAKE) $(CPD)/catpeople_pp_$(word 2,$(call XTRACT,$*))
+	./catpeople_experiment.py  $(call XTRACT,$*)
+# -------------------------- #
+# Cat People Data Processing #
+# -------------------------- #
 allpp:
-	for n in 0 1 4 7 8 11; do \
-	  $(MAKE) $(CATPEOPLE_DIR)/catpeople_pp_$$n; done
+	for n in 0 1 4 7 8 11; do $(MAKE) $(CPD)/catpeople_pp_$$n; done
 
-unigram: $(CATPEOPLE_DIR)/catpeople_pp_0
-univec: $(CATPEOPLE_DIR)/catpeople_pp_1
-dsctok: $(CATPEOPLE_DIR)/catpeople_pp_4
+unigram: $(CPD)/catpeople_pp_0
+univec: $(CPD)/catpeople_pp_1
+dsctok: $(CPD)/catpeople_pp_4
 
-$(CATPEOPLE_DIR)/catpeople_pp_%: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
+$(CPD)/catpeople_pp_%: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	./catpeople_preprocessor.py --in_shelf $(basename $<) --config $*
 
-$(CATPEOPLE_DIR)/catpeople.parse.pkl: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat $(CATPEOPLE_DIR)/catpeople.parse.gz
+$(CPD)/catpeople.parse.pkl: $(CPD)/catpeople_clean_segmented_context.shelf.dat $(CPD)/catpeople.parse.gz
 	./catpeople_preprocessor_parses_to_pkl.py \
 	  --in_shelf $(basename $<) \
 	  --parsefn $(word 2,$+) \
 	  --parse_pkl $@
 
-$(CATPEOPLE_DIR)/catpeople.parse.gz:
-	rsync -v r6n23:~/data/catpeople.parse.gz*  $(CATPEOPLE_DIR)/
-	rsync -v r6n25:~/data/catpeople.parse.gz*  $(CATPEOPLE_DIR)/
-	zcat $(CATPEOPLE_DIR)/catpeople.parse.gz[0123] | gzip > $@
+$(CPD)/catpeople.parse.gz:
+	rsync -v r6n23:~/data/catpeople.parse.gz*  $(CPD)/
+	rsync -v r6n25:~/data/catpeople.parse.gz*  $(CPD)/
+	zcat $(CPD)/catpeople.parse.gz[0123] | gzip > $@
 
 commands_to_run:
 	ssh r6n23 'nohup ~/data/catpeople_parser.sh 0 >&- 2>&- <&- &'
@@ -93,10 +99,10 @@ deploy_catpeople.conll:
 	rsync -v /export/b15/prastog3/catpeople.conll.gz3 r6n25:~/data/
 	rsync -v catpeople_parser.sh r6n25:~/data/
 
-$(CATPEOPLE_DIR)/catpeople.conll.gz: $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf.dat
+$(CPD)/catpeople.conll.gz: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	./catpeople_preprocessor.py --print_to_conll 1 --in_shelf $(basename $<)  --out_fn $@
 
-$(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf: $(CATPEOPLE_DIR)/catpeople_wikilink_mentions.shelf.dat
+$(CPD)/catpeople_clean_segmented_context.shelf: $(CPD)/catpeople_wikilink_mentions.shelf.dat
 	./catpeople_clean_segmented_context.py \
 	  --in_shelf $(basename $<) \
 	  --out_shelf $@ 2> $@.log
@@ -104,7 +110,7 @@ $(CATPEOPLE_DIR)/catpeople_clean_segmented_context.shelf: $(CATPEOPLE_DIR)/catpe
 # ----------------------------------- #
 # The Cat People Mentions in Wikilink #
 # ----------------------------------- #
-$(CATPEOPLE_DIR)/catpeople_wikilink_mentions.shelf.dat: data/wiki_link /export/b15/prastog3/wikilinks data/cat-people
+$(CPD)/catpeople_wikilink_mentions.shelf.dat: data/wiki_link /export/b15/prastog3/wikilinks data/cat-people
 	./extract_person_mentions_from_wikilink_data.py \
 	  --thrift_class_dir $< \
 	  --thrift_data_dir $(word 2,$+) \

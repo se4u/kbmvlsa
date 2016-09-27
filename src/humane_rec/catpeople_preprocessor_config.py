@@ -3,7 +3,7 @@ from rasengan import NamespaceLite
 from functools import partial
 import os
 from catpeople_maligner_config_helper import Sequential_Policy, Fixed_Iter_Convergence
-PROJECT_PATH = [('/export/b15/prastog3/' if os.uname()[1] == 'b15' else 'data/'),
+PROJECT_PATH = ['/export/b15/prastog3/',
                 '~/data/embedding/',
                 'data/']
 UNIGRAM   = 'UNIGRAM'
@@ -31,7 +31,7 @@ NBKERNEL = 'NBKERNEL'
 KERMACH  = 'KERMACH'
 MALIGNER = 'MALIGNER'
 def expconfig_maker(name, **kwargs):
-    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=50, learn2rank=False, folds=(0,))
+    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=50, learn2rank=False, folds=(0,), verbose = True,)
     if name == NBKERNEL:
         defaults.update(dict(kernel='cosine'))
     if name == MALIGNER:
@@ -44,7 +44,6 @@ def expconfig_maker(name, **kwargs):
             node_pick_policy=Sequential_Policy(),
             has_converged=Fixed_Iter_Convergence(50),
             respect_initial_assignment_for_initializing_beliefs=False,
-            verbose = False,
             introduce_NULL_embedding = True,
             NULL_KEY = '--NULL--',
             scale_to_unit = True,
