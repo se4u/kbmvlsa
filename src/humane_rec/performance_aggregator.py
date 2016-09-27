@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Mon Sep 19 01:58:06 2016 (-0400)
-| Last-Updated: Tue Sep 27 06:15:35 2016 (-0400)
+| Last-Updated: Tue Sep 27 07:51:43 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 49
+|     Update #: 60
 '''
 from collections import defaultdict
 from rasengan.rank_metrics import average_precision
@@ -62,8 +62,13 @@ class Aggregator(object):
     def __setitem__(self, key, value):
         self.record2[key]=value
 
-    def convert(self, scores):
-        return [flag for s, flag in scores if flag != 2]
+    def convert(self, scores, limit=0):
+        # return [flag for s, flag in scores if flag != 2]
+        tmp = [flag for s, flag in scores if flag != 2]
+        idi = [i for i,e in enumerate(tmp) if e == 0]
+        random.shuffle(idi)
+        idi = set(idi[:1000])
+        return [e for i,e in enumerate(tmp) if i in idi or e == 1]
 
     @staticmethod
     def stat_repr(stats, shim='\n', domean=True):
@@ -77,15 +82,14 @@ class Aggregator(object):
                          in zip(STATS.split(), mean))
 
     def __str__(self):
-        import pdb
-        pdb.set_trace()
         train_fold_stats = []
         test_fold_stats = []
+        limit = (self.limit if hasattr(self, 'limit') else 0)
         for cat in self.record:
             for rec in self.record[cat]:
                 scores = rec[0]
-                train_fold_stats.append(ranking_stats(self.convert(scores)))
-                test_fold_stats.append(ranking_stats(self.convert(scores)))
+                train_fold_stats.append(ranking_stats(self.convert(scores, limit=limit)))
+                test_fold_stats.append(ranking_stats(self.convert(scores, limit=limit)))
         return '\n'.join(['--Train--',
                           self.stat_repr(train_fold_stats),
                           '--Test--',
@@ -149,11 +153,15 @@ class Performance_Aggregator(object):
 
 if __name__ == '__main__':
     import cPickle as pkl
-    for f in ['/export/b15/prastog3/catpeople_experiment.ppcfg~0.expcfg~0.pkl',
-              '/export/b15/prastog3/catpeople_experiment.ppcfg~7.expcfg~0.pkl']:
+    for f in [
+            '/export/b15/prastog3/catpeople_experiment.ppcfg~8.expcfg~303.pkl'
+            # '/export/b15/prastog3/catpeople_experiment.ppcfg~0.expcfg~0.pkl',
+            # '/export/b15/prastog3/catpeople_experiment.ppcfg~7.expcfg~0.pkl',
+    ]:
         print '--------- FILE: ', f
         with tictoc('Loading Pkl'):
             data = pkl.load(open(f))
+        # data.limit=1000
         print data
 # --------- FILE:  /export/b15/prastog3/catpeople_experiment.ppcfg~0.expcfg~0.pkl
 # --Train--
@@ -193,3 +201,32 @@ if __name__ == '__main__':
 # RP@100 0.0002
 # MRR    0.0419
 # RMRR   0.0011
+# --------- FILE:  /export/b15/prastog3/catpeople_experiment.ppcfg~8.expcfg~303.pkl
+#   --Train--
+#   AUPR   0.0162
+#   RAUPR  0.0002
+#   P@10   0.0160
+#   RP@10  0.0000
+#   P@100  0.0066
+#   RP@100 0.0000
+#   MRR    0.0606
+#   RMRR   0.0004
+#   --Test--
+#   AUPR   0.0162
+#   RAUPR  0.0003
+#   P@10   0.0160
+#   RP@10  0.0000
+#   P@100  0.0066
+#   RP@100 0.0001
+#   MRR    0.0606
+#   RMRR   0.0011
+
+
+# AUPR   0.1623
+# RAUPR  0.0153
+# P@10   0.1270
+# RP@10  0.0070
+# P@100  0.0412
+# RP@100 0.0086
+# MRR    0.3337
+# RMRR   0.0375
