@@ -103,6 +103,7 @@ EXPCONFIG = {
     300: expconfig_maker(MALIGNER, ),
     301: expconfig_maker(MALIGNER, top_token_pct=0),
     302: expconfig_maker(MALIGNER, top_token_pct=0, skim_pct=0),
+    303: expconfig_maker(MALIGNER, aggfn='nblike', kernel='nblike'),
 }
 
 

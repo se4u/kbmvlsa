@@ -4,9 +4,9 @@
 | Description : The Experiment Loop
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 23 13:05:58 2016 (-0400)
-| Last-Updated: Tue Sep 27 00:38:01 2016 (-0400)
+| Last-Updated: Tue Sep 27 05:56:00 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 179
+|     Update #: 199
 '''
 import argparse
 import random
@@ -25,7 +25,7 @@ import maligner
 import rasengan
 import numpy.matrixlib.defmatrix
 import itertools
-
+from collections import defaultdict
 
 def prefix(cfg, lst):
     return (any(cfg._name.startswith(e + '.') for e in lst)
@@ -243,6 +243,9 @@ class ExperimentRunner(object):
                 assignment[entity] = 0
             topic = self.extract_mode(problem, assignment)
             topics.append(topic)
+            tv = topic.values()
+            if self.expcfg.verbose:
+                print self.TM[tv]
             undesirable_columns.extend(topic.values())
         self.topics = topics
         return
@@ -300,7 +303,11 @@ class ExperimentRunner(object):
 
     def score_malign(self, mat):
         scorer = self.get_malign_scorer()
-        return [scorer(mat[i]) for i in xrange(mat.shape[0])]
+        if self.expcfg.aggfn == 'nblike':
+            vectors = scorer
+            return mat * vectors
+        else:
+            return [scorer(mat[i]) for i in xrange(mat.shape[0])]
 
     def score_kernelmachine(self, mat):
         scorer = self.get_kernelmachine_scorer()
@@ -336,6 +343,19 @@ class ExperimentRunner(object):
                 vectors = 0
             vectors = np.array(vectors)
             assert vectors.shape[0] == len(self.topics)
+        elif self.expcfg.aggfn == 'nblike':
+            weight = {}
+            for tpc_idx, tpc in enumerate(self.topics):
+                tpc = set(tpc.values()
+                          if isinstance(tpc, dict)
+                          else tpc)
+                for tok in tpc:
+                    weight[tok] = (1.0 / (tpc_idx + 1)**2)
+            vectors = rasengan.csr_mat_builder([weight], (1, len(self.TM)-1), dtype='float32', verbose=0).T
+            if self.expcfg.verbose:
+                tmp1, tmp2 = zip(*weight.items())
+                print self.TM[list(tmp1)], tmp2
+            return vectors
         else:
             raise ValueError(self.expcfg.aggfn)
 
@@ -346,9 +366,10 @@ class ExperimentRunner(object):
                 # Score = average over score of each topic.
                 # Score of each topic = best score of topic with any token.
                 score = np.dot(vectors, self.vectors[columns].T).max(axis=1).mean()
+            elif self.expcfg.kernel == 'buttercup':
                 # Score = average over score of each token.
-                # Score of each topic = best score of topic with any token.
-                # score = np.dot(vectors, self.vectors[columns].T).max(axis=0).mean()
+                # Score of each token = best score of token with any topic
+                score = np.dot(vectors, self.vectors[columns].T).max(axis=0).mean()
                 # ------------------------------ #
                 # SLOW VERSION OF THE ABOVE CODE #
                 # ------------------------------ #
@@ -356,11 +377,13 @@ class ExperimentRunner(object):
                 #     vec = self.vectors[col]
                 #     s = np.dot(vectors, vec).max()
                 #     score += s
-                return score
+            elif self.expcfg.kernel == 'nblike':
+                score = (row * vectors).data
             elif self.expcfg.kernel == 'l2':
                 raise NotImplementedError(self.expcfg.kernel)
             else:
                 raise NotImplementedError(self.expcfg.kernel)
+            return score
 
         return scorer
 
