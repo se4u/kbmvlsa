@@ -4,9 +4,9 @@
 | Description : Perform Naive Bayes based vertex ranking.
 | Author      : Pushpendre Rastogi
 | Created     : Sat Apr 23 20:26:27 2016 (-0400)
-| Last-Updated: Thu Apr 28 03:21:58 2016 (-0400)
+| Last-Updated: Thu May 12 17:29:11 2016 (+0530)
 |           By: Pushpendre Rastogi
-|     Update #: 118
+|     Update #: 125
 '''
 import random
 import numpy as np
@@ -185,12 +185,12 @@ if __name__ == '__main__':
         set_I = set(I)
         for featset_name in [
                 's_features_nodoc',
-                's_features_backoff_nodoc',
-                's_features_backoff',
-                's_features_doc',
-                'random',
+                #'s_features_backoff_nodoc',
+                #'s_features_backoff',
+                #'s_features_doc',
+                #'random',
         ]:
-            for trials in range(5):
+            for trials in range(1):  # range(5)
                 train_idx = IDX_DATA[predicate_name][trials]['train']
                 preamble = 'predicate_name=%s trials=%d featset_name=%s ' % (
                     predicate_name, trials, featset_name)
@@ -220,6 +220,7 @@ if __name__ == '__main__':
                 # And then the features that the NB classifier rated highly at
                 # the test time. The question is that why were the false
                 # positives rated so highly?
+                print preamble,
 
                 def ftt(feat, feat_name, rownames):
                     retval = {}
@@ -241,21 +242,22 @@ if __name__ == '__main__':
                     last_r1_i = []
                     for _i, (r, i) in enumerate(_testing_output):
                         if r == 0:
-                            continue
                             if _i > 40:
                                 continue
                             tmp = ftt(
                                 train_x[i], feat_name, index_row_names([i]))
                             tmp_v = tmp.values()[0]
                             okay_feat = [
-                                'adept-core#EmploymentMembership~employer~name~"Pentagon"',
-                                'adept-core#Leadership~subject_org~name~"Army"',
-                                'adept-core#EmploymentMembership~employer~name~"U.S. Army War College"',
-                                'adept-core#EmploymentMembership~employer~name~"3rd Armored Cavalry Regiment"',
+                                # 'adept-core#EmploymentMembership~employer~name~"Pentagon"',
+                                # 'adept-core#Leadership~subject_org~name~"Army"',
+                                # 'adept-core#EmploymentMembership~employer~name~"U.S. Army War College"',
+                                # 'adept-core#EmploymentMembership~employer~name~"3rd Armored Cavalry Regiment"',
                             ]
                             if any(e in tmp_v for e in okay_feat):
                                 pass
                             else:
+                                import ipdb as pdb
+                                pdb.set_trace()
                                 pprint(_i)
                                 pprint(tmp)
                         else:
@@ -270,7 +272,6 @@ if __name__ == '__main__':
                     traceback.print_exc()
                     pdb.post_mortem(tb)
                 sto = sum(testing_output)
-                print preamble,
                 print 'CORRECTAUPR=%.3f' % rasengan.rank_metrics.average_precision(
                     testing_output), \
                     'CORRECTP@10=%.3f' % (rasengan.rank_metrics.precision_at_k(

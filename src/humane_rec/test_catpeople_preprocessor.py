@@ -25,9 +25,9 @@ class TestEntityDescriptors(unittest.TestCase):
         global TM
         global LABELMAP
         global CTMAP
-
-        catpeople = DbfilenameShelf((util_catpeople.get_pfx() + '/catpeople_clean_segmented_context.shelf'), protocol=-1, flag='r')
-        TM = catpeople['__TOKEN_MAPPER__']
+        self.cpfn = (util_catpeople.get_pfx() + '/catpeople_clean_segmented_context.shelf')
+        self.catpeople = DbfilenameShelf(self.cpfn, protocol=-1, flag='r')
+        TM = self.catpeople['__TOKEN_MAPPER__']
         TM.finalize()
         LABELMAP = util_catpeople.get_labelmap()
         CTMAP = util_catpeople.get_coarse_tagmap()
@@ -46,6 +46,7 @@ class TestEntityDescriptors(unittest.TestCase):
         self.testid += 1
         return
 
+    @unittest.skip
     def test_entity_descriptors(self):
         with rasengan.debug_support():
             entity_descriptors = catpeople_preprocessor.entity_descriptors
@@ -86,7 +87,27 @@ class TestEntityDescriptors(unittest.TestCase):
                 self.assertEqual(decode(sentence, entity_descriptors(sentence, parent, label, ctags, referents)), ep)
 
 
+    def test_entity_list_to_dsctok_csr_mat(self):
+        cfg = rasengan.NamespaceLite('mock')
+        mention = self.catpeople[self.catpeople['__URL_LIST__'][0]][0]
+        for bc in [0, 1]:
+            for oeb in [0, 1]:
+                cfg.binarize_counts = bc
+                cfg.only_entity_bearer = oeb
+                print catpeople_preprocessor.get_dsctok_from_catpeople_entity(0, [mention], cfg)
+                print catpeople_preprocessor.get_dsctok_from_catpeople_entity(1, [mention], cfg)
+        pass
 
+    def test_get_ngrams_from_catpeople_entity(self):
+        cfg = rasengan.NamespaceLite('mock')
+        mention = self.catpeople[self.catpeople['__URL_LIST__'][0]][0]
+        for bc in [0, 1]:
+            for oeb in [0, 1]:
+                cfg.binarize_counts = bc
+                cfg.only_entity_bearer = oeb
+                print catpeople_preprocessor.get_ngrams_from_catpeople_entity(0, [mention], cfg)
+                print catpeople_preprocessor.get_ngrams_from_catpeople_entity(1, [mention], cfg)
+        pass
 
 if __name__ == '__main__':
     unittest.main()

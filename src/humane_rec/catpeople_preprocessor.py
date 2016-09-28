@@ -4,9 +4,9 @@
 | Description : Classes for Efficient Global Preprocessing of CatPeople Corpus
 | Author      : Pushpendre Rastogi
 | Created     : Thu Sep 22 18:03:09 2016 (-0400)
-| Last-Updated: Sun Sep 25 02:07:27 2016 (-0400)
+| Last-Updated: Wed Sep 28 14:38:18 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 212
+|     Update #: 218
 '''
 from catpeople_preprocessor_config import CONFIG, UNIGRAM, UNIVEC, \
     BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC
@@ -26,6 +26,26 @@ import rasengan
 import argparse
 import random
 
+# ------- #
+# GLOBALS #
+# ------- #
+CTnoun=None
+CTverb=None
+LMconj=None
+LMdobj=None
+LMpobj=None
+LMprep=None
+LMappos=None
+LMacompnn=None
+LMnnpa=None
+LMpobjdobj=None
+LMpobjpcomp=None
+TM=None
+LABELMAP=None
+CTMAP=None
+GENDER_TO_PRONOUN=None
+TOKEN_TO_GENDER=None
+
 def format_to_conll(lst):
     # LEMMA=CPOSTAG=POSTAG=FEATS=HEAD=DEPREL=PHEAD=PREPREL='_'
     s = '_\t_\t_\t_\t_\t_\t_\t_'
@@ -33,6 +53,8 @@ def format_to_conll(lst):
                    for idx, tok in enumerate(lst))
 
 def print_to_conll(out_fn, catpeople, urls):
+    ''' Print all mention sentences for all urls from catpeople to out_fn
+    '''
     total_url = len(urls)
     print out_fn, total_url
     with gzip.open(out_fn, mode='wb') as out_f:
@@ -46,6 +68,8 @@ def print_to_conll(out_fn, catpeople, urls):
     return
 
 def split(lst, parts):
+    '''Split lst into parts. parts is an integer.
+    '''
     l = len(lst)
     offset = 0
     jmp = l / parts
@@ -155,15 +179,29 @@ def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0):
         verbose=1000)
 
 def get_valid_pfx(t, container):
+    ''' Keep slicing prefixes of `t` till `t` is found in the container.
+    Params
+    ------
+    t         : A string
+    container : A container of strings.
+    Returns
+    -------
+    A prefix of `t` that is guaranteed to be in `container`
+    '''
     orig = t
-    t = util_catpeople.remove_unprintable(t)
-    translate_table = {'(': 'lrb', ')': 'rrb'}
     if t in container:
         return t
+    # 1. Remove Unprintable Characters
+    t = util_catpeople.remove_unprintable(t)
+    if t in container:
+        return t
+    # 2. Convert some special `t` to their equivalents from the container.
+    translate_table = {'(': 'lrb', ')': 'rrb'}
     if t in translate_table:
         tt = translate_table[t]
         assert tt in container
         return tt
+    # 3. Prefix finding loop
     for _ in range(len(t)-1):
         t = t[:-1]
         if t in container:
@@ -205,13 +243,16 @@ def doc_to_bigrams(cfg, catpeople):
     io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1) # 51.8s
     return
 
-def doc_to_univec(cfg, catpeople):
-    out_fn = args.out_fn + '.vec'
-    if not os.path.exists(out_fn):
-        save_vec_file(cfg.vecfn, out_fn)
-    else:
-        print 'Skip Saving Vec file', out_fn
 
+def save_vec_file(input_fn, output_fn):
+    if not os.path.exists(output_fn):
+        save_vec_file(input_fn, output_fn)
+    else:
+        print 'Skip Saving Vec file', output_fn
+    return
+
+def doc_to_univec(cfg, catpeople):
+    save_vec_file(cfg.vecfn, args.out_fn + '.vec')
     out_fn = args.out_fn
     if not os.path.exists(out_fn):
         smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0) # 36.7s
@@ -220,7 +261,7 @@ def doc_to_univec(cfg, catpeople):
         print 'Skip Saving Sparse Mat file', out_fn
     return
 
-#
+
 def entity_descriptors(sentence, P, R, Tc, referents):
     '''
     Params
@@ -290,7 +331,6 @@ def get_dsctok_from_catpeople_entity(mentions, cfg, PARSES):
 def entity_list_to_dsctok_csr_mat(cfg, catpeople):
     url_list = catpeople['__URL_LIST__']
     shape = (len(url_list), len(TM))
-    labelmap = util_catpeople.get_labelmap()
     with rasengan.tictoc('Loading Parses'): # 1 min
         PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
     print 'Total Rows:', len(url_list)
@@ -300,7 +340,7 @@ def entity_list_to_dsctok_csr_mat(cfg, catpeople):
                            shape=shape,
                            verbose=1000)
 
-def doc_to_dsctok(cfg, catpeople):
+def populate_dsctok_globals():
     global CTnoun
     global CTverb
     global LMconj
@@ -323,10 +363,23 @@ def doc_to_dsctok(cfg, catpeople):
     LMnnpa=LABELMAP(['nsubj', 'nsubjpass', 'poss', 'advmod'])
     LMpobjdobj=LABELMAP(['pobj', 'dobj'])
     LMpobjpcomp=LABELMAP(['pobj', 'pcomp'])
+    return
 
+def doc_to_dsctok(cfg, catpeople):
+    populate_dsctok_globals()
     smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
     io.mmwrite(open(args.out_fn, 'wb'), smat) # 51.8s
     return
+
+def doc_to_dsctokvec(cfg, catpeople):
+    populate_dsctok_globals()
+    save_vec_file(cfg.vecfn, args.out_fn + '.vec')
+    smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
+    io.mmwrite(open(args.out_fn, 'wb'), smat) # 51.8s
+    return
+
+def doc_to_dscsuf(cfg, catpeople):
+    pass
 
 def main():
     global TM
@@ -389,6 +442,10 @@ def main():
             #     --> get_dsctok_from_catpeople_entity
             #         --> catpeople_sentence_iterator
             #         --> yield_dsctok
+        elif name.startswith(DSCTOKVEC):
+             return doc_to_dsctokvec(cfg, catpeople)
+        elif name.startswith(DSCSUF):
+             return doc_to_dscsuf(cfg, catpeople)
         else:
             raise NotImplementedError(name)
 
