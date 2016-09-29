@@ -64,12 +64,9 @@ $(CPD)/catpeople_experiment%.pkl:
 # -------------------------- #
 # Cat People Data Processing #
 # -------------------------- #
-allpp:
-	for n in 0 1 4 7 8 11; do $(MAKE) $(CPD)/catpeople_pp_$$n; done
 
-unigram: $(CPD)/catpeople_pp_0
-univec: $(CPD)/catpeople_pp_1
-dsctok: $(CPD)/catpeople_pp_4
+allpp: $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg))
+
 
 $(CPD)/catpeople_pp_%: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	./catpeople_preprocessor.py --in_shelf $(basename $<) --config $*

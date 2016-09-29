@@ -4,9 +4,9 @@
 | Description : Classes for Efficient Global Preprocessing of CatPeople Corpus
 | Author      : Pushpendre Rastogi
 | Created     : Thu Sep 22 18:03:09 2016 (-0400)
-| Last-Updated: Wed Sep 28 14:38:18 2016 (-0400)
+| Last-Updated: Wed Sep 28 22:46:06 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 218
+|     Update #: 226
 '''
 from catpeople_preprocessor_config import CONFIG, UNIGRAM, UNIVEC, \
     BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC
@@ -45,6 +45,22 @@ LABELMAP=None
 CTMAP=None
 GENDER_TO_PRONOUN=None
 TOKEN_TO_GENDER=None
+
+def get_gender_to_pronoun(TM):
+    return {0:set(TM(['him', 'his', 'he'])),
+            1:set(TM(['she', 'her', 'hers']))}
+
+def get_token_to_gender(TM):
+    from rasengan.gender import GENDER
+    TOKEN_TO_GENDER = {}
+    for (t,v) in GENDER.iteritems():
+        try:
+            tid = TM([t.lower()])[0]
+        except KeyError:
+            continue
+        else:
+            TOKEN_TO_GENDER[tid] = v
+    return TOKEN_TO_GENDER
 
 def format_to_conll(lst):
     # LEMMA=CPOSTAG=POSTAG=FEATS=HEAD=DEPREL=PHEAD=PREPREL='_'
@@ -224,11 +240,13 @@ def substitute_unmappable_words(vectors):
     del d
     return emb
 
-def save_vec_file(vecfn, out_fn):
-    # This takes only a second !!
-    vectors = pkl.load(util_catpeople.proj_open(vecfn))
-    vectors = substitute_unmappable_words(vectors)
-    np.save(open(out_fn, 'wb'), vectors, allow_pickle=False)
+def save_vec_file(input_fn, output_fn):
+    if not os.path.exists(output_fn):
+        vectors = pkl.load(util_catpeople.proj_open(input_fn))
+        vectors = substitute_unmappable_words(vectors)
+        np.save(open(output_fn, 'wb'), vectors, allow_pickle=False)
+    else:
+        print 'Skip Saving Vec file', output_fn
     return
 
 def doc_to_unigrams(cfg, catpeople):
@@ -244,11 +262,14 @@ def doc_to_bigrams(cfg, catpeople):
     return
 
 
-def save_vec_file(input_fn, output_fn):
-    if not os.path.exists(output_fn):
-        save_vec_file(input_fn, output_fn)
-    else:
-        print 'Skip Saving Vec file', output_fn
+def doc_to_dsctokvec(cfg):
+    '''Just touch the out_fn file.'''
+    open(args.out_fn, 'wb').close()
+    return
+
+def doc_to_bivec(cfg):
+    '''Just touch the out_fn file'''
+    open(args.out_fn, 'wb').close()
     return
 
 def doc_to_univec(cfg, catpeople):
@@ -379,7 +400,8 @@ def doc_to_dsctokvec(cfg, catpeople):
     return
 
 def doc_to_dscsuf(cfg, catpeople):
-    pass
+    raise NotImplementedError('dscsuf')
+
 
 def main():
     global TM
@@ -393,18 +415,8 @@ def main():
     TM.finalize()
     LABELMAP = util_catpeople.get_labelmap()
     CTMAP = util_catpeople.get_coarse_tagmap()
-    GENDER_TO_PRONOUN = {0:set(TM(['him', 'his', 'he'])),
-                         1:set(TM(['she', 'her', 'hers']))}
-    from rasengan.gender import GENDER
-    TOKEN_TO_GENDER = {}
-    for (t,v) in GENDER.iteritems():
-        try:
-            tid = TM([t.lower()])[0]
-        except KeyError:
-            continue
-        else:
-            TOKEN_TO_GENDER[tid] = v
-
+    GENDER_TO_PRONOUN = get_gender_to_pronoun(TM)
+    TOKEN_TO_GENDER = get_token_to_gender(TM)
     if args.print_to_conll:
         # Print CatPeople in Conll Format
         partial_print_to_conll = functools.partial(print_to_conll, catpeople=catpeople)
@@ -436,6 +448,8 @@ def main():
             # doc_to_univec
             # --> save_vec_file
             # --> entity_list_to_ngram_csr_mat(n=0, width=None)
+        elif name.startswith(BIVEC):
+            return doc_to_bivec(cfg)
         elif name.startswith(DSCTOK):
             return doc_to_dsctok(cfg, catpeople)
             # --> entity_list_to_dsctok_csr_mat
@@ -443,11 +457,12 @@ def main():
             #         --> catpeople_sentence_iterator
             #         --> yield_dsctok
         elif name.startswith(DSCTOKVEC):
-             return doc_to_dsctokvec(cfg, catpeople)
+             return doc_to_dsctokvec(cfg)
         elif name.startswith(DSCSUF):
              return doc_to_dscsuf(cfg, catpeople)
         else:
             raise NotImplementedError(name)
+
 
 if __name__ == '__main__':
     PFX = util_catpeople.get_pfx()
