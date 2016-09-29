@@ -60,7 +60,7 @@ CONFIG = {
     3: config_maker(BIVEC     , vecfn='combined_embedding_0.emb.pkl', aggfn='avg'),
     4: config_maker(DSCTOK    , parsefn='catpeople.parse.pkl'),
     5: config_maker(DSCSUF    , parsefn='catpeople.parse.pkl'),
-    6: config_maker(DSCTOKVEC , vecfn='combined_embedding_0.emb.pkl', parsefn=''),
+    6: config_maker(DSCTOKVEC , vecfn='combined_embedding_0.emb.pkl', parsefn='catpeople.parse.pkl'),
     # Switch entity bearer to False
     7: config_maker(UNIGRAM   , only_entity_bearer=False, ),
     8: config_maker(UNIVEC    , only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl'),
