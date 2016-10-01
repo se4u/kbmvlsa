@@ -4,6 +4,7 @@
 SHELL := /bin/bash
 .PHONY:
 .SECONDARY:
+.PRECIOUS:
 default:
 	echo "Specify Target"
 echo_%:
@@ -48,25 +49,67 @@ update_shelf: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	  --update_shelf 1 \
 	  --in_shelf $(basename $<)
 
+PLTPY := catpeople_experiment_linear_separability_plotting.py
+plot_perf:
+	./$(PLTPY) --ppcfg 0 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5 --title 'Squared Hinge (Unigram, Only EBS)' --out_fn 'figures/HingeUnigramOnlyEBS.pdf'
+	./$(PLTPY) --ppcfg 7 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5  --title 'Squared Hinge (Unigram, All Sent)' --out_fn 'figures/HingeUnigramAllSent.pdf'
+	./$(PLTPY) --ppcfg 2 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5  --title 'Squared Hinge (Bigram Only EBS)' --out_fn 'figures/HingeBigramOnlyEBS.pdf'
+	./$(PLTPY) --ppcfg 9 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5  --title 'Squared Hinge (Bigram All Sent)' --out_fn 'figures/HingeBigramAllSent.pdf'
+# ./$(PLTPY) --expcfg 4 --figsize_x 10 --figsize_y 10 --title 'Log Loss vs Squared Hinge - Fit Comparison (DSCTOK Features, Only EBS).' --out_fn 'figures/LL-HingeDsctokAllSent.pdf'
+# ./$(PLTPY) --expcfg 11 --figsize_x 10 --figsize_y 4 --title 'Log Loss vs Squared Hinge - Fit Comparison (DSCTOK Feature, ALL Sent).' --out_fn 'figures/LL-HingeDsctokOnlyEBS.pdf'
 # ---------------------- #
 # Cat People Experiments #
 # ---------------------- #
-# CPXP: First arg is ppcfg, second arg in expcfg #
+XTRACT = $(subst ~, ,$(subst ., --,$(1)))
 CPXP = $(CPD)/catpeople_experiment.ppcfg~$(1).expcfg~$(2).pkl
+CPLS = $(CPD)/catpeople_ls.ppcfg~$(1).expcfg~$(2).pkl
+# |   PPCFG   | EXPCFG
+# |-----------+--------------------
+# | 0 UNIGRAM |
+# | 2 BIGRAM  | 2 ttp=0
+# | 4 DSCTOK  | 6 ttp=0, C=.1,
+# | 7 U+more  | 9 ttp=0,       pen=l1
+# | 8 B+more  |10 ttp=0, C=.1, pen=l1
+# |11 D+more  |
+# Linear Separability Tests
+# 0 2 4 7 9 11 # 2 5 6 7 8 9 10
+xpls: $(foreach ppcfg,0 2 7 9,$(foreach expcfg,16 9 26,$(call CPLS,$(ppcfg),$(expcfg))))
+
+report: $(foreach ppcfg,0 7 2 9 4 11,$(foreach expcfg,16 9 26,$(call CPLS,$(ppcfg),$(expcfg)).txt.cat))
+
+report_dsctok_logloss: $(foreach ppcfg,11,$(foreach expcfg,19 20 21 22,$(call CPLS,$(ppcfg),$(expcfg)).txt.cat))
+
+%.cat: %
+	echo $*; cat $*
+
+$(CPD)/catpeople_ls%.pkl.txt: # $(CPD)/catpeople_ls%.pkl
+	python -c "import cPickle, sys; print cPickle.load(open('$(basename $@)'))" > $@
+
+$(CPD)/catpeople_ls%.pkl:
+	./catpeople_experiment_linear_separability.py $(call XTRACT,$*) --out_pkl_fn $@
+	$(MAKE) $@.txt
+
+
+# CPXP: First arg is ppcfg, second arg in expcfg #
+
 xpmln: $(foreach expcfg,300 301 302,$(foreach ppcfg,1 8,$(call CPXP,$(ppcfg),$(expcfg))))
 xpnbk: $(foreach expcfg,100 101,$(foreach ppcfg,1 8,$(call CPXP,$(ppcfg),$(expcfg))))
 xpnb: $(foreach expcfg,0,$(foreach ppcfg,0 7,$(call CPXP,$(ppcfg),$(expcfg))))
 
-XTRACT = $(subst ~, ,$(subst ., --,$(1)))
+
 $(CPD)/catpeople_experiment%.pkl:
 	$(MAKE) $(CPD)/catpeople_pp_$(word 2,$(call XTRACT,$*))
 	./catpeople_experiment.py  $(call XTRACT,$*)
 # -------------------------- #
 # Cat People Data Processing #
 # -------------------------- #
+rmpp:
+	rm $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg)*)
 
-allpp: $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg))
+allpp: testpp $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg))
 
+testpp:
+	./test_catpeople_preprocessor.py
 
 $(CPD)/catpeople_pp_%: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	time ./catpeople_preprocessor.py --in_shelf $(basename $<) --config $*

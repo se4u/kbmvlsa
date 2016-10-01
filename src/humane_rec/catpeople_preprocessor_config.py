@@ -31,7 +31,10 @@ NBKERNEL = 'NBKERNEL'
 KERMACH  = 'KERMACH'
 MALIGNER = 'MALIGNER'
 def expconfig_maker(name, **kwargs):
-    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)', top_token_pct=50, learn2rank=False, folds=(0,), verbose = True,)
+    defaults = dict(rm_fn_word=True, weight_method='log(1+tc)',
+                    top_token_pct=50, learn2rank=False, folds=(0,),
+                    verbose = True, lsvc_C=10000, lsvc_penalty='l2',
+                    lsvc_loss='squared_hinge')
     if name == NBKERNEL:
         defaults.update(dict(kernel='cosine'))
     if name == MALIGNER:
@@ -93,6 +96,31 @@ EXPCONFIG = {
     1: expconfig_maker(NBDISCRT, rm_fn_word=False),
     2: expconfig_maker(NBDISCRT, top_token_pct=0),
     3: expconfig_maker(NBDISCRT, weight_method='log(1+tc)/df'),
+    4: expconfig_maker(NBDISCRT, top_token_pct=5),
+    5: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=1),
+    6: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.1),
+    7: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.01),
+    8: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.001),
+    # Squared hinge.
+    12: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.001, lsvc_penalty='l1'),
+    11: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.01 , lsvc_penalty='l1'),
+    10: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.1  , lsvc_penalty='l1'),
+    14: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=1   , lsvc_penalty='l1'),
+    15: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=10  , lsvc_penalty='l1'),
+    16: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=100 , lsvc_penalty='l1'),
+    9 : expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=10000,lsvc_penalty='l1'),
+    26: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=100000,lsvc_penalty='l1'),
+    # hinge loss
+    13: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=.001, lsvc_penalty='l1', lsvc_loss='hinge'),
+    17: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=100, lsvc_penalty='l1', lsvc_loss='hinge'),
+    18: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=1, lsvc_penalty='l1', lsvc_loss='hinge'),
+    # Log loss
+    19: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=1, lsvc_penalty='l1', lsvc_loss='logloss'),
+    20: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=2, lsvc_penalty='l1', lsvc_loss='logloss'),
+    21: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=10, lsvc_penalty='l1', lsvc_loss='logloss'),
+    22: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=100, lsvc_penalty='l1', lsvc_loss='logloss'),
+    23: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=1000, lsvc_penalty='l1', lsvc_loss='logloss'),
+    24: expconfig_maker(NBDISCRT, top_token_pct=0, lsvc_C=10000, lsvc_penalty='l1', lsvc_loss='logloss'),
     # 100 < NBKERNEL < 200
     100: expconfig_maker(NBKERNEL, ),
     101: expconfig_maker(NBKERNEL, weight_method='log(1+tc)/df'),

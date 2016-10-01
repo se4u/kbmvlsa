@@ -4,9 +4,9 @@
 | Description : The Experiment Loop
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 23 13:05:58 2016 (-0400)
-| Last-Updated: Tue Sep 27 05:56:00 2016 (-0400)
+| Last-Updated: Thu Sep 29 21:11:20 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 199
+|     Update #: 226
 '''
 import argparse
 import random
@@ -15,9 +15,11 @@ from catpeople_preprocessor_config import UNIGRAM, UNIVEC, BIGRAM, BIVEC, \
     DSCTOK, DSCSUF, DSCTOKVEC, CONFIG, DATACONFIG, EXPCONFIG, NBDISCRT, NBKERNEL, \
     KERMACH, MALIGNER
 import util_catpeople as uc
+from util_catpeople import set_column_of_sparse_matrix_to_zero
 from shelve import DbfilenameShelf
 from performance_aggregator import Aggregator
 import cPickle as pkl
+import scipy
 import scipy.sparse
 from scipy import io
 from pandas import DataFrame
@@ -25,7 +27,7 @@ import maligner
 import rasengan
 import numpy.matrixlib.defmatrix
 import itertools
-from collections import defaultdict
+import collections
 
 def prefix(cfg, lst):
     return (any(cfg._name.startswith(e + '.') for e in lst)
@@ -37,13 +39,6 @@ def scale_to_unit(v):
     n = np.linalg.norm(v)
     return (v if n == 0 else v / n)
 
-def set_column_of_sparse_matrix_to_zero(smat, col_idi):
-    if not isinstance(smat, scipy.sparse.csc_matrix):
-        smat = smat.tocsc()
-    for col_idx in col_idi:
-        smat.data[smat.indptr[col_idx]:smat.indptr[col_idx+1]] = 0
-    smat.eliminate_zeros()
-    return smat
 
 def sparse_multiply(a, b):
     assert a.shape == b.shape
@@ -101,7 +96,9 @@ class ExperimentRunner(object):
             pass
 
         with rasengan.tictoc('Init Part 2 : The PP CFG'):
+            print 'Reading', 'catpeople_pp_%d'%args.ppcfg
             self.smat = io.mmread(uc.proj_open('catpeople_pp_%d'%args.ppcfg))
+            assert scipy.sparse.isspmatrix_coo(self.smat)
             if self.pp_prefix_is([UNIVEC, BIVEC, MALIGNER, DSCTOKVEC]):
                 self.vectors = np.load(uc.proj_open('catpeople_pp_%d.vec'%args.ppcfg))
             pass
@@ -144,17 +141,20 @@ class ExperimentRunner(object):
         if self.pp_prefix_is([UNIVEC, UNIGRAM, DSCTOK, DSCTOKVEC]):
             pass
         elif self.pp_prefix_is([BIVEC, BIGRAM]):
-            column_idi.extend(self.get_col_index_of_function_bigrams())
+            column_idi = set(list(column_idi)
+                             + self.get_col_index_of_function_bigrams())
         else:
             raise NotImplementedError(self.ppcfg._name)
         self.smat = set_column_of_sparse_matrix_to_zero(self.smat, column_idi)
         return
 
     def get_col_index_of_function_bigrams(self):
-        fnwords = self.fnwords
+        # uc.patch_scipy(scipy)
+        fnwords = set(self.fnwords)
         base = len(self.TM)
+        nonempty_columns = set(self.smat.col)
         l = []
-        for ci in xrange(base, self.smat.shape[1]):
+        for ci in nonempty_columns:
             cur = ci % base
             if cur in fnwords:
                 l.append(ci)
@@ -183,17 +183,34 @@ class ExperimentRunner(object):
 
     @staticmethod
     def get_top_occurring_col(mat, pct, reverse=False):
-        colsum = mat.sum(axis=0)
-        assert colsum.shape == (1, mat.shape[1])
-        entities = mat.shape[0]
-        threshold = (pct * entities)/100.0
-        if reverse:
-            return (colsum < threshold).nonzero()[1]
+        ''' Return column indices that are nonzero strictly more
+        than (pct)/100*rows number of times.
+        --- INPUT ---
+        mat     :
+        pct     : The threshold in percentage.
+        reverse : When reverse is true then we return column idi that
+                  are nonzero less than equal to threshold number of
+                  times. (default False)
+        --- OUTPUT ---
+        A list of integer column indices.
+        '''
+        threshold = (pct * mat.shape[0])/100.0
+        if scipy.sparse.isspmatrix_coo(mat):
+            cntr = collections.Counter(mat.col)
+            if reverse:
+                return [i for i,v in cntr.iteritems() if v <= threshold]
+            else:
+                return [i for i,v in cntr.iteritems() if v > threshold]
         else:
-            return (colsum >= threshold).nonzero()[1]
+            colsum = mat.sum(axis=0)
+            if reverse:
+                return (colsum <= threshold).nonzero()[1]
+            else:
+                return (colsum > threshold).nonzero()[1]
 
     def keep_only_top_occurring_tokens(self, mat):
-        bottom_col = self.get_top_occurring_col(mat, self.expcfg.top_token_pct, reverse=True)
+        bottom_col = self.get_top_occurring_col(
+            mat, self.expcfg.top_token_pct, reverse=True)
         return set_column_of_sparse_matrix_to_zero(mat, list(bottom_col))
 
 
@@ -257,8 +274,7 @@ class ExperimentRunner(object):
 
 
     def fit(self, mat, train_idx):
-        if self.expcfg.top_token_pct > 0:
-            mat = self.keep_only_top_occurring_tokens(mat)
+        mat = self.keep_only_top_occurring_tokens(mat)
         if self.exp_prefix_is([NBDISCRT, NBKERNEL]):
             self.create_token_weights(mat)
         elif self.exp_prefix_is(MALIGNER):
@@ -403,18 +419,9 @@ class ExperimentRunner(object):
             fn = args.out_pkl_fn
         pkl.dump(self.pa, open(fn, 'wb'))
 
-def main():
-    rnr = ExperimentRunner(
-        datacfg=DATACONFIG,
-        ppcfg=CONFIG[args.ppcfg],
-        expcfg=EXPCONFIG[args.expcfg],)
-    rnr()
-    with rasengan.tictoc('Saving Results'):
-        rnr.save_results(fn=args.out_pkl_fn)
-    with rasengan.tictoc('Reporting'):
-        rnr.report()
 
-if __name__ == '__main__':
+
+def populate_args():
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument('--seed', default=0, type=int)
     arg_parser.add_argument('--ppcfg', default=1, type=int)
@@ -427,6 +434,22 @@ if __name__ == '__main__':
         args.out_pkl_fn = (
             uc.get_pfx()
             + 'catpeople_experiment.ppcfg~%d.expcfg~%d.pkl'%(args.ppcfg, args.expcfg))
+    return args
+
+def main():
+    global args
+    args = populate_args()
+    rnr = ExperimentRunner(
+        datacfg=DATACONFIG,
+        ppcfg=CONFIG[args.ppcfg],
+        expcfg=EXPCONFIG[args.expcfg],)
+    rnr()
+    with rasengan.tictoc('Saving Results'):
+        rnr.save_results(fn=args.out_pkl_fn)
+    with rasengan.tictoc('Reporting'):
+        rnr.report()
+
+if __name__ == '__main__':
     with rasengan.debug_support():
         main()
 #  Local Variables:
