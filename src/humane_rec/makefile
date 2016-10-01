@@ -49,6 +49,9 @@ update_shelf: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	  --update_shelf 1 \
 	  --in_shelf $(basename $<)
 
+analyze:
+	./catpeople_experiment_linear_separability_analyze_pickle.py --ppcfg 0 --expcfg 16
+
 PLTPY := catpeople_experiment_linear_separability_plotting.py
 plot_perf:
 	./$(PLTPY) --ppcfg 0 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5 --title 'Squared Hinge (Unigram, Only EBS)' --out_fn 'figures/HingeUnigramOnlyEBS.pdf'

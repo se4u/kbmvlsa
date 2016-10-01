@@ -4,9 +4,9 @@
 | Description : Classes for Efficient Global Preprocessing of CatPeople Corpus
 | Author      : Pushpendre Rastogi
 | Created     : Thu Sep 22 18:03:09 2016 (-0400)
-| Last-Updated: Wed Sep 28 23:14:11 2016 (-0400)
+| Last-Updated: Sat Oct  1 17:20:05 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 228
+|     Update #: 233
 '''
 from catpeople_preprocessor_config import CONFIG, UNIGRAM, UNIVEC, \
     BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC
@@ -280,12 +280,6 @@ def doc_to_bigrams(cfg, catpeople):
     return
 
 
-def doc_to_dsctokvec(cfg):
-    '''Just touch the out_fn file.'''
-    open(args.out_fn, 'wb').close()
-    return
-
-
 def doc_to_bivec(cfg):
     '''Just touch the out_fn file'''
     open(args.out_fn, 'wb').close()
@@ -328,7 +322,8 @@ def entity_descriptors(sentence, P, R, Tc, referents):
                 or (r in LMacompnn and p in D)
                 or (r in LMpobjpcomp and P[p] in D)
                 or (r in LMpobjdobj and p in B)
-                    or (r == LMconj and P[p] in B and R[p] in LMpobjdobj)):
+                or (r == LMconj and P[p] in B
+                    and R[p] in LMpobjdobj)):
                 D[i] = True
             if r in LMnnpa and i in ETS:
                 D[p] = True
@@ -411,18 +406,20 @@ def populate_dsctok_globals():
     return
 
 
+
 def doc_to_dsctok(cfg, catpeople):
     populate_dsctok_globals()
+    # save_vec_file(cfg.vecfn, args.out_fn + '.vec')
     smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
     io.mmwrite(open(args.out_fn, 'wb'), smat)  # 51.8s
     return
 
-
-def doc_to_dsctokvec(cfg, catpeople):
-    populate_dsctok_globals()
-    save_vec_file(cfg.vecfn, args.out_fn + '.vec')
-    smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
-    io.mmwrite(open(args.out_fn, 'wb'), smat)  # 51.8s
+def doc_to_dsctokvec(cfg):
+    '''Just touch the out_fn file.
+    There is no need to create new files.
+    We can just reuse tokvec from old files.
+    '''
+    open(args.out_fn, 'wb').close()
     return
 
 
