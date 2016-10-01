@@ -187,7 +187,8 @@ def get_ngrams_from_catpeople_entity(n, mentions, cfg, PARSES, yield_nsuf=False)
     r = defaultdict(int)
     binarize_counts = cfg.binarize_counts
     for sentence in catpeople_sentence_iterator(mentions, cfg.only_entity_bearer):
-        iterator = (yield_unisuf(sentence, PARSES[tuple(sentence)])
+        iterator = (yield_unisuf(sentence,
+                                 PARSES[tuple(sentence)][1]) # PARSES[1] contains the roles
                     if yield_nsuf
                     else yield_ngrams(n, sentence))
         for w in iterator:
@@ -201,6 +202,8 @@ def get_ngrams_from_catpeople_entity(n, mentions, cfg, PARSES, yield_nsuf=False)
 def get_width_for_bigrams():
     return len(TM) * (len(TM) + 1)
 
+def get_width_for_unisuf():
+    return len(TM) * (len(LABELMAP) + 1)
 
 def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0,
                                  add_governor_arc_label=False):
@@ -324,10 +327,12 @@ def entity_descriptors(sentence, P, R, Tc, referents):
 
 def yield_dscfeat(sentence, parse, referents, yield_suf=False):
     for idx, r in entity_descriptors(sentence, parse[0], parse[1], parse[2], referents):
+    N = len(TM)
+    for idx, r in entity_descriptors(sentence, parse[0], parse[1], parse[2], referents).iteritems():
         s = sentence[idx]
         yield s
         if yield_suf:
-            yield (r+1) * LEN_LABELMAP + s
+            yield (r+1) * N + s
     return
 
 def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES):
@@ -350,6 +355,8 @@ def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES):
 def entity_list_to_dscfeat_csr_mat(cfg, catpeople):
     url_list = catpeople['__URL_LIST__']
     shape = (len(url_list), len(TM))
+    yield_suf = cfg._name.startswith(DSCSUF)
+    shape = (len(url_list), get_width_for_unisuf() if yield_suf else len(TM))
     with rasengan.tictoc('Loading Parses'):  # 1 min
         PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
     print 'Total Rows:', len(url_list)
@@ -393,8 +400,9 @@ def doc_to_unigrams(cfg, catpeople):
     return
 
 def doc_to_unisuf(cfg, catpeople):
-    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
-    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0,
+    width = get_width_for_unisuf()
+    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width)
+    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width,
                                          add_governor_arc_label=True)
     io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1)
     return
