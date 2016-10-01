@@ -4,9 +4,9 @@
 | Description : Classes for Efficient Global Preprocessing of CatPeople Corpus
 | Author      : Pushpendre Rastogi
 | Created     : Thu Sep 22 18:03:09 2016 (-0400)
-| Last-Updated: Sat Oct  1 18:47:16 2016 (-0400)
+| Last-Updated: Sat Oct  1 19:53:53 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 239
+|     Update #: 250
 '''
 from catpeople_preprocessor_config import CONFIG, UNIGRAM, UNIVEC, \
     BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC, UNISUF
@@ -43,7 +43,6 @@ LMpobjdobj = None
 LMpobjpcomp = None
 TM = None
 LABELMAP = None
-LEN_LABELMAP = None
 CTMAP = None
 GENDER_TO_PRONOUN = None
 TOKEN_TO_GENDER = None
@@ -223,7 +222,7 @@ def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0,
         iterator = (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg, None)
                     for url_idx, url
                     in enumerate(url_list))
-    return csr_mat_builder(iterator, shape=shape, verbose=1)
+    return csr_mat_builder(iterator, shape=shape, verbose=0)
 
 
 def get_valid_pfx(t, container):
@@ -326,7 +325,6 @@ def entity_descriptors(sentence, P, R, Tc, referents):
 
 
 def yield_dscfeat(sentence, parse, referents, yield_suf=False):
-    for idx, r in entity_descriptors(sentence, parse[0], parse[1], parse[2], referents):
     N = len(TM)
     for idx, r in entity_descriptors(sentence, parse[0], parse[1], parse[2], referents).iteritems():
         s = sentence[idx]
@@ -335,10 +333,9 @@ def yield_dscfeat(sentence, parse, referents, yield_suf=False):
             yield (r+1) * N + s
     return
 
-def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES):
+def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES, yield_suf):
     r = defaultdict(int)
     binarize_counts = cfg.binarize_counts
-    yield_suf = cfg._name.startswith(DSCSUF)
     for sentence, referents in catpeople_sentence_iterator(
             mentions,
             only_entity_bearer=cfg.only_entity_bearer,
@@ -354,15 +351,14 @@ def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES):
 
 def entity_list_to_dscfeat_csr_mat(cfg, catpeople):
     url_list = catpeople['__URL_LIST__']
-    shape = (len(url_list), len(TM))
     yield_suf = cfg._name.startswith(DSCSUF)
     shape = (len(url_list), get_width_for_unisuf() if yield_suf else len(TM))
     with rasengan.tictoc('Loading Parses'):  # 1 min
         PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
     print 'Total Rows:', len(url_list)
-    iterator = (get_dscfeat_from_catpeople_entity(catpeople[url], cfg, PARSES)
+    iterator = (get_dscfeat_from_catpeople_entity(catpeople[url], cfg, PARSES, yield_suf)
                 for url in url_list)
-    return csr_mat_builder(iterator, shape=shape, verbose=1)
+    return csr_mat_builder(iterator, shape=shape, verbose=0)
 
 
 def populate_dsctok_globals():
@@ -454,13 +450,11 @@ def main():
     global CTMAP
     global GENDER_TO_PRONOUN
     global TOKEN_TO_GENDER
-    global LEN_LABELMAP
     cfg = CONFIG[args.config]
     catpeople = DbfilenameShelf(args.in_shelf, protocol=-1, flag='r')
     TM = catpeople['__TOKEN_MAPPER__']
     TM.finalize()
     LABELMAP = util_catpeople.get_labelmap()
-    LEN_LABELMAP = len(LABELMAP)
     CTMAP = util_catpeople.get_coarse_tagmap()
     GENDER_TO_PRONOUN = get_gender_to_pronoun(TM)
     TOKEN_TO_GENDER = get_token_to_gender(TM)

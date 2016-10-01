@@ -77,7 +77,7 @@ CPLS = $(CPD)/catpeople_ls.ppcfg~$(1).expcfg~$(2).pkl
 # |11 D+more  |
 # Linear Separability Tests
 # 0 2 4 7 9 11 # 2 5 6 7 8 9 10
-xpls: $(foreach ppcfg,0 2 7 9,$(foreach expcfg,16 9 26,$(call CPLS,$(ppcfg),$(expcfg))))
+xpls: $(foreach ppcfg,5 12 14 15,$(foreach expcfg,15 16 9 26,$(call CPLS,$(ppcfg),$(expcfg))))
 
 report: $(foreach ppcfg,0 7 2 9 4 11,$(foreach expcfg,16 9 26,$(call CPLS,$(ppcfg),$(expcfg)).txt.cat))
 
@@ -110,7 +110,7 @@ $(CPD)/catpeople_experiment%.pkl:
 rmpp:
 	rm $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg)*)
 
-allpp: testpp $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg))
+allpp: testpp $(foreach ppcfg,5 12 14 15,$(CPD)/catpeople_pp_$(ppcfg))
 
 testpp:
 	./test_catpeople_preprocessor.py
