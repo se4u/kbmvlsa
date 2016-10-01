@@ -13,7 +13,7 @@ BIVEC     = 'BIVEC'
 DSCTOK    = 'DSCTOK'
 DSCSUF    = 'DSCSUF'
 DSCTOKVEC = 'DSCTOKVEC'
-
+UNISUF    = 'UNISUF'
 def config_maker(name, **kwargs):
     defaults = dict(only_entity_bearer=True, binarize_counts=True)
     for (k,v) in defaults.iteritems():
@@ -72,22 +72,9 @@ CONFIG = {
     11: config_maker(DSCTOK   , only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
     12: config_maker(DSCSUF   , only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
     13: config_maker(DSCTOKVEC, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl', parsefn='catpeople.parse.pkl'),
-    ## Dont Binarize Counts
-    14: config_maker(UNIGRAM   , binarize_counts=False, ),
-    15: config_maker(UNIVEC    , binarize_counts=False, vecfn='combined_embedding_0.emb.pkl'),
-    16: config_maker(BIGRAM    , binarize_counts=False, ),
-    17: config_maker(BIVEC     , binarize_counts=False, vecfn='combined_embedding_0.emb.pkl', aggfn='avg'),
-    18: config_maker(DSCTOK    , binarize_counts=False, parsefn='catpeople.parse.pkl'),
-    19: config_maker(DSCSUF    , binarize_counts=False, parsefn='catpeople.parse.pkl'),
-    20: config_maker(DSCTOKVEC , binarize_counts=False, vecfn='combined_embedding_0.emb.pkl', parsefn=''),
-    # Switch entity bearer to False
-    21: config_maker(UNIGRAM   , binarize_counts=False, only_entity_bearer=False, ),
-    22: config_maker(UNIVEC    , binarize_counts=False, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl'),
-    23: config_maker(BIGRAM    , binarize_counts=False, only_entity_bearer=False, ),
-    24: config_maker(BIVEC    , binarize_counts=False, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl', aggfn='avg'),
-    25: config_maker(DSCTOK   , binarize_counts=False, only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
-    26: config_maker(DSCSUF   , binarize_counts=False, only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
-    27: config_maker(DSCTOKVEC, binarize_counts=False, only_entity_bearer=False, vecfn='combined_embedding_0.emb.pkl', parsefn='catpeople.parse.pkl'),
+    ## Add governor arc label as feature
+    14: config_maker(UNISUF   , parsefn='catpeople.parse.pkl'),
+    15: config_maker(UNISUF   , only_entity_bearer=False, parsefn='catpeople.parse.pkl'),
 }
 
 EXPCONFIG = {

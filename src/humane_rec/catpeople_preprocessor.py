@@ -4,12 +4,12 @@
 | Description : Classes for Efficient Global Preprocessing of CatPeople Corpus
 | Author      : Pushpendre Rastogi
 | Created     : Thu Sep 22 18:03:09 2016 (-0400)
-| Last-Updated: Sat Oct  1 17:20:05 2016 (-0400)
+| Last-Updated: Sat Oct  1 18:47:16 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 233
+|     Update #: 239
 '''
 from catpeople_preprocessor_config import CONFIG, UNIGRAM, UNIVEC, \
-    BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC
+    BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC, UNISUF
 from shelve import DbfilenameShelf
 import gzip
 import util_catpeople
@@ -43,6 +43,7 @@ LMpobjdobj = None
 LMpobjpcomp = None
 TM = None
 LABELMAP = None
+LEN_LABELMAP = None
 CTMAP = None
 GENDER_TO_PRONOUN = None
 TOKEN_TO_GENDER = None
@@ -179,12 +180,17 @@ def yield_ngrams(n, sentence):
         raise NotImplementedError(n)
     return
 
+def yield_unisuf(sentence, parse):
+    return ((l+1)*len(TM) + w for l,w in itertools.izip(parse, sentence))
 
-def get_ngrams_from_catpeople_entity(n, mentions, cfg):
+def get_ngrams_from_catpeople_entity(n, mentions, cfg, PARSES, yield_nsuf=False):
     r = defaultdict(int)
     binarize_counts = cfg.binarize_counts
     for sentence in catpeople_sentence_iterator(mentions, cfg.only_entity_bearer):
-        for w in yield_ngrams(n, sentence):
+        iterator = (yield_unisuf(sentence, PARSES[tuple(sentence)])
+                    if yield_nsuf
+                    else yield_ngrams(n, sentence))
+        for w in iterator:
             if binarize_counts:
                 r[w] = 1
             else:
@@ -196,16 +202,25 @@ def get_width_for_bigrams():
     return len(TM) * (len(TM) + 1)
 
 
-def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0):
+def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0,
+                                 add_governor_arc_label=False):
     assert n in [0, 1]
     url_list = catpeople['__URL_LIST__']
     shape = (len(url_list), len(TM) if width is None else width)
-    return csr_mat_builder(
-        (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg)
-         for url_idx, url
-         in enumerate(url_list)),
-        shape=shape,
-        verbose=1000)
+    PARSES = None
+    if add_governor_arc_label:
+        assert n == 0
+        with rasengan.tictoc('Loading Parses'):  # 1 min
+            PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
+        iterator = (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg,
+                                                     PARSES, yield_nsuf=True)
+                    for url_idx, url
+                    in enumerate(url_list))
+    else:
+        iterator = (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg, None)
+                    for url_idx, url
+                    in enumerate(url_list))
+    return csr_mat_builder(iterator, shape=shape, verbose=1)
 
 
 def get_valid_pfx(t, container):
@@ -266,37 +281,6 @@ def save_vec_file(input_fn, output_fn):
     return
 
 
-def doc_to_unigrams(cfg, catpeople):
-    smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
-    io.mmwrite(open(args.out_fn, 'wb'), smat)  # 51.8s
-    return
-
-
-def doc_to_bigrams(cfg, catpeople):
-    width = get_width_for_bigrams()
-    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width)
-    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=1, width=width)
-    io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1)  # 51.8s
-    return
-
-
-def doc_to_bivec(cfg):
-    '''Just touch the out_fn file'''
-    open(args.out_fn, 'wb').close()
-    return
-
-
-def doc_to_univec(cfg, catpeople):
-    save_vec_file(cfg.vecfn, args.out_fn + '.vec')
-    out_fn = args.out_fn
-    if not os.path.exists(out_fn):
-        smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)  # 36.7s
-        io.mmwrite(open(out_fn, 'wb'), smat)  # 51.8s
-    else:
-        print 'Skip Saving Sparse Mat file', out_fn
-    return
-
-
 def entity_descriptors(sentence, P, R, Tc, referents):
     '''
     Params
@@ -311,7 +295,6 @@ def entity_descriptors(sentence, P, R, Tc, referents):
     B = {}
     D = {}
     Gpo1 = {}
-    Gpo2 = {}
     CONVERGED = False
     P = [_ - 1 for _ in P]
     while not CONVERGED:
@@ -322,44 +305,41 @@ def entity_descriptors(sentence, P, R, Tc, referents):
                 or (r in LMacompnn and p in D)
                 or (r in LMpobjpcomp and P[p] in D)
                 or (r in LMpobjdobj and p in B)
-                or (r == LMconj and P[p] in B
-                    and R[p] in LMpobjdobj)):
-                D[i] = True
+                or (r == LMconj and P[p] in B and R[p] in LMpobjdobj)):
+                D[i] = r
             if r in LMnnpa and i in ETS:
-                D[p] = True
+                D[p] = r
             if (r == LMdobj and Tc[p] == CTverb and p in D):
                 B[p] = True
             if r == LMpobj and i in ETS and R[p] == LMprep and Tc[P[p]] == CTnoun:
-                Gpo1[P[p]] = True
+                Gpo1[P[p]] = r
             # print TM[[sentence[_] for _ in B]], TM[[sentence[_] for _ in D]],
             # TM[[sentence[_] for _ in ETS]]
-        NEW_LEN_BD = len(B) + len(D) + len(Gpo1)  # + len(Gpo2)
+        NEW_LEN_BD = len(B) + len(D) + len(Gpo1)
         CONVERGED = (NEW_LEN_BD == OLD_LEN_BD)
         pass
     D.update(Gpo1)
-    D.update(Gpo2)
     return D
 
 
-def yield_dsctok(sentence, parse, referents):
-    return [sentence[_]
-            for _
-            in entity_descriptors(sentence,
-                                  parse[0],
-                                  parse[1],
-                                  parse[2],
-                                  referents)]
+def yield_dscfeat(sentence, parse, referents, yield_suf=False):
+    for idx, r in entity_descriptors(sentence, parse[0], parse[1], parse[2], referents):
+        s = sentence[idx]
+        yield s
+        if yield_suf:
+            yield (r+1) * LEN_LABELMAP + s
+    return
 
-
-def get_dsctok_from_catpeople_entity(mentions, cfg, PARSES):
+def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES):
     r = defaultdict(int)
     binarize_counts = cfg.binarize_counts
+    yield_suf = cfg._name.startswith(DSCSUF)
     for sentence, referents in catpeople_sentence_iterator(
             mentions,
             only_entity_bearer=cfg.only_entity_bearer,
             yield_referents=True):
-        parse = PARSES[tuple(sentence)]
-        for w in yield_dsctok(sentence, parse, referents):
+        for w in yield_dscfeat(sentence, PARSES[tuple(sentence)], referents,
+                               yield_suf=yield_suf):
             if binarize_counts:
                 r[w] = 1
             else:
@@ -367,17 +347,15 @@ def get_dsctok_from_catpeople_entity(mentions, cfg, PARSES):
     return r
 
 
-def entity_list_to_dsctok_csr_mat(cfg, catpeople):
+def entity_list_to_dscfeat_csr_mat(cfg, catpeople):
     url_list = catpeople['__URL_LIST__']
     shape = (len(url_list), len(TM))
     with rasengan.tictoc('Loading Parses'):  # 1 min
         PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
     print 'Total Rows:', len(url_list)
-    return csr_mat_builder((get_dsctok_from_catpeople_entity(catpeople[url], cfg, PARSES)
-                            for url
-                            in url_list),
-                           shape=shape,
-                           verbose=1000)
+    iterator = (get_dscfeat_from_catpeople_entity(catpeople[url], cfg, PARSES)
+                for url in url_list)
+    return csr_mat_builder(iterator, shape=shape, verbose=1)
 
 
 def populate_dsctok_globals():
@@ -406,12 +384,50 @@ def populate_dsctok_globals():
     return
 
 
+# --------------------------- #
+# Functions For Each Modality #
+# --------------------------- #
+def doc_to_unigrams(cfg, catpeople):
+    smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
+    io.mmwrite(open(args.out_fn, 'wb'), smat)
+    return
 
-def doc_to_dsctok(cfg, catpeople):
+def doc_to_unisuf(cfg, catpeople):
+    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
+    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0,
+                                         add_governor_arc_label=True)
+    io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1)
+    return
+
+def doc_to_bigrams(cfg, catpeople):
+    width = get_width_for_bigrams()
+    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width)
+    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=1, width=width)
+    io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1)
+    return
+
+
+def doc_to_bivec(cfg):
+    '''Just touch the out_fn file'''
+    open(args.out_fn, 'wb').close()
+    return
+
+
+def doc_to_univec(cfg, catpeople):
+    save_vec_file(cfg.vecfn, args.out_fn + '.vec')
+    out_fn = args.out_fn
+    if not os.path.exists(out_fn):
+        smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
+        io.mmwrite(open(out_fn, 'wb'), smat)
+    else:
+        print 'Skip Saving Sparse Mat file', out_fn
+    return
+
+
+def doc_to_dscfeat(cfg, catpeople):
     populate_dsctok_globals()
-    # save_vec_file(cfg.vecfn, args.out_fn + '.vec')
-    smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
-    io.mmwrite(open(args.out_fn, 'wb'), smat)  # 51.8s
+    smat = entity_list_to_dscfeat_csr_mat(cfg, catpeople)
+    io.mmwrite(open(args.out_fn, 'wb'), smat)
     return
 
 def doc_to_dsctokvec(cfg):
@@ -419,12 +435,9 @@ def doc_to_dsctokvec(cfg):
     There is no need to create new files.
     We can just reuse tokvec from old files.
     '''
+    # save_vec_file(cfg.vecfn, args.out_fn + '.vec')
     open(args.out_fn, 'wb').close()
     return
-
-
-def doc_to_dscsuf(cfg, catpeople):
-    raise NotImplementedError('dscsuf')
 
 
 def main():
@@ -433,11 +446,13 @@ def main():
     global CTMAP
     global GENDER_TO_PRONOUN
     global TOKEN_TO_GENDER
+    global LEN_LABELMAP
     cfg = CONFIG[args.config]
     catpeople = DbfilenameShelf(args.in_shelf, protocol=-1, flag='r')
     TM = catpeople['__TOKEN_MAPPER__']
     TM.finalize()
     LABELMAP = util_catpeople.get_labelmap()
+    LEN_LABELMAP = len(LABELMAP)
     CTMAP = util_catpeople.get_coarse_tagmap()
     GENDER_TO_PRONOUN = get_gender_to_pronoun(TM)
     TOKEN_TO_GENDER = get_token_to_gender(TM)
@@ -475,16 +490,16 @@ def main():
             # --> entity_list_to_ngram_csr_mat(n=0, width=None)
         elif name.startswith(BIVEC):
             return doc_to_bivec(cfg)
-        elif name.startswith(DSCTOK):
-            return doc_to_dsctok(cfg, catpeople)
-            # --> entity_list_to_dsctok_csr_mat
-            #     --> get_dsctok_from_catpeople_entity
+        elif name.startswith(DSCTOK) or name.startswith(DSCSUF):
+            return doc_to_dscfeat(cfg, catpeople)
+            # --> entity_list_to_dscfeat_csr_mat
+            #     --> get_dscfeat_from_catpeople_entity
             #         --> catpeople_sentence_iterator
             #         --> yield_dsctok
         elif name.startswith(DSCTOKVEC):
             return doc_to_dsctokvec(cfg)
-        elif name.startswith(DSCSUF):
-            return doc_to_dscsuf(cfg, catpeople)
+        elif name.startswith(UNISUF):
+            return doc_to_unisuf(cfg, catpeople)
         else:
             raise NotImplementedError(name)
 

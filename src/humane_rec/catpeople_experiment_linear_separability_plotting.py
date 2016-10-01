@@ -4,19 +4,19 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 30 10:56:54 2016 (-0400)
-| Last-Updated: Fri Sep 30 23:02:38 2016 (-0400)
+| Last-Updated: Sat Oct  1 17:52:34 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 168
+|     Update #: 169
 '''
 import argparse
 arg_parser = argparse.ArgumentParser(description='')
 arg_parser.add_argument('--ppcfg', default=None, type=int, help='Default={None}')
 arg_parser.add_argument('--figsize_x', default=10, type=int)
-arg_parser.add_argument('--figsize_y', default=10, type=int)
+arg_parser.add_argument('--figsize_y', default=5, type=int)
 arg_parser.add_argument('--title', default=None, type=str)
 arg_parser.add_argument('--out_fn', default=None, type=str)
-arg_parser.add_argument('--xmin', default=None, type=float)
-arg_parser.add_argument('--ymin', default=None, type=float)
+arg_parser.add_argument('--xmin', default=0, type=float)
+arg_parser.add_argument('--ymin', default=0.5, type=float)
 args=arg_parser.parse_args()
 import matplotlib
 matplotlib.use('agg')

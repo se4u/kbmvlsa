@@ -54,12 +54,13 @@ analyze:
 
 PLTPY := catpeople_experiment_linear_separability_plotting.py
 plot_perf:
-	./$(PLTPY) --ppcfg 0 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5 --title 'Squared Hinge (Unigram, Only EBS)' --out_fn 'figures/HingeUnigramOnlyEBS.pdf'
-	./$(PLTPY) --ppcfg 7 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5  --title 'Squared Hinge (Unigram, All Sent)' --out_fn 'figures/HingeUnigramAllSent.pdf'
-	./$(PLTPY) --ppcfg 2 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5  --title 'Squared Hinge (Bigram Only EBS)' --out_fn 'figures/HingeBigramOnlyEBS.pdf'
-	./$(PLTPY) --ppcfg 9 --figsize_x 10 --figsize_y 10 --xmin 0 --ymin 0.5  --title 'Squared Hinge (Bigram All Sent)' --out_fn 'figures/HingeBigramAllSent.pdf'
-# ./$(PLTPY) --expcfg 4 --figsize_x 10 --figsize_y 10 --title 'Log Loss vs Squared Hinge - Fit Comparison (DSCTOK Features, Only EBS).' --out_fn 'figures/LL-HingeDsctokAllSent.pdf'
-# ./$(PLTPY) --expcfg 11 --figsize_x 10 --figsize_y 4 --title 'Log Loss vs Squared Hinge - Fit Comparison (DSCTOK Feature, ALL Sent).' --out_fn 'figures/LL-HingeDsctokOnlyEBS.pdf'
+	./$(PLTPY) --ppcfg  0  --title 'Hinge (Unigram, Only EBS)' --out_fn 'figures/HingeUnigramOnlyEBS.pdf'
+	./$(PLTPY) --ppcfg  2  --title 'Hinge (Bigram, Only EBS)'  --out_fn 'figures/HingeBigramOnlyEBS.pdf'
+	./$(PLTPY) --ppcfg  4  --title 'Hinge (Dsctok, Only EBS).' --out_fn 'figures/HingeDsctokOnlyEBS.pdf'
+	./$(PLTPY) --ppcfg  7  --title 'Hinge (Unigram, All Sent)' --out_fn 'figures/HingeUnigramAllSent.pdf'
+	./$(PLTPY) --ppcfg  9  --title 'Hinge (Bigram, All Sent)'  --out_fn 'figures/HingeBigramAllSent.pdf'
+	./$(PLTPY) --ppcfg 11  --title 'Hinge (Dsctok, ALL Sent).' --out_fn 'figures/HingeDsctokAllSent.pdf'
+
 # ---------------------- #
 # Cat People Experiments #
 # ---------------------- #
