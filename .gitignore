@@ -23,3 +23,5 @@ no_repo/
 *auto/
 scratch/feat=*
 *.ipynb_checkpoints/
+*TAGS
+*tmp.py

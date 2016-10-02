@@ -113,7 +113,7 @@ class TestEntityDescriptors(unittest.TestCase):
             for oeb in [0, 1]:
                 cfg.binarize_counts = bc
                 cfg.only_entity_bearer = oeb
-                self.expectEqual(dict(catpeople_preprocessor.get_dscfeat_from_catpeople_entity([mention], cfg, PARSES)), {14:1})
+                self.expectEqual(dict(catpeople_preprocessor.get_dscfeat_from_catpeople_entity([mention], cfg, PARSES, False)), {14:1})
         return
 
     def test_get_ngrams_from_catpeople_entity(self):
