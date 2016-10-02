@@ -60,6 +60,10 @@ plot_perf:
 	./$(PLTPY) --ppcfg  7  --title 'Hinge (Unigram, All Sent)' --out_fn 'figures/HingeUnigramAllSent.pdf'
 	./$(PLTPY) --ppcfg  9  --title 'Hinge (Bigram, All Sent)'  --out_fn 'figures/HingeBigramAllSent.pdf'
 	./$(PLTPY) --ppcfg 11  --title 'Hinge (Dsctok, ALL Sent).' --out_fn 'figures/HingeDsctokAllSent.pdf'
+	./$(PLTPY) --ppcfg  5  --title 'Hinge (DscSuf, ALL Sent).' --out_fn 'figures/HingeDscSufAllSent.pdf' --expcfg_str '15 16 9 26'
+	./$(PLTPY) --ppcfg 12  --title 'Hinge (DscSuf, Only EBS).' --out_fn 'figures/HingeDscSufOnlyEBS.pdf' --expcfg_str '15 16 9 26'
+	./$(PLTPY) --ppcfg 14  --title 'Hinge (Unisuf, ALL Sent).' --out_fn 'figures/HingeUnisufAllSent.pdf' --expcfg_str '15 16 9 26'
+	./$(PLTPY) --ppcfg 15  --title 'Hinge (Unisuf, Only EBS).' --out_fn 'figures/HingeUnisufOnlyEBS.pdf' --expcfg_str '15 16 9 26'
 
 # ---------------------- #
 # Cat People Experiments #

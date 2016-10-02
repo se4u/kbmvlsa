@@ -4,16 +4,16 @@
 | Description : The Experiment Loop
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 23 13:05:58 2016 (-0400)
-| Last-Updated: Thu Sep 29 21:11:20 2016 (-0400)
+| Last-Updated: Sat Oct  1 20:22:31 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 226
+|     Update #: 228
 '''
 import argparse
 import random
 import numpy as np
 from catpeople_preprocessor_config import UNIGRAM, UNIVEC, BIGRAM, BIVEC, \
     DSCTOK, DSCSUF, DSCTOKVEC, CONFIG, DATACONFIG, EXPCONFIG, NBDISCRT, NBKERNEL, \
-    KERMACH, MALIGNER
+    KERMACH, MALIGNER, UNISUF
 import util_catpeople as uc
 from util_catpeople import set_column_of_sparse_matrix_to_zero
 from shelve import DbfilenameShelf
@@ -143,10 +143,27 @@ class ExperimentRunner(object):
         elif self.pp_prefix_is([BIVEC, BIGRAM]):
             column_idi = set(list(column_idi)
                              + self.get_col_index_of_function_bigrams())
+        elif self.pp_prefix_is([UNISUF, DSCSUF]):
+            column_idi = set(list(column_idi)
+                             + self.get_col_index_of_function_govgrams())
         else:
             raise NotImplementedError(self.ppcfg._name)
         self.smat = set_column_of_sparse_matrix_to_zero(self.smat, column_idi)
         return
+
+    def get_col_index_of_function_govgrams(self):
+        ''' Returns indices of (governor label, unigrams) that
+        indicate function words.
+        '''
+        fnwords = set(self.fnwords)
+        base = len(self.TM)
+        nonempty_columns = set(self.smat.col)
+        l = []
+        for ci in nonempty_columns:
+            cur = ci % base
+            if cur in fnwords:
+                l.append(ci)
+        return l
 
     def get_col_index_of_function_bigrams(self):
         # uc.patch_scipy(scipy)

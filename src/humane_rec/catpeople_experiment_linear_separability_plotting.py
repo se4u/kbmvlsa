@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 30 10:56:54 2016 (-0400)
-| Last-Updated: Sat Oct  1 17:52:34 2016 (-0400)
+| Last-Updated: Sat Oct  1 21:06:30 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 169
+|     Update #: 170
 '''
 import argparse
 arg_parser = argparse.ArgumentParser(description='')
@@ -17,6 +17,7 @@ arg_parser.add_argument('--title', default=None, type=str)
 arg_parser.add_argument('--out_fn', default=None, type=str)
 arg_parser.add_argument('--xmin', default=0, type=float)
 arg_parser.add_argument('--ymin', default=0.5, type=float)
+arg_parser.add_argument('--expcfg_str', default='16 9 26', type=str)
 args=arg_parser.parse_args()
 import matplotlib
 matplotlib.use('agg')
@@ -25,7 +26,7 @@ from util_catpeople_experiment_linear_separability_plotting import \
     get_stats, lcmap, getline2d
 from rasengan import debug_support
 with debug_support():
-    aupr, mrr, color, C, shape = get_stats(args.ppcfg)
+    aupr, mrr, color, C, shape = get_stats(args.ppcfg, expcfg_str=args.expcfg_str)
     fig = plt.figure(figsize=(args.figsize_x, args.figsize_y)) # give plots a rectangular frame
     ax = fig.add_subplot(111)
     label_to_artists = {}

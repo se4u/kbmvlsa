@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Fri Sep 30 16:59:21 2016 (-0400)
-| Last-Updated: Fri Sep 30 22:54:13 2016 (-0400)
+| Last-Updated: Sat Oct  1 21:07:01 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 10
+|     Update #: 12
 '''
 from util_catpeople import get_pfx
 import re
@@ -25,11 +25,11 @@ def get(fn, part):
     return float(obj.group('%s_MRR'%part)), float(obj.group('%s_AUPR'%part))
 
 
-def get_stats(ppcfg):
+def get_stats(ppcfg, expcfg_str='16 9 26'):
     aupr, mrr, color, C, shape = [], [], [], [], []
     for _fn, expcfg in ((pfx + '/catpeople_ls.ppcfg~%d.expcfg~%s.pkl.txt'%(ppcfg, _expcfg), _expcfg)
                for _expcfg
-               in '16 9 26'.split()):
+               in expcfg_str.split()):
         cfg = EXPCONFIG[int(expcfg)]
         c_ = cfg.lsvc_C
         loss = cfg.lsvc_loss

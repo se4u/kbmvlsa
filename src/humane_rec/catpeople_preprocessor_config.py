@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 from rasengan import NamespaceLite
-from functools import partial
-import os
 from catpeople_maligner_config_helper import Sequential_Policy, Fixed_Iter_Convergence
 PROJECT_PATH = ['/export/b15/prastog3/',
                 '~/data/embedding/',
@@ -30,6 +28,7 @@ NBDISCRT = 'NBDISCRT'
 NBKERNEL = 'NBKERNEL'
 KERMACH  = 'KERMACH'
 MALIGNER = 'MALIGNER'
+GBL2R    = 'GBL2R'
 def expconfig_maker(name, **kwargs):
     defaults = dict(rm_fn_word=True, weight_method='log(1+tc)',
                     top_token_pct=50, learn2rank=False, folds=(0,),
@@ -114,17 +113,19 @@ EXPCONFIG = {
     # 200 < KERMACH < 300
     200: expconfig_maker(KERMACH, kernel='rada'),
     201: expconfig_maker(KERMACH, kernel='se'),
-    # 300 < MALIGNER
+    # 300 < MALIGNER < 400
     300: expconfig_maker(MALIGNER, ),
     301: expconfig_maker(MALIGNER, top_token_pct=0),
     302: expconfig_maker(MALIGNER, top_token_pct=0, skim_pct=0),
     303: expconfig_maker(MALIGNER, aggfn='nblike', kernel='nblike'),
+    # 400 < GBL2R < 500
+    400: expconfig_maker(GBL2R,    ),
 }
 
 
 if __name__ == '__main__':
-    for i in range(len(CONFIG)):
+    for i in sorted(CONFIG):
         print '%-2d'%i, '%-120s'%str(CONFIG[i]), i
     print
-    for i in range(len(EXPCONFIG)):
+    for i in sorted(EXPCONFIG):
         print '%-2d'%i, '%-120s'%str(EXPCONFIG[i]), i
