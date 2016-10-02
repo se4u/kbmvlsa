@@ -16,7 +16,7 @@ ifeq ($(shell domainname),clsp)
 else
   CPD := data
 endif
-
+XTRACT = $(subst ~, ,$(subst ., --,$(1)))
 
 rsync1:
 	rsync -avz *.py prastog3@b15:$(CLSP_DIR)/
@@ -53,22 +53,23 @@ analyze:
 	./catpeople_experiment_linear_separability_analyze_pickle.py --ppcfg 0 --expcfg 16
 
 PLTPY := catpeople_experiment_linear_separability_plotting.py
+ECHO :=
 plot_perf:
-	./$(PLTPY) --ppcfg  0  --title 'Hinge (Unigram, Only EBS)' --out_fn 'figures/HingeUnigramOnlyEBS.pdf'
-	./$(PLTPY) --ppcfg  2  --title 'Hinge (Bigram, Only EBS)'  --out_fn 'figures/HingeBigramOnlyEBS.pdf'
-	./$(PLTPY) --ppcfg  4  --title 'Hinge (Dsctok, Only EBS).' --out_fn 'figures/HingeDsctokOnlyEBS.pdf'
-	./$(PLTPY) --ppcfg  7  --title 'Hinge (Unigram, All Sent)' --out_fn 'figures/HingeUnigramAllSent.pdf'
-	./$(PLTPY) --ppcfg  9  --title 'Hinge (Bigram, All Sent)'  --out_fn 'figures/HingeBigramAllSent.pdf'
-	./$(PLTPY) --ppcfg 11  --title 'Hinge (Dsctok, ALL Sent).' --out_fn 'figures/HingeDsctokAllSent.pdf'
-	./$(PLTPY) --ppcfg  5  --title 'Hinge (DscSuf, ALL Sent).' --out_fn 'figures/HingeDscSufAllSent.pdf' --expcfg_str '15 16 9 26'
-	./$(PLTPY) --ppcfg 12  --title 'Hinge (DscSuf, Only EBS).' --out_fn 'figures/HingeDscSufOnlyEBS.pdf' --expcfg_str '15 16 9 26'
-	./$(PLTPY) --ppcfg 14  --title 'Hinge (Unisuf, ALL Sent).' --out_fn 'figures/HingeUnisufAllSent.pdf' --expcfg_str '15 16 9 26'
-	./$(PLTPY) --ppcfg 15  --title 'Hinge (Unisuf, Only EBS).' --out_fn 'figures/HingeUnisufOnlyEBS.pdf' --expcfg_str '15 16 9 26'
+	$(ECHO) ./$(PLTPY) --pptitle \
+	 '0 Hinge (Unigram, Only EBS)' \
+	 '2 Hinge (Bigram, Only EBS)'  \
+	 '4 Hinge (Dsctok, Only EBS)'  \
+	 '5 Hinge (DscSuf, Only EBS)'  \
+	 '14 Hinge (Unisuf, Only EBS)' \
+	 '7 Hinge (Unigram, All Sent)' \
+	 '9 Hinge (Bigram, All Sent)'  \
+	 '11 Hinge (Dsctok, All Sent)' \
+	 '12 Hinge (DscSuf, All Sent)' \
+	 '15 Hinge (Unisuf, All Sent)'
 
 # ---------------------- #
 # Cat People Experiments #
 # ---------------------- #
-XTRACT = $(subst ~, ,$(subst ., --,$(1)))
 CPXP = $(CPD)/catpeople_experiment.ppcfg~$(1).expcfg~$(2).pkl
 CPLS = $(CPD)/catpeople_ls.ppcfg~$(1).expcfg~$(2).pkl
 # |   PPCFG   | EXPCFG
@@ -80,8 +81,8 @@ CPLS = $(CPD)/catpeople_ls.ppcfg~$(1).expcfg~$(2).pkl
 # | 8 B+more  |10 ttp=0, C=.1, pen=l1
 # |11 D+more  |
 # Linear Separability Tests
-# 0 2 4 7 9 11 # 2 5 6 7 8 9 10
-xpls: $(foreach ppcfg,5 12 14 15,$(foreach expcfg,15 16 9 26,$(call CPLS,$(ppcfg),$(expcfg))))
+# 0 2 4 7 9 11 # 2 5 6 7 8 9 10 # 5 12 14 15
+xpls: $(foreach ppcfg, 0 2 4 5 14 7 9 11 12 15,$(foreach expcfg,10 14 15 16 9 26,$(call CPLS,$(ppcfg),$(expcfg))))
 
 report: $(foreach ppcfg,0 7 2 9 4 11,$(foreach expcfg,16 9 26,$(call CPLS,$(ppcfg),$(expcfg)).txt.cat))
 

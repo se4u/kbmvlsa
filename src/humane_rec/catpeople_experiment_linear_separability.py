@@ -4,9 +4,9 @@
 | Description : Test how well can we linearly separate the needles from haystack?
 | Author      : Pushpendre Rastogi
 | Created     : Wed Sep 28 23:35:41 2016 (-0400)
-| Last-Updated: Sat Oct  1 20:17:43 2016 (-0400)
+| Last-Updated: Sun Oct  2 03:15:47 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 99
+|     Update #: 100
 '''
 import catpeople_experiment as ce
 from sklearn.svm import LinearSVC
@@ -67,7 +67,7 @@ class LinSepChecker(ce.ExperimentRunner):
                 C=self.expcfg.lsvc_C,
                 intercept_scaling=1000,
                 penalty=self.expcfg.lsvc_penalty,
-                dual=(needles_in_haystack.shape[0] < len(features)),
+                dual=False,
                 tol=1e-4, fit_intercept=True, verbose=0,
                 random_state=args.seed, max_iter=1000)
         else:
@@ -75,7 +75,7 @@ class LinSepChecker(ce.ExperimentRunner):
                 C=self.expcfg.lsvc_C, intercept_scaling=1000,
                 penalty=self.expcfg.lsvc_penalty,
                 loss=self.expcfg.lsvc_loss,
-                dual=(needles_in_haystack.shape[0] < len(features)),
+                dual=False,
                 tol=1e-4, fit_intercept=True,
                 verbose=0, random_state=args.seed, max_iter=1000)
         with rasengan.tictoc('Fitting', timer='total_time'):
