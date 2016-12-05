@@ -24,3 +24,5 @@ no_repo/
 scratch/feat=*
 *.ipynb_checkpoints/
 src/kbmvlsa/.idea/
+*TAGS
+*tmp.py

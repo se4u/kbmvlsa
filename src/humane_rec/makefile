@@ -4,6 +4,7 @@
 SHELL := /bin/bash
 .PHONY:
 .SECONDARY:
+.PRECIOUS:
 default:
 	echo "Specify Target"
 echo_%:
@@ -15,7 +16,7 @@ ifeq ($(shell domainname),clsp)
 else
   CPD := data
 endif
-
+XTRACT = $(subst ~, ,$(subst ., --,$(1)))
 
 rsync1:
 	rsync -avz *.py prastog3@b15:$(CLSP_DIR)/
@@ -48,31 +49,79 @@ update_shelf: $(CPD)/catpeople_clean_segmented_context.shelf.dat
 	  --update_shelf 1 \
 	  --in_shelf $(basename $<)
 
+analyze:
+	./catpeople_experiment_linear_separability_analyze_pickle.py --ppcfg 0 --expcfg 16
+
+PLTPY := catpeople_experiment_linear_separability_plotting.py
+ECHO :=
+plot_perf:
+	$(ECHO) ./$(PLTPY) --pptitle \
+	 '0 Hinge (Unigram, Only EBS)' \
+	 '2 Hinge (Bigram, Only EBS)'  \
+	 '4 Hinge (Dsctok, Only EBS)'  \
+	 '5 Hinge (DscSuf, Only EBS)'  \
+	 '14 Hinge (Unisuf, Only EBS)' \
+	 '7 Hinge (Unigram, All Sent)' \
+	 '9 Hinge (Bigram, All Sent)'  \
+	 '11 Hinge (Dsctok, All Sent)' \
+	 '12 Hinge (DscSuf, All Sent)' \
+	 '15 Hinge (Unisuf, All Sent)'
+
 # ---------------------- #
 # Cat People Experiments #
 # ---------------------- #
-# CPXP: First arg is ppcfg, second arg in expcfg #
 CPXP = $(CPD)/catpeople_experiment.ppcfg~$(1).expcfg~$(2).pkl
+CPLS = $(CPD)/catpeople_ls.ppcfg~$(1).expcfg~$(2).pkl
+# |   PPCFG   | EXPCFG
+# |-----------+--------------------
+# | 0 UNIGRAM |
+# | 2 BIGRAM  | 2 ttp=0
+# | 4 DSCTOK  | 6 ttp=0, C=.1,
+# | 7 U+more  | 9 ttp=0,       pen=l1
+# | 8 B+more  |10 ttp=0, C=.1, pen=l1
+# |11 D+more  |
+# Linear Separability Tests
+# 0 2 4 7 9 11 # 2 5 6 7 8 9 10 # 5 12 14 15
+xpls: $(foreach ppcfg, 0 2 4 5 14 7 9 11 12 15,$(foreach expcfg,10 14 15 16 9 26,$(call CPLS,$(ppcfg),$(expcfg))))
+
+report: $(foreach ppcfg,0 7 2 9 4 11,$(foreach expcfg,16 9 26,$(call CPLS,$(ppcfg),$(expcfg)).txt.cat))
+
+report_dsctok_logloss: $(foreach ppcfg,11,$(foreach expcfg,19 20 21 22,$(call CPLS,$(ppcfg),$(expcfg)).txt.cat))
+
+%.cat: %
+	echo $*; cat $*
+
+$(CPD)/catpeople_ls%.pkl.txt: # $(CPD)/catpeople_ls%.pkl
+	python -c "import cPickle, sys; print cPickle.load(open('$(basename $@)'))" > $@
+
+$(CPD)/catpeople_ls%.pkl:
+	./catpeople_experiment_linear_separability.py $(call XTRACT,$*) --out_pkl_fn $@
+	$(MAKE) $@.txt
+
+
+# CPXP: First arg is ppcfg, second arg in expcfg #
+
 xpmln: $(foreach expcfg,300 301 302,$(foreach ppcfg,1 8,$(call CPXP,$(ppcfg),$(expcfg))))
 xpnbk: $(foreach expcfg,100 101,$(foreach ppcfg,1 8,$(call CPXP,$(ppcfg),$(expcfg))))
 xpnb: $(foreach expcfg,0,$(foreach ppcfg,0 7,$(call CPXP,$(ppcfg),$(expcfg))))
 
-XTRACT = $(subst ~, ,$(subst ., --,$(1)))
+
 $(CPD)/catpeople_experiment%.pkl:
 	$(MAKE) $(CPD)/catpeople_pp_$(word 2,$(call XTRACT,$*))
 	./catpeople_experiment.py  $(call XTRACT,$*)
 # -------------------------- #
 # Cat People Data Processing #
 # -------------------------- #
-allpp:
-	for n in 0 1 4 7 8 11; do $(MAKE) $(CPD)/catpeople_pp_$$n; done
+rmpp:
+	rm $(foreach ppcfg,0 1 2 3 4 6 7 8 9 11 13,$(CPD)/catpeople_pp_$(ppcfg)*)
 
-unigram: $(CPD)/catpeople_pp_0
-univec: $(CPD)/catpeople_pp_1
-dsctok: $(CPD)/catpeople_pp_4
+allpp: testpp $(foreach ppcfg,5 12 14 15,$(CPD)/catpeople_pp_$(ppcfg))
+
+testpp:
+	./test_catpeople_preprocessor.py
 
 $(CPD)/catpeople_pp_%: $(CPD)/catpeople_clean_segmented_context.shelf.dat
-	./catpeople_preprocessor.py --in_shelf $(basename $<) --config $*
+	time ./catpeople_preprocessor.py --in_shelf $(basename $<) --config $*
 
 $(CPD)/catpeople.parse.pkl: $(CPD)/catpeople_clean_segmented_context.shelf.dat $(CPD)/catpeople.parse.gz
 	./catpeople_preprocessor_parses_to_pkl.py \

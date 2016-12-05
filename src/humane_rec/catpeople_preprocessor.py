@@ -4,24 +4,25 @@
 | Description : Classes for Efficient Global Preprocessing of CatPeople Corpus
 | Author      : Pushpendre Rastogi
 | Created     : Thu Sep 22 18:03:09 2016 (-0400)
-| Last-Updated: Wed Sep 28 14:38:18 2016 (-0400)
+| Last-Updated: Sat Oct  1 19:53:53 2016 (-0400)
 |           By: Pushpendre Rastogi
-|     Update #: 218
+|     Update #: 250
 '''
 from catpeople_preprocessor_config import CONFIG, UNIGRAM, UNIVEC, \
-    BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC
+    BIGRAM, BIVEC, DSCTOK, DSCSUF, DSCTOKVEC, UNISUF
 from shelve import DbfilenameShelf
 import gzip
 import util_catpeople
 import numpy as np
 import sys
 from joblib import Parallel, delayed
-import functools, itertools
+import functools
+import itertools
 import cPickle as pkl
 import os
 from collections import defaultdict
 from scipy import io
-from rasengan import tictoc, csr_mat_builder, groupby
+from rasengan import csr_mat_builder
 import rasengan
 import argparse
 import random
@@ -29,28 +30,48 @@ import random
 # ------- #
 # GLOBALS #
 # ------- #
-CTnoun=None
-CTverb=None
-LMconj=None
-LMdobj=None
-LMpobj=None
-LMprep=None
-LMappos=None
-LMacompnn=None
-LMnnpa=None
-LMpobjdobj=None
-LMpobjpcomp=None
-TM=None
-LABELMAP=None
-CTMAP=None
-GENDER_TO_PRONOUN=None
-TOKEN_TO_GENDER=None
+CTnoun = None
+CTverb = None
+LMconj = None
+LMdobj = None
+LMpobj = None
+LMprep = None
+LMappos = None
+LMacompnn = None
+LMnnpa = None
+LMpobjdobj = None
+LMpobjpcomp = None
+TM = None
+LABELMAP = None
+CTMAP = None
+GENDER_TO_PRONOUN = None
+TOKEN_TO_GENDER = None
+
+
+def get_gender_to_pronoun(TM): # pylint: disable=redefined-outer-name
+    return {0: set(TM(['him', 'his', 'he'])),
+            1: set(TM(['she', 'her', 'hers']))}
+
+
+def get_token_to_gender(TM): # pylint: disable=redefined-outer-name
+    from rasengan.gender import GENDER
+    TOKEN_TO_GENDER = {} # pylint: disable=redefined-outer-name
+    for (t, v) in GENDER.iteritems():
+        try:
+            tid = TM([t.lower()])[0]
+        except KeyError:
+            continue
+        else:
+            TOKEN_TO_GENDER[tid] = v
+    return TOKEN_TO_GENDER
+
 
 def format_to_conll(lst):
     # LEMMA=CPOSTAG=POSTAG=FEATS=HEAD=DEPREL=PHEAD=PREPREL='_'
     s = '_\t_\t_\t_\t_\t_\t_\t_'
-    return ''.join('%d\t%s\t%s\n'%(idx+1, tok, s)
+    return ''.join('%d\t%s\t%s\n' % (idx + 1, tok, s)
                    for idx, tok in enumerate(lst))
+
 
 def print_to_conll(out_fn, catpeople, urls):
     ''' Print all mention sentences for all urls from catpeople to out_fn
@@ -60,12 +81,14 @@ def print_to_conll(out_fn, catpeople, urls):
     with gzip.open(out_fn, mode='wb') as out_f:
         for url_idx, url in enumerate(urls):
             if url_idx % 10000 == 0:
-                print >> sys.stderr, 'DONE: %.3f'%(float(url_idx*100)/total_url)
+                print >> sys.stderr, 'DONE: %.3f' % (
+                    float(url_idx * 100) / total_url)
             for mention in catpeople[url]:
                 for sentence in mention[0]:
                     out_f.write(format_to_conll(TM[sentence]))
                     out_f.write('\n')
     return
+
 
 def split(lst, parts):
     '''Split lst into parts. parts is an integer.
@@ -73,13 +96,15 @@ def split(lst, parts):
     l = len(lst)
     offset = 0
     jmp = l / parts
-    for _ in range(parts-1):
-        yield lst[offset: offset+jmp]
-        offset+=jmp
+    for _ in range(parts - 1):
+        yield lst[offset: offset + jmp]
+        offset += jmp
     yield lst[offset:]
+
 
 def arg_match(lst, elms):
     return [i for i in xrange(len(lst)) if lst[i] in elms]
+
 
 def matching_pronouns(sentence, cts):
     ct = cts[0]
@@ -89,6 +114,7 @@ def matching_pronouns(sentence, cts):
         return arg_match(sentence, elms)
     except KeyError:
         return []
+
 
 def catpeople_sentence_iterator(mentions, only_entity_bearer=False, yield_referents=False):
     ''' Yield the sentences related to cp[url] one by one.
@@ -118,11 +144,13 @@ def catpeople_sentence_iterator(mentions, only_entity_bearer=False, yield_refere
                 if yield_referents:
                     referents = arg_match(sentence, canonical_tokens)
                     if idx >= cid:
-                        referents.extend(matching_pronouns(sentence, canonical_tokens))
+                        referents.extend(matching_pronouns(
+                            sentence, canonical_tokens))
                     yield sentence, referents
                 else:
                     yield sentence
     return
+
 
 def yield_ngrams(n, sentence):
     ''' Yield Ngrams, not as tuples but as integers. In the worst case we yield
@@ -139,44 +167,63 @@ def yield_ngrams(n, sentence):
     elif n == 1:
         yield N * N + sentence[0]
         for i in range(1, len(sentence)):
-            yield (1 + sentence[i-1]) * N +  sentence[i]
+            yield (1 + sentence[i - 1]) * N + sentence[i]
     elif n == 2:
-        N2 = N*N
-        yield N*N2 + N2 +sentence[0]
+        N2 = N * N
+        yield N * N2 + N2 + sentence[0]
         if len(sentence) > 1:
-            yield N*N2 + N*(1+sentence[0]) + sentence[1]
+            yield N * N2 + N * (1 + sentence[0]) + sentence[1]
             for i in range(2, len(sentence)):
-                yield (1+sentence[i-2])*N2 + (1+sentence[i-1])*N + sentence[i]
+                yield (1 + sentence[i - 2]) * N2 + (1 + sentence[i - 1]) * N + sentence[i]
     else:
         raise NotImplementedError(n)
     return
 
+def yield_unisuf(sentence, parse):
+    return ((l+1)*len(TM) + w for l,w in itertools.izip(parse, sentence))
 
-def get_ngrams_from_catpeople_entity(n, mentions, cfg):
+def get_ngrams_from_catpeople_entity(n, mentions, cfg, PARSES, yield_nsuf=False):
     r = defaultdict(int)
     binarize_counts = cfg.binarize_counts
     for sentence in catpeople_sentence_iterator(mentions, cfg.only_entity_bearer):
-        for w in yield_ngrams(n, sentence):
+        iterator = (yield_unisuf(sentence,
+                                 PARSES[tuple(sentence)][1]) # PARSES[1] contains the roles
+                    if yield_nsuf
+                    else yield_ngrams(n, sentence))
+        for w in iterator:
             if binarize_counts:
                 r[w] = 1
             else:
                 r[w] += 1
     return r
 
+
 def get_width_for_bigrams():
-    return len(TM)*(len(TM) + 1)
+    return len(TM) * (len(TM) + 1)
 
+def get_width_for_unisuf():
+    return len(TM) * (len(LABELMAP) + 1)
 
-def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0):
+def entity_list_to_ngram_csr_mat(cfg, catpeople, width=None, n=0,
+                                 add_governor_arc_label=False):
     assert n in [0, 1]
     url_list = catpeople['__URL_LIST__']
     shape = (len(url_list), len(TM) if width is None else width)
-    return csr_mat_builder(
-        (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg)
-         for url_idx, url
-         in enumerate(url_list)),
-        shape=shape,
-        verbose=1000)
+    PARSES = None
+    if add_governor_arc_label:
+        assert n == 0
+        with rasengan.tictoc('Loading Parses'):  # 1 min
+            PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
+        iterator = (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg,
+                                                     PARSES, yield_nsuf=True)
+                    for url_idx, url
+                    in enumerate(url_list))
+    else:
+        iterator = (get_ngrams_from_catpeople_entity(n, catpeople[url], cfg, None)
+                    for url_idx, url
+                    in enumerate(url_list))
+    return csr_mat_builder(iterator, shape=shape, verbose=0)
+
 
 def get_valid_pfx(t, container):
     ''' Keep slicing prefixes of `t` till `t` is found in the container.
@@ -202,16 +249,17 @@ def get_valid_pfx(t, container):
         assert tt in container
         return tt
     # 3. Prefix finding loop
-    for _ in range(len(t)-1):
+    for _ in range(len(t) - 1):
         t = t[:-1]
         if t in container:
             return t
     raise ValueError((orig, t))
 
+
 def substitute_unmappable_words(vectors):
     d = {}
     tvec = None
-    for t,i in TM.t2i.iteritems():
+    for t, i in TM.t2i.iteritems():
         try:
             tvec = vectors[t]
         except KeyError:
@@ -224,41 +272,14 @@ def substitute_unmappable_words(vectors):
     del d
     return emb
 
-def save_vec_file(vecfn, out_fn):
-    # This takes only a second !!
-    vectors = pkl.load(util_catpeople.proj_open(vecfn))
-    vectors = substitute_unmappable_words(vectors)
-    np.save(open(out_fn, 'wb'), vectors, allow_pickle=False)
-    return
-
-def doc_to_unigrams(cfg, catpeople):
-    smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
-    io.mmwrite(open(args.out_fn, 'wb'), smat) # 51.8s
-    return
-
-def doc_to_bigrams(cfg, catpeople):
-    width = get_width_for_bigrams()
-    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width)
-    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=1, width=width)
-    io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1) # 51.8s
-    return
-
 
 def save_vec_file(input_fn, output_fn):
     if not os.path.exists(output_fn):
-        save_vec_file(input_fn, output_fn)
+        vectors = pkl.load(util_catpeople.proj_open(input_fn))
+        vectors = substitute_unmappable_words(vectors)
+        np.save(open(output_fn, 'wb'), vectors, allow_pickle=False)
     else:
         print 'Skip Saving Vec file', output_fn
-    return
-
-def doc_to_univec(cfg, catpeople):
-    save_vec_file(cfg.vecfn, args.out_fn + '.vec')
-    out_fn = args.out_fn
-    if not os.path.exists(out_fn):
-        smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0) # 36.7s
-        io.mmwrite(open(out_fn, 'wb'), smat) # 51.8s
-    else:
-        print 'Skip Saving Sparse Mat file', out_fn
     return
 
 
@@ -276,69 +297,69 @@ def entity_descriptors(sentence, P, R, Tc, referents):
     B = {}
     D = {}
     Gpo1 = {}
-    Gpo2 = {}
     CONVERGED = False
-    P = [_-1 for _ in P]
+    P = [_ - 1 for _ in P]
     while not CONVERGED:
-        OLD_LEN_BD = len(B) + len(D) + len(Gpo1) # +len(Gpo2)
+        OLD_LEN_BD = len(B) + len(D) + len(Gpo1)  # +len(Gpo2)
         for i, (w, p, r, tc) in enumerate(itertools.izip(
                 sentence, P, R, Tc)):
-            if ((r == LMappos and p in ETS )
+            if ((r == LMappos and p in ETS)
                 or (r in LMacompnn and p in D)
                 or (r in LMpobjpcomp and P[p] in D)
-                or (r in LMpobjdobj and p in B )
+                or (r in LMpobjdobj and p in B)
                 or (r == LMconj and P[p] in B and R[p] in LMpobjdobj)):
-                D[i] = True
+                D[i] = r
             if r in LMnnpa and i in ETS:
-                D[p] = True
+                D[p] = r
             if (r == LMdobj and Tc[p] == CTverb and p in D):
                 B[p] = True
             if r == LMpobj and i in ETS and R[p] == LMprep and Tc[P[p]] == CTnoun:
-                Gpo1[P[p]] = True
-            # print TM[[sentence[_] for _ in B]], TM[[sentence[_] for _ in D]], TM[[sentence[_] for _ in ETS]]
-        NEW_LEN_BD = len(B) + len(D) + len(Gpo1) # + len(Gpo2)
+                Gpo1[P[p]] = r
+            # print TM[[sentence[_] for _ in B]], TM[[sentence[_] for _ in D]],
+            # TM[[sentence[_] for _ in ETS]]
+        NEW_LEN_BD = len(B) + len(D) + len(Gpo1)
         CONVERGED = (NEW_LEN_BD == OLD_LEN_BD)
         pass
     D.update(Gpo1)
-    D.update(Gpo2)
     return D
 
 
-def yield_dsctok(sentence, parse, referents):
-    return [sentence[_]
-            for _
-            in entity_descriptors(sentence,
-                                  parse[0],
-                                  parse[1],
-                                  parse[2],
-                                  referents)]
+def yield_dscfeat(sentence, parse, referents, yield_suf=False):
+    N = len(TM)
+    for idx, r in entity_descriptors(sentence, parse[0], parse[1], parse[2], referents).iteritems():
+        s = sentence[idx]
+        yield s
+        if yield_suf:
+            yield (r+1) * N + s
+    return
 
-def get_dsctok_from_catpeople_entity(mentions, cfg, PARSES):
+def get_dscfeat_from_catpeople_entity(mentions, cfg, PARSES, yield_suf):
     r = defaultdict(int)
     binarize_counts = cfg.binarize_counts
     for sentence, referents in catpeople_sentence_iterator(
             mentions,
             only_entity_bearer=cfg.only_entity_bearer,
             yield_referents=True):
-        parse = PARSES[tuple(sentence)]
-        for w in yield_dsctok(sentence, parse, referents):
+        for w in yield_dscfeat(sentence, PARSES[tuple(sentence)], referents,
+                               yield_suf=yield_suf):
             if binarize_counts:
                 r[w] = 1
             else:
                 r[w] += 1
     return r
 
-def entity_list_to_dsctok_csr_mat(cfg, catpeople):
+
+def entity_list_to_dscfeat_csr_mat(cfg, catpeople):
     url_list = catpeople['__URL_LIST__']
-    shape = (len(url_list), len(TM))
-    with rasengan.tictoc('Loading Parses'): # 1 min
+    yield_suf = cfg._name.startswith(DSCSUF)
+    shape = (len(url_list), get_width_for_unisuf() if yield_suf else len(TM))
+    with rasengan.tictoc('Loading Parses'):  # 1 min
         PARSES = pkl.load(util_catpeople.proj_open(cfg.parsefn))
     print 'Total Rows:', len(url_list)
-    return csr_mat_builder((get_dsctok_from_catpeople_entity(catpeople[url], cfg, PARSES)
-                            for url
-                            in url_list),
-                           shape=shape,
-                           verbose=1000)
+    iterator = (get_dscfeat_from_catpeople_entity(catpeople[url], cfg, PARSES, yield_suf)
+                for url in url_list)
+    return csr_mat_builder(iterator, shape=shape, verbose=0)
+
 
 def populate_dsctok_globals():
     global CTnoun
@@ -352,34 +373,76 @@ def populate_dsctok_globals():
     global LMnnpa
     global LMpobjdobj
     global LMpobjpcomp
-    CTnoun=CTMAP(['NOUN'])[0]
-    CTverb=CTMAP(['VERB'])[0]
-    LMconj=LABELMAP(['conj'])[0]
-    LMdobj=LABELMAP(['dobj'])[0]
-    LMpobj=LABELMAP(['pobj'])[0]
-    LMprep=LABELMAP(['prep'])[0]
-    LMappos=LABELMAP(['appos'])[0]
-    LMacompnn=LABELMAP(['acomp', 'nn'])
-    LMnnpa=LABELMAP(['nsubj', 'nsubjpass', 'poss', 'advmod'])
-    LMpobjdobj=LABELMAP(['pobj', 'dobj'])
-    LMpobjpcomp=LABELMAP(['pobj', 'pcomp'])
+    CTnoun = CTMAP(['NOUN'])[0]
+    CTverb = CTMAP(['VERB'])[0]
+    LMconj = LABELMAP(['conj'])[0]
+    LMdobj = LABELMAP(['dobj'])[0]
+    LMpobj = LABELMAP(['pobj'])[0]
+    LMprep = LABELMAP(['prep'])[0]
+    LMappos = LABELMAP(['appos'])[0]
+    LMacompnn = LABELMAP(['acomp', 'nn'])
+    LMnnpa = LABELMAP(['nsubj', 'nsubjpass', 'poss', 'advmod'])
+    LMpobjdobj = LABELMAP(['pobj', 'dobj'])
+    LMpobjpcomp = LABELMAP(['pobj', 'pcomp'])
     return
 
-def doc_to_dsctok(cfg, catpeople):
-    populate_dsctok_globals()
-    smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
-    io.mmwrite(open(args.out_fn, 'wb'), smat) # 51.8s
+
+# --------------------------- #
+# Functions For Each Modality #
+# --------------------------- #
+def doc_to_unigrams(cfg, catpeople):
+    smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
+    io.mmwrite(open(args.out_fn, 'wb'), smat)
     return
 
-def doc_to_dsctokvec(cfg, catpeople):
-    populate_dsctok_globals()
+def doc_to_unisuf(cfg, catpeople):
+    width = get_width_for_unisuf()
+    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width)
+    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width,
+                                         add_governor_arc_label=True)
+    io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1)
+    return
+
+def doc_to_bigrams(cfg, catpeople):
+    width = get_width_for_bigrams()
+    smat0 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0, width=width)
+    smat1 = entity_list_to_ngram_csr_mat(cfg, catpeople, n=1, width=width)
+    io.mmwrite(open(args.out_fn, 'wb'), smat0 + smat1)
+    return
+
+
+def doc_to_bivec(cfg):
+    '''Just touch the out_fn file'''
+    open(args.out_fn, 'wb').close()
+    return
+
+
+def doc_to_univec(cfg, catpeople):
     save_vec_file(cfg.vecfn, args.out_fn + '.vec')
-    smat = entity_list_to_dsctok_csr_mat(cfg, catpeople)
-    io.mmwrite(open(args.out_fn, 'wb'), smat) # 51.8s
+    out_fn = args.out_fn
+    if not os.path.exists(out_fn):
+        smat = entity_list_to_ngram_csr_mat(cfg, catpeople, n=0)
+        io.mmwrite(open(out_fn, 'wb'), smat)
+    else:
+        print 'Skip Saving Sparse Mat file', out_fn
     return
 
-def doc_to_dscsuf(cfg, catpeople):
-    pass
+
+def doc_to_dscfeat(cfg, catpeople):
+    populate_dsctok_globals()
+    smat = entity_list_to_dscfeat_csr_mat(cfg, catpeople)
+    io.mmwrite(open(args.out_fn, 'wb'), smat)
+    return
+
+def doc_to_dsctokvec(cfg):
+    '''Just touch the out_fn file.
+    There is no need to create new files.
+    We can just reuse tokvec from old files.
+    '''
+    # save_vec_file(cfg.vecfn, args.out_fn + '.vec')
+    open(args.out_fn, 'wb').close()
+    return
+
 
 def main():
     global TM
@@ -393,22 +456,13 @@ def main():
     TM.finalize()
     LABELMAP = util_catpeople.get_labelmap()
     CTMAP = util_catpeople.get_coarse_tagmap()
-    GENDER_TO_PRONOUN = {0:set(TM(['him', 'his', 'he'])),
-                         1:set(TM(['she', 'her', 'hers']))}
-    from rasengan.gender import GENDER
-    TOKEN_TO_GENDER = {}
-    for (t,v) in GENDER.iteritems():
-        try:
-            tid = TM([t.lower()])[0]
-        except KeyError:
-            continue
-        else:
-            TOKEN_TO_GENDER[tid] = v
-
+    GENDER_TO_PRONOUN = get_gender_to_pronoun(TM)
+    TOKEN_TO_GENDER = get_token_to_gender(TM)
     if args.print_to_conll:
         # Print CatPeople in Conll Format
-        partial_print_to_conll = functools.partial(print_to_conll, catpeople=catpeople)
-        n_jobs=4
+        partial_print_to_conll = functools.partial(
+            print_to_conll, catpeople=catpeople)
+        n_jobs = 4
         Parallel(n_jobs=n_jobs)(
             delayed(partial_print_to_conll)(out_fn=out_fn, urls=urls)
             for (out_fn, urls)
@@ -436,18 +490,21 @@ def main():
             # doc_to_univec
             # --> save_vec_file
             # --> entity_list_to_ngram_csr_mat(n=0, width=None)
-        elif name.startswith(DSCTOK):
-            return doc_to_dsctok(cfg, catpeople)
-            # --> entity_list_to_dsctok_csr_mat
-            #     --> get_dsctok_from_catpeople_entity
+        elif name.startswith(BIVEC):
+            return doc_to_bivec(cfg)
+        elif name.startswith(DSCTOK) or name.startswith(DSCSUF):
+            return doc_to_dscfeat(cfg, catpeople)
+            # --> entity_list_to_dscfeat_csr_mat
+            #     --> get_dscfeat_from_catpeople_entity
             #         --> catpeople_sentence_iterator
             #         --> yield_dsctok
         elif name.startswith(DSCTOKVEC):
-             return doc_to_dsctokvec(cfg, catpeople)
-        elif name.startswith(DSCSUF):
-             return doc_to_dscsuf(cfg, catpeople)
+            return doc_to_dsctokvec(cfg)
+        elif name.startswith(UNISUF):
+            return doc_to_unisuf(cfg, catpeople)
         else:
             raise NotImplementedError(name)
+
 
 if __name__ == '__main__':
     PFX = util_catpeople.get_pfx()
@@ -460,12 +517,12 @@ if __name__ == '__main__':
     arg_parser.add_argument('--config', default=0, type=int)
     arg_parser.add_argument('--print_to_conll', default=None, type=str)
     arg_parser.add_argument('--out_fn', default=None, type=str)
-    args=arg_parser.parse_args()
+    args = arg_parser.parse_args()
     random.seed(args.seed)
     np.random.seed(args.seed)
     if args.out_fn is None:
         if args.print_to_conll:
-            args.out_fn = PFX+'/catpeople.conll.gz'
+            args.out_fn = PFX + '/catpeople.conll.gz'
         else:
-            args.out_fn = '%s/catpeople_pp_%d'%(PFX, args.config)
+            args.out_fn = '%s/catpeople_pp_%d' % (PFX, args.config)
     main()
