@@ -1,4 +1,4 @@
-The important files are
+## The important files are
 
 1. ~/data/dbpedia-entity-search-test-collection/queries.txt
    query-id <tab> query text
@@ -39,11 +39,35 @@ For the query feature, I can use word2vec features, or MVLSA features again.
 
 And the shim just needs to be learnt using LeTor.
 
-The exact experiment will be
+## The exact experiment will be
+
 1. Compute the embeddings of the entities using MVLSA
+
 2. Use the averaged MVLSA embeddings from the queries
+
 3. Given a dataset of query embeddings, entity embeddings,
    and a set of entities that should be ranked higher than
    other entities, learn a compatibility matrix using learning
    to rank.
+
 4. Compute the MAP@100, P@10, P@20 metrics of the sorted lists.
+
+## Today's Goal
+
+* Run MVLSA on KB
+** Create Count Matrices from trecweb format.
+*** Perform Tokenization, Lemmatization, Thresholding, Stopword Removal.
+** Evaluate MVLSA
+*** Create MVLSA features.
+*** Incorporate a wrapped version of learning to rank to run the experiments.
+** Prepare count matrices
+*** Prepare PMI transformer
+**** Write class_pmi_transformer
+***** Write PMI
+***** Write Dicounted PMI
+***** Write Laplace Smoothed PMI
+** Prepare an MVLSA runner
+*** Write class `Mvlsa` in `lib_embed_entity.py`
+**** Check that my existing method for performing MVLSA is not broken.
+**** Write method for incremental pca in `lib_linalg`.
+**** Add method for better regularized GCCA.

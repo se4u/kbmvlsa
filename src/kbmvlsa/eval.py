@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:46:46 2016 (-0500)
-| Last-Updated: Sat Dec  3 11:18:13 2016 (-0500)
+| Last-Updated: Thu Dec  8 17:37:35 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 34
+|     Update #: 35
 All learning to rank methods are quite simple, the goal is to learn a model
 that can optimize a metric like MAP, or ROC given a few examples. In my case
 I can start with a list of things that the true FSDM code returns, thanks to
@@ -20,11 +20,12 @@ from class_fold_iterator import FoldIterator
 from util_eval import get_qid_2_query_dict, get_qid_2_fsdm_top_100, \
     get_qid_2_true_answer
 
+
 def get_token_vec(token, mvlsa_word_emb_data):
     if token in mvlsa_word_emb_data:
         return mvlsa_word_emb_data[token]
-    else:
-        return None
+    return None
+
 
 def get_query_vec(query_token_list, mvlsa_word_emb_data):
     # TODO: The real program should do these things automatically. For now
@@ -34,15 +35,16 @@ def get_query_vec(query_token_list, mvlsa_word_emb_data):
     # 3. Removing other punctuation
     query_vec = [get_token_vec(token, mvlsa_word_emb_data) for token in query_token_list]
     filtered_vec = [e for e in query_vec if e is not None]
-    if len(filtered_vec) > 0:
-        return numpy.mean(filtered_vec, axis=0)
-    else:
+    if len(filtered_vec) == 0:
         return numpy.zeros((300,))
+    return numpy.mean(filtered_vec, axis=0)
+
 
 def feat_string(query_vec, answer_vec):
     vec = numpy.outer(query_vec[:25], answer_vec[:25]).ravel() * 1000
     assert not numpy.isnan(vec).any()
     return ''.join('%d:%.3e '%(i+1,e) for i,e in enumerate(vec))
+
 
 def train_model(training_query_ids, true_answer_entities, entities_retrieved_by_fsdm, entity_vec_dict, mvlsa_data, query_id_to_question_tokens,
                 train_data_fn = '/tmp/train_data_fn',
@@ -79,6 +81,7 @@ def train_model(training_query_ids, true_answer_entities, entities_retrieved_by_
     os.system('~/data/svm_rank/svm_rank_learn -c 10 %s %s'%(train_data_fn, model_fn))
     return model_fn
 
+
 def test_model(testing_query_ids, entities_retrieved_by_fsdm, entity_vec_dict, mvlsa_data, query_id_to_question_tokens, true_answer_entities,
                model_fn = '/tmp/model_fn', test_data_fn='/tmp/test_data_fn', prediction_fn='/tmp/prediction_fn'):
     '''
@@ -105,9 +108,11 @@ def test_model(testing_query_ids, entities_retrieved_by_fsdm, entity_vec_dict, m
     os.system('~/data/svm_rank/svm_rank_classify %s %s %s'%(test_data_fn, model_fn, prediction_fn))
     return prediction_fn
 
+
 def evaluate(test_data_fn='/tmp/test_data_fn', prediction_fn='/tmp/prediction_fn'):
     # for e in `seq 100 100 1000` ; do paste <( awk '{print substr($2, 5), $1}' test_data_fn ) prediction_fn | hn $e | tn 100 | sort -s -k 3,3 -n -r | hn 20 | grep -v '0.00000' | sumColumns '$2' ; done | avgColumns
     print 'MAP', 'P@10', 'P@20'
+    return
 
 def main():
     qid_2_query = get_qid_2_query_dict()
@@ -122,7 +127,7 @@ def main():
         prediction_fn = test_model(test_ent, qid_2_fsdm_top_100, entity_vec_dict, mvlsa_data, qid_2_query, qid_2_true_answer,
                                    model_fn=model_fn)
         print(evaluate(test_ent, qid_2_true_answer, prediction_fn))
-
+    return
 
 if __name__ == '__main__':
     main()

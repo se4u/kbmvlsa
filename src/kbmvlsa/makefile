@@ -1,13 +1,21 @@
 SHELL := $$SHELL
+TREC_WEB_DBPEDIA_PKL := $(shell ./config.sh TREC_WEB_DBPEDIA_PKL)
 .PHONY:
 .SECONDARY:
+
+echo_%:
+	echo $($*)
 
 default:
 	echo "Say specific target"
 
-# 1. The goal of my system is to create 5 arrays that contain the fields.
-#    Let the embedding dim be 50.
-
+# ---------------------------------------------------------------------- #
+# TREC_WEB_DBPEDIA_PKL contains 5 arrays that each contain co-occurrence #
+# data that was originally stored in the zipped xml by chen-xiong et al. #
+# We just converted it to a matrix                                       #
+# ---------------------------------------------------------------------- #
+$(TREC_WEB_DBPEDIA_PKL):
+	./util_trecweb_parser.py
 
 # 2. Perform MVLSA on them to create a single embedding.
 #    Let the embedding dim be 50.
