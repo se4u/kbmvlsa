@@ -4,9 +4,9 @@
 | Description : Convert XML file to a compressed collection of integers.
 | Author      : Pushpendre Rastogi
 | Created     : Wed Dec 21 00:03:06 2016 (-0500)
-| Last-Updated: Wed Dec 21 05:58:28 2016 (-0500)
+| Last-Updated: Wed Dec 21 06:27:26 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 38
+|     Update #: 40
 It turns out that standard fgrep can zip through 12 GB of data in
 15 minutes. Setting this as the benchmark, I want to convert the
 trecweb file into a 5 collection of integers.
@@ -30,7 +30,7 @@ def main_loop():
             fields = [analyze(match) for match in xml_matcher.match(data).groups()]
             yield idx_doc, fields
 '''
-import codecs, time
+import codecs, time, cPickle
 cimport numpy as np
 from analyzer cimport c_analyze
 from cpython.dict cimport PyDict_GetItemString, PyDict_SetItemString
@@ -41,9 +41,6 @@ from libcpp.vector cimport vector
 import numpy as np
 import re
 # config.TREC_WEB_DBPEDIA
-f = codecs.open("/Users/pushpendrerastogi/data/chen-xiong-EntityRankData"
-                "/dbpedia.trecweb/dbpedia.trecweb",
-                mode='rb', encoding='utf8', errors='strict')
 cdef unicode row
 cdef list storage = [u'']*300
 cdef int i = 0
@@ -59,8 +56,9 @@ cdef dict SimEn_dict = {}
 cdef dict RelEn_dict = {}
 cdef list dict_list = [DOCNO_dict, DOCHDR_dict, names_dict, category_dict,
                        attributes_dict, SimEn_dict, RelEn_dict]
+cdef list csr_list = []
 cdef int field_idx = 0
-cdef int doc_count = 0
+cdef int doc_idx = -1
 cdef bytes token
 cdef np.uint8_t *tmp_np_count
 xml_matcher = re.compile(' *<DOC>.*?%s</DOC>'%(''.join(
@@ -68,17 +66,20 @@ xml_matcher = re.compile(' *<DOC>.*?%s</DOC>'%(''.join(
     for e
     in ["DOCNO", "DOCHDR", "names", "category", "attributes", "SimEn", "RelEn"])))
 tic = time.time()
+f = codecs.open("/Users/pushpendrerastogi/data/chen-xiong-EntityRankData"
+                "/dbpedia.trecweb/dbpedia.trecweb",
+                mode='rb', encoding='utf8', errors='strict')
 for row in f:
     row = row.strip()
     storage[i] = row
     i += 1
     if row.endswith("</DOC>"):
-        doc_count += 1
+        doc_idx += 1
         rows_in_storage = i
         i=0
         document = u' '.join(storage[:rows_in_storage])
-        if doc_count % 10000 == 0:
-            print doc_count, doc_count / 95000.0, '%', (time.time() - tic)/60, 'min'
+        if doc_idx % 10000 == 0:
+            print doc_idx, doc_idx / 95000.0, '%', (time.time() - tic)/60, 'min'
         # print storage, document
         # DOCNO, DOCHDR, names, category, attributes, SimEn, RelEn
         fields = xml_matcher.match(document).groups()
@@ -91,3 +92,6 @@ for row in f:
                     <dict>(dict_list[field_idx]),
                     PyBytes_AS_STRING(token),
                     (1 if tmp_np_count == NULL else tmp_np_count[0] + 1))
+f.close()
+with open("/Users/pushpendrerastogi/export/kbmvlsa/dbpedia.trecweb.make/field_tokens.pkl", "wb") as f:
+    cPickle.dump(dict_list, f, protocol=-1)
