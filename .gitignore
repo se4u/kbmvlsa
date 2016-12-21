@@ -26,3 +26,10 @@ scratch/feat=*
 src/kbmvlsa/.idea/
 *TAGS
 *tmp.py
+src/kbmvlsa/cython/analyzer.cpp
+src/kbmvlsa/cython/analyzer.so
+src/kbmvlsa/cython/build/
+src/kbmvlsa/cython/hash.pxd
+src/kbmvlsa/cython/tmp.pyx
+src/kbmvlsa/cython/xml2tabsep.cpp
+src/kbmvlsa/cython/xml2tabsep.so

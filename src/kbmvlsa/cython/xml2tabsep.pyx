@@ -4,25 +4,12 @@
 | Description : Convert XML file to a compressed collection of integers.
 | Author      : Pushpendre Rastogi
 | Created     : Wed Dec 21 00:03:06 2016 (-0500)
-| Last-Updated: Wed Dec 21 06:27:26 2016 (-0500)
+| Last-Updated: Wed Dec 21 16:00:05 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 40
+|     Update #: 41
 It turns out that standard fgrep can zip through 12 GB of data in
 15 minutes. Setting this as the benchmark, I want to convert the
 trecweb file into a 5 collection of integers.
-
-
-import re, sys, codecs, config
-from rasengan import groupby
-import string
-import argparse
-import pdb
-from analyzer import analyze
-
-arg_parser = argparse.ArgumentParser(description='')
-arg_parser.add_argument('--infn', default=config.TREC_WEB_DBPEDIA, type=str)
-args=arg_parser.parse_args()
-
 def main_loop():
     with codecs.open(args.infn, mode='rb', encoding='utf8', errors='strict') as f:
         for idx_doc, data in enumerate(groupby(f, predicate=lambda x: not x.startswith("<DOC>"), yield_iter=True)):
