@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:49:44 2016 (-0500)
-| Last-Updated: Sun Dec 11 15:15:08 2016 (-0500)
+| Last-Updated: Mon Dec 19 12:49:51 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 21
+|     Update #: 23
 '''
 import os
 from os import path
@@ -31,11 +31,13 @@ TREC_WEB_DATA_DIR = path.join(RES_BASE, 'data/chen-xiong-EntityRankData')
 #    processing the file will take 526 minutes = 9hr.
 #    And after 9 hour, I will start the process of pickling and writing to file.
 #    And this will take a lot of memory as well.
+TREC_WEB_DBPEDIA = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb', 'dbpedia.trecweb')
 TREC_WEB_DBPEDIA_ZIP = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.zip')
 TREC_WEB_DBPEDIA_GZ = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.gz')
 TREC_WEB_DBPEDIA_PFX = path.join(
     RES_BASE, 'export/kbmvlsa_py/dbpedia.trecweb.python', 'py')
 TREC_WEB_CATEGORIES = ['names', 'category', 'attributes', 'SimEn', 'RelEn']
+TREC_WEB_CATEGORIES_STR = ' '.join(TREC_WEB_CATEGORIES)
 RANK_SVM_INEX_LD = path.join(TREC_WEB_DATA_DIR, 'RankSVM_INEX-LD.run')
 MVLSA_EMB_PKL_FN = path.join(
     RES_BASE, 'data/embedding/mvlsa/combined_embedding_0.emb.pkl')

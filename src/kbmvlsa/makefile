@@ -1,21 +1,51 @@
 SHELL := $(shell echo $$SHELL)
-.PHONY:
 .SECONDARY:
+default:
+	echo specify target explicitly
 
 echo_%:
 	echo $($*)
 
-default:
-	echo "Say specific target"
+DTM := $(HOME)/export/kbmvlsa/dbpedia.trecweb.make
+DTCAT := $(shell ./config.sh TREC_WEB_CATEGORIES_STR)
+DBPEDIA_TRECWEB := $(HOME)/data/chen-xiong-EntityRankData/dbpedia.trecweb/dbpedia.trecweb
+# ------------------------------------------ #
+# Cython based processing of dbpedia.trecweb #
+# ------------------------------------------ #
+$(DBPEDIA_TRECWEB).tabsep: $(DBPEDIA_TRECWEB)
+	PYTHONPATH=.:cython/ python/xml2tabsep.py
+# cat $< | ./python/xml2tabsep.py # > $@
 
+cython/analyzer.so:
+	$(MAKE) -C $(@D) $(@F)
+
+# ---------------------------------------------------- #
+# File Based Processing Pipeline of dbpedia.trecweb.gz #
+# ---------------------------------------------------- #
+make_map: $(DTM)/entity_map $(foreach cat,$(DTCAT),$(DTM)/cat_$(cat)_map)
+
+rm_map:
+	echo rm $(DTM)/entity_map $(foreach cat,$(DTCAT),$(DTM)/cat_$(cat)_map)
+
+$(DTM)/entity_map:
+	./util_trecweb_parser.py --cat_to_print . --print_docid 1 > $@
+
+$(DTM)/cat_%_map:
+	./util_trecweb_parser.py --cat_to_print $* --print_docid 0 \
+	  | sed -e 's/\s\+/\n/g' \
+	  | ./util_cleanup_tokens.py \
+	  | sort -k 1 -u --temporary-directory=/mnt/data/prastog3/tmp > $@
 # ---------------------------------------------------------------------- #
 # TREC_WEB_DBPEDIA_PFX contains 5 arrays that each contain co-occurrence #
 # data that was originally stored in the zipped xml by chen-xiong et al. #
 # We just converted it to a matrix                                       #
 # ---------------------------------------------------------------------- #
-# TREC_WEB_DBPEDIA_PFX := $(shell ./config.sh TREC_WEB_DBPEDIA_PFX)
-# $(TREC_WEB_DBPEDIA_PFX):
-# 	./util_trecweb_parser.py
+TREC_WEB_DBPEDIA_PFX := $(shell ./config.sh TREC_WEB_DBPEDIA_PFX)
+$(TREC_WEB_DBPEDIA_PFX):
+	./util_trecweb_parser.py
+
+setup_lucene_on_clsp:
+	echo TODO
 
 setup_galago_on_clsp:
 	ssh prastog3@clsp "mkdir -p ~/projects/kbvn/src/kbmvlsa ~/data/chen-xiong-EntityRankData ~/export/kbmvlsa /export/a13/prastog3/dbpedia.trecweb.galago /export/b19/prastog3/dbpedia.trec.python"

@@ -3,3 +3,5 @@
 *.pdf binary
 *.gliff binary
 *.png binary
+*.pptx binary
+src/kbmvlsa/cython/KrovetzStemmer.cpp binary
