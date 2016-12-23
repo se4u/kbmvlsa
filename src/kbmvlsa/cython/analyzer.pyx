@@ -4,9 +4,9 @@
 | Description : Analyzer converts strings to tokens
 | Author      : Pushpendre Rastogi
 | Created     : Mon Dec 19 21:16:02 2016 (-0500)
-| Last-Updated: Wed Dec 21 03:37:02 2016 (-0500)
+| Last-Updated: Fri Dec 23 17:24:59 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 59
+|     Update #: 62
 In many situations, we may want to analyze a string,
 by tokenizing it, lowercasing it, removing stop words,
 and then stemming it. Doing all of this in python,
@@ -48,14 +48,15 @@ class Analyzer(object):
 import re
 import os.path
 from itertools import chain
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport malloc
+from libcpp.vector cimport vector
+from libcpp.string cimport string
 from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 from string import punctuation, uppercase
 from cpython.buffer cimport \
     PyBUF_SIMPLE, PyBUF_WRITABLE, \
     PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release
 from cpython.bytes cimport PyBytes_AS_STRING
-# from .krovetzstemmer cimport KrovetzStemmer
 from krovetzstemmer cimport KrovetzStemmer
 cdef str exceptions_str = ".'%$&-" # Ensure that "-" comes last.
 delete_runs_regex = re.compile(r"([%s])\1*"%exceptions_str)
@@ -105,18 +106,19 @@ cdef inline char* get_pointer(bytes s):
     return <char*>view.buf
 '''
 
-cdef inline bytes stemmer(bytes s):
-    cdef int written = kstemmer.kstem_stem_tobuffer(PyBytes_AS_STRING(s),
-                                                    temp_buffer)
-    if written == 0:
-        return s
-    else:
-        return  bytes(temp_buffer[:written-1])
+cdef inline string stemmer(bytes s):
+    cdef char* s_ptr = PyBytes_AS_STRING(s)
+    cdef int written = kstemmer.kstem_stem_tobuffer(s_ptr, temp_buffer)
+    return (string(s_ptr, len(s))
+            if written == 0
+            else string(temp_buffer, written-1))
 
-cdef inline list stem_and_filter_stop_words(unicode s):
-    return [stemmer(e) # .decode('utf8')
-            for e in s.encode('utf8').split()
-            if e not in stop_words]
+cdef inline vector[string] stem_and_filter_stop_words(unicode s):
+    cdef vector[string] ret_vec
+    for e in s.encode('utf8').split():
+        if e not in stop_words:
+            ret_vec.push_back(stemmer(e))
+    return ret_vec
 
 cdef inline unicode delete_runs(unicode s):
     return remove_url_encoding.sub("",
@@ -125,7 +127,7 @@ cdef inline unicode delete_runs(unicode s):
 cdef inline unicode convert_punct_to_space_and_lowercase(unicode s):
     return s.translate(translator)
 
-cdef list c_analyze(unicode s):
+cdef inline vector[string] c_analyze(unicode s):
     return stem_and_filter_stop_words(
         delete_runs(convert_punct_to_space_and_lowercase(s)))
 

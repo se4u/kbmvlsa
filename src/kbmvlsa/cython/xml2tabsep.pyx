@@ -1,11 +1,12 @@
+# distutils: language=c++
 '''
 | Filename    : xml2tabsep.pyx
 | Description : Convert XML file to a compressed collection of integers.
 | Author      : Pushpendre Rastogi
 | Created     : Wed Dec 21 00:03:06 2016 (-0500)
-| Last-Updated: Fri Dec 23 02:16:53 2016 (-0500)
+| Last-Updated: Fri Dec 23 17:55:18 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 125
+|     Update #: 147
 It turns out that standard fgrep can zip through 12 GB of data in
 15 minutes. Setting this as the benchmark, I want to convert the
 trecweb file into a 5 collection of integers.
@@ -23,7 +24,10 @@ from cpython.unicode cimport PyUnicode_Tailmatch
 from cpython.dict cimport PyDict_GetItemString, PyDict_SetItemString
 from cpython.bytes cimport PyBytes_AS_STRING
 from cpython.object cimport PyObject, PyObject_Hash
+from cython.operator cimport dereference as deref, postincrement
+from libcpp.unordered_map cimport unordered_map
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 cdef extern from "longobject.h" nogil:
     long PyLong_AsLong(PyObject *)
 cdef extern from "Python.h":
@@ -40,20 +44,25 @@ def main(args):
     cdef int rows_in_storage = 0
     cdef unicode document
     cdef np.uint16_t unit_val = 1
-    cdef dict DOCNO_dict = {}
-    cdef dict DOCHDR_dict = {}
-    cdef dict names_dict = {}
-    cdef dict category_dict = {}
-    cdef dict attributes_dict = {}
-    cdef dict SimEn_dict = {}
-    cdef dict RelEn_dict = {}
-    cdef list dict_list = [DOCNO_dict, DOCHDR_dict, names_dict, category_dict,
-                           attributes_dict, SimEn_dict, RelEn_dict]
+    cdef vector[unordered_map[string,np.uint16_t]] dict_list
+    cdef unordered_map[string,np.uint16_t] DOCNO_dict
+    dict_list.push_back(DOCNO_dict)
+    cdef unordered_map[string,np.uint16_t] DOCHDR_dict
+    dict_list.push_back(DOCHDR_dict)
+    cdef unordered_map[string,np.uint16_t] names_dict
+    dict_list.push_back(names_dict)
+    cdef unordered_map[string,np.uint16_t] category_dict
+    dict_list.push_back(category_dict)
+    cdef unordered_map[string,np.uint16_t] attributes_dict
+    dict_list.push_back(attributes_dict)
+    cdef unordered_map[string,np.uint16_t] SimEn_dict
+    dict_list.push_back(SimEn_dict)
+    cdef unordered_map[string,np.uint16_t] RelEn_dict
+    dict_list.push_back(RelEn_dict)
     cdef int field_idx = 0
     cdef int doc_idx = -1
     cdef bytes token
     cdef np.uint16_t *tmp_np_count
-    cdef np.uint16_t val
     fast_re_pattern = '<%s> *(.+?) *</%s>.+?'
     re_pattern = ' *<DOC>.*?%s</DOC>'%(''.join(
         fast_re_pattern%(e, e)
@@ -64,7 +73,9 @@ def main(args):
     tic = time.time()
     f = io.open(args.infn, mode='rt', encoding='utf8', errors='strict', buffering=1000000)
     cdef tuple fields
-    cdef PyObject* debug_a
+    cdef np.uint16_t* val_ptr
+    cdef string token_string
+    cdef vector[string] analyzed_field
     for row in f:
         row = row.strip()
         storage[i] = row
@@ -80,22 +91,14 @@ def main(args):
             # DOCNO, DOCHDR, names, category, attributes, SimEn, RelEn
             fields = (xml_matcher.match(document).groups())
             for field_idx, field in enumerate(fields):
-                for token in c_analyze(field):
-                    debug_a = PyDict_GetItemString(<dict>(dict_list[field_idx]),
-                                                            PyBytes_AS_STRING(token))
-                    if debug_a != NULL:
-                        val = PyLong_AsLong(debug_a)
-                        if val == NPY_MAX_UINT16:
-                            continue
-                        else:
-                            val += 1
+                analyzed_field = c_analyze(field)
+                for token_string in analyzed_field:
+                    val_ptr = &(dict_list[field_idx][token_string])
+                    if deref(val_ptr) == NPY_MAX_UINT16:
+                        continue
                     else:
-                        val = 1
-                    PyDict_SetItemString(
-                        dict_list[field_idx],
-                        PyBytes_AS_STRING(token),
-                        <object>Py_BuildValue("H", val))
-                    # print field_idx, token, dict_list[field_idx][token]
+                        postincrement(deref(val_ptr))
+                    # print field_idx, token_string, dict_list[field_idx][token_string]
     f.close()
     return dict_list
 

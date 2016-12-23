@@ -1,3 +1,4 @@
+# distutils: language=c++
 '''
 | Filename    : analyzer.pxd
 | Description : Header providng c_analysis functions
@@ -7,4 +8,6 @@
 |           By: Pushpendre Rastogi
 |     Update #: 1
 '''
-cdef list c_analyze(unicode)
+from libcpp.string cimport string
+from libcpp.vector cimport vector
+cdef vector[string] c_analyze(unicode)

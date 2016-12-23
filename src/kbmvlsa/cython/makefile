@@ -25,8 +25,18 @@ profile_%:
 	  --infn `../config.sh TREC_WEB_DBPEDIA_SMALL`\
 	  --outfn /tmp/tmp.pkl
 
-test: xml2tabsep.so
-	PYTHONPATH=.. python -c 'from xml2tabsep import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' --infn `../config.sh TREC_WEB_DBPEDIA_SMALL` --outfn /tmp/tmp.pkl
+run: xml2tabsep.so
+	PYTHONPATH=.. python -c \
+	  'from xml2tabsep import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' \
+	  --infn `../config.sh TREC_WEB_DBPEDIA` \
+	  --outfn `../config.sh TREC_WEB_TOKEN_PKL`
 
-xml2tabsep.so: xml2tabsep.pyx
-	python setup.py build_ext --inplace --force
+test: xml2tabsep.so
+	$(MAKE) small_990
+	PYTHONPATH=.. python -c \
+	  'from xml2tabsep import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' \
+	  --infn `../config.sh TREC_WEB_DBPEDIA_SMALL` --outfn /tmp/tmp.pkl
+	python test_tmp.pkl.py
+
+xml2tabsep.so: xml2tabsep.pyx analyzer.pyx
+	python setup.py build_ext --inplace

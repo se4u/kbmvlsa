@@ -5,4 +5,5 @@
 *.png binary
 *.pptx binary
 *.pic binary
+*.ipynb binary
 src/kbmvlsa/cython/KrovetzStemmer.cpp binary

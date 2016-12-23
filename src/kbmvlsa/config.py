@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:49:44 2016 (-0500)
-| Last-Updated: Thu Dec 22 14:39:08 2016 (-0500)
+| Last-Updated: Fri Dec 23 17:14:41 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 25
+|     Update #: 27
 '''
 import os
 from os import path
@@ -37,7 +37,7 @@ TREC_WEB_DBPEDIA_ZIP = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.zip')
 TREC_WEB_DBPEDIA_GZ = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.gz')
 
 TREC_WEB_TOKEN_PKL = path.join(RES_BASE,
-                               "export/kbmvlsa/dbpedia.trecweb.make/field_tokens.pkl")
+                               "export/kbmvlsa/dbpedia.trecweb.field_tokens.pkl")
 TREC_WEB_CATEGORIES = ['names', 'category', 'attributes', 'SimEn', 'RelEn']
 TREC_WEB_CATEGORIES_STR = ' '.join(TREC_WEB_CATEGORIES)
 RANK_SVM_INEX_LD = path.join(TREC_WEB_DATA_DIR, 'RankSVM_INEX-LD.run')
