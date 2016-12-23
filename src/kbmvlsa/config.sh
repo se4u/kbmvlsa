@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python -c "from config import *; print $1,"
+PYTHONPATH=$( dirname "${BASH_SOURCE[0]}" ) python -c "from config import *; print $1,"

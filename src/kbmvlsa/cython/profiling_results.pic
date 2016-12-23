@@ -1,0 +1,83 @@
+PYTHONPATH=.. ./profile.py line \
+	  --infn `../config.sh TREC_WEB_DBPEDIA_SMALL`\
+	  --outfn /tmp/tmp.pkl
+Reading input from /Users/pushpendrerastogi/data/chen-xiong-EntityRankData/dbpedia.trecweb/dbpedia.trecweb.small
+Writing output to /tmp/tmp.pkl
+0 0.0 % 2.9718875885e-05 min
+10000 0.105263157895 % 0.396422215303 min
+20000 0.210526315789 % 1.00670426687 min
+30000 0.315789473684 % 1.54060585101 min
+40000 0.421052631579 % 1.86593455076 min
+Timer unit: 1e-06 s
+
+Total time: 74.0999 s
+File: /Users/pushpendrerastogi/Dropbox/paper/kbvn/src/kbmvlsa/cython/xml2tabsep.pyx
+Function: main at line 36
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    36                                           def main(args):
+    37                                               cdef unicode row
+    38         1           10     10.0      0.0      cdef list storage = [u'']*300
+    39         1            1      1.0      0.0      cdef int i = 0
+    40         1            0      0.0      0.0      cdef int rows_in_storage = 0
+    41                                               cdef unicode document
+    42         1            0      0.0      0.0      cdef np.uint16_t unit_val = 1
+    43         1            1      1.0      0.0      cdef dict DOCNO_dict = {}
+    44         1            1      1.0      0.0      cdef dict DOCHDR_dict = {}
+    45         1            1      1.0      0.0      cdef dict names_dict = {}
+    46         1            1      1.0      0.0      cdef dict category_dict = {}
+    47         1            1      1.0      0.0      cdef dict attributes_dict = {}
+    48         1            1      1.0      0.0      cdef dict SimEn_dict = {}
+    49         1            3      3.0      0.0      cdef dict RelEn_dict = {}
+    50         1            3      3.0      0.0      cdef list dict_list = [DOCNO_dict, DOCHDR_dict, names_dict, category_dict,
+    51                                                                      attributes_dict, SimEn_dict, RelEn_dict]
+    52         1            0      0.0      0.0      cdef int field_idx = 0
+    53         1            1      1.0      0.0      cdef int doc_idx = -1
+    54                                               cdef bytes token
+    55                                               cdef np.uint16_t *tmp_np_count
+    56                                               cdef np.uint16_t val
+    57         1            1      1.0      0.0      fast_re_pattern = '<%s> *(.+?) *</%s>.+?'
+    58         1           16     16.0      0.0      re_pattern = ' *<DOC>.*?%s</DOC>'%(''.join(
+    59         1            4      4.0      0.0          fast_re_pattern%(e, e)
+    60                                                   for e
+    61                                                   in ["DOCNO", "DOCHDR", "names", "category", "attributes", "SimEn", "RelEn"]))
+    62         1            7      7.0      0.0      import re
+    63         1        11371  11371.0      0.0      xml_matcher = re.compile(re_pattern)
+    64         1            6      6.0      0.0      tic = time.time()
+    65         1          207    207.0      0.0      f = io.open(args.infn, mode='rt', encoding='utf8', errors='strict', buffering=1000000)
+    66                                               cdef tuple fields
+    67                                               cdef PyObject* debug_a
+    68    999989      1418533      1.4      1.9      for row in f:
+    69    999988      1137415      1.1      1.5          row = row.strip()
+    70    999988       918605      0.9      1.2          storage[i] = row
+    71    999988       825190      0.8      1.1          i += 1
+    72    999988       879948      0.9      1.2          if PyUnicode_Tailmatch(row, u"</DOC>", 0, PY_SSIZE_T_MAX, 1) == 1:
+    73     45454        39927      0.9      0.1              doc_idx += 1
+    74     45454        37800      0.8      0.1              rows_in_storage = i
+    75     45454        43491      1.0      0.1              i=0
+    76     45454       263404      5.8      0.4              document = u' '.join(storage[:rows_in_storage])
+    77     45454        43486      1.0      0.1              if doc_idx % 10000 == 0:
+    78         5          725    145.0      0.0                  print doc_idx, doc_idx / 95000.0, '%', (time.time() - tic)/60, 'min'
+    79                                                       # print storage, document
+    80                                                       # DOCNO, DOCHDR, names, category, attributes, SimEn, RelEn
+    81     45454      3700693     81.4      5.0              fields = (xml_matcher.match(document).groups())
+    82    363632       374989      1.0      0.5              for field_idx, field in enumerate(fields):
+    83   4217773     31785815      7.5     42.9                  for token in c_analyze(field):
+    84   3899595      3614023      0.9      4.9                      debug_a = PyDict_GetItemString(<dict>(dict_list[field_idx]),
+    85   3899595      4578869      1.2      6.2                                                              PyBytes_AS_STRING(token))
+    86   3899595      3263097      0.8      4.4                      if debug_a != NULL:
+    87   3544694      3109738      0.9      4.2                          val = PyLong_AsLong(debug_a)
+    88   3544694      2965678      0.8      4.0                          if val == NPY_MAX_UINT16:
+    89                                                                       continue
+    90                                                                   else:
+    91   3544694      2974828      0.8      4.0                              val += 1
+    92                                                               else:
+    93    354901       303564      0.9      0.4                          val = 1
+    94   3899595      4879496      1.3      6.6                      PyDict_SetItemString(
+    95   3899595      3262570      0.8      4.4                          dict_list[field_idx],
+    96                                                                   PyBytes_AS_STRING(token),
+    97   3899595      3666291      0.9      4.9                          <object>Py_BuildValue("H", val))
+    98                                                               # print field_idx, token, dict_list[field_idx][token]
+    99         1           34     34.0      0.0      f.close()
+   100         1           18     18.0      0.0      return dict_list

@@ -1,22 +1,32 @@
 # CFLAGS := $(shell python-config --cflags)
-# # http://stackoverflow.com/questions/25421479
-# # clang-and-undefined-symbols-when-building-a-library
 # LDFLAGS := $(shell python -c "import distutils.sysconfig; print distutils.sysconfig.get_config_var('LDSHARED')") -lpython2.7
 
 echo_%:
 	echo $($*)
 
 clean:
-	-rm *.so *.o
+	-rm *.o
 	-find . -name '*.cpp' ! -name 'KrovetzStemmer.cpp' -type f -maxdepth 1 -exec rm {} +
 	-rm -r build/
 	-rm __init__*
+	-python setup.py clean
+	-python setup_re2.py clean
 
-deploy:
-	cp analyzer.so ../python/
+small: small_999988 small_99990 small_9988 small_990
+small_%:
+	head -$* `../config.sh TREC_WEB_DBPEDIA` > `../config.sh TREC_WEB_DBPEDIA_SMALL`
 
-test: analyzer
-	python -c 'import $<; assert $<.analyze(u"ABC")==[u"abc"]'
 
-%.so: %.pyx makefile
+line: profile_line
+profile: profile_c
+profile_%:
+	python setup_xmltabsep_profiling.py build_ext --inplace
+	PYTHONPATH=.. ./profile.py $* \
+	  --infn `../config.sh TREC_WEB_DBPEDIA_SMALL`\
+	  --outfn /tmp/tmp.pkl
+
+test: xml2tabsep.so
+	PYTHONPATH=.. python -c 'from xml2tabsep import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' --infn `../config.sh TREC_WEB_DBPEDIA_SMALL` --outfn /tmp/tmp.pkl
+
+xml2tabsep.so: xml2tabsep.pyx
 	python setup.py build_ext --inplace --force

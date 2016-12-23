@@ -13,9 +13,14 @@ import numpy
 # echo __ZN2cv3Mat10deallocateEv) | c++filt
 # define_macros = [('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')]
 define_macros = []
+define_macros = [('CYTHON_TRACE', 1)]
 compiler_directives = dict(embedsignature=True,
                            boundscheck=False,
-                           initializedcheck=False)
+                           initializedcheck=False,
+                           profile=True,
+                           linetrace=True,
+                           binding=True
+)
 setup(ext_modules=cythonize(
           Extension("xml2tabsep",
                     sources=["xml2tabsep.pyx", "KrovetzStemmer.cpp"],

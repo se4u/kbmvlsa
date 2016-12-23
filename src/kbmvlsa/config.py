@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:49:44 2016 (-0500)
-| Last-Updated: Mon Dec 19 12:49:51 2016 (-0500)
+| Last-Updated: Thu Dec 22 14:39:08 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 23
+|     Update #: 25
 '''
 import os
 from os import path
@@ -32,10 +32,12 @@ TREC_WEB_DATA_DIR = path.join(RES_BASE, 'data/chen-xiong-EntityRankData')
 #    And after 9 hour, I will start the process of pickling and writing to file.
 #    And this will take a lot of memory as well.
 TREC_WEB_DBPEDIA = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb', 'dbpedia.trecweb')
+TREC_WEB_DBPEDIA_SMALL = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb', 'dbpedia.trecweb.small')
 TREC_WEB_DBPEDIA_ZIP = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.zip')
 TREC_WEB_DBPEDIA_GZ = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.gz')
-TREC_WEB_DBPEDIA_PFX = path.join(
-    RES_BASE, 'export/kbmvlsa_py/dbpedia.trecweb.python', 'py')
+
+TREC_WEB_TOKEN_PKL = path.join(RES_BASE,
+                               "export/kbmvlsa/dbpedia.trecweb.make/field_tokens.pkl")
 TREC_WEB_CATEGORIES = ['names', 'category', 'attributes', 'SimEn', 'RelEn']
 TREC_WEB_CATEGORIES_STR = ' '.join(TREC_WEB_CATEGORIES)
 RANK_SVM_INEX_LD = path.join(TREC_WEB_DATA_DIR, 'RankSVM_INEX-LD.run')
