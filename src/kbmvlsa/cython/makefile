@@ -17,21 +17,40 @@ small_%:
 	head -$* `../config.sh TREC_WEB_DBPEDIA` > `../config.sh TREC_WEB_DBPEDIA_SMALL`
 
 
-line: profile_line
-profile: profile_c
-profile_%:
+run: xml2cscformat.so
+	PYTHONPATH=.. python -c \
+	  'from xml2cscformat import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' \
+	  --infn `../config.sh TREC_WEB_DBPEDIA` \
+	  --field_token_index_fn `../config.sh TREC_WEB_TOKEN_PKL` \
+	  --outfn `../config.sh TREC_WEB_HIT_LIST_PKL`
+
+test: xml2cscformat.so
+	$(MAKE) small_990
+	PYTHONPATH=.. python -c \
+	  'from xml2cscformat import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' \
+	  --infn `../config.sh TREC_WEB_DBPEDIA_SMALL` \
+	  --field_token_index_fn /tmp/tmp.pkl \
+	  --outfn /tmp/tmp.hit_list.pkl
+	python test_xml2cscformat.py /tmp/tmp.hit_list.pkl
+
+xml2cscformat.so: setup_xml2cscformat.py xml2cscformat.pyx Fielded_hit_list.pyx
+	python $< build_ext --inplace
+
+tabsep_line: profile_line
+tabsep_profile: tabsep_profile_c
+tabsep_profile_%:
 	python setup_xmltabsep_profiling.py build_ext --inplace
 	PYTHONPATH=.. ./profile.py $* \
 	  --infn `../config.sh TREC_WEB_DBPEDIA_SMALL`\
 	  --outfn /tmp/tmp.pkl
 
-run: xml2tabsep.so
+tabsep_run: xml2tabsep.so
 	PYTHONPATH=.. python -c \
 	  'from xml2tabsep import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' \
 	  --infn `../config.sh TREC_WEB_DBPEDIA` \
 	  --outfn `../config.sh TREC_WEB_TOKEN_PKL`
 
-test: xml2tabsep.so
+tabsep_test: xml2tabsep.so
 	$(MAKE) small_990
 	PYTHONPATH=.. python -c \
 	  'from xml2tabsep import *; args=parse_args(); dict_list=main(args); save(args, dict_list)' \
