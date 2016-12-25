@@ -16,7 +16,6 @@ small: small_999988 small_99990 small_9988 small_990
 small_%:
 	head -$* `../config.sh TREC_WEB_DBPEDIA` > `../config.sh TREC_WEB_DBPEDIA_SMALL`
 
-
 run: xml2cscformat.so
 	PYTHONPATH=.. python -c \
 	  'from xml2cscformat import *; main(parse_args())' \
