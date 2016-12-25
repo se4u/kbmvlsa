@@ -18,12 +18,13 @@ def main(debug=False, define_macros=None, extra_directives=None,
                      else list(define_macros))
     compiler_directives = dict(embedsignature=True,
                                boundscheck=False,
+                               wraparound=False,
                                initializedcheck=False)
     if extra_directives is not None:
         compiler_directives.update(extra_directives)
     include_dirs = ['.', numpy.get_include()]
     extensions = [Extension(a, sources=list(b), include_dirs=include_dirs,
-                            define_macros=define_macros, language='c++')
+                            define_macros=define_macros) # , language='c++'
                   for (a,b)
                   in extension_ns]
     setup(ext_modules=cythonize(extensions,
