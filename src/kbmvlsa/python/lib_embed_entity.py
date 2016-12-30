@@ -4,20 +4,38 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Sun Dec  4 16:34:26 2016 (-0500)
+| Last-Updated: Sat Dec 24 23:45:26 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 1
+|     Update #: 17
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
 at runtime. The experiments naturally decouple, so the results from this
 library will typically be stored on disk.
 '''
+
+import config
+import numpy, sys
+import scipy.sparse
+import scipy.sparse.linalg
 from lib_view_transform import VT, VTNS
-from lib_linalg import incremental_pca_update
 MVLSA_WEIGHTING_ENUM = Exception()
 for e in ['NONE', 'GLOVE', 'ARORA', 'MVLSA']:
     setattr(MVLSA_WEIGHTING_ENUM, e, e)
+
+def load_csc_arrays_from_npz(fn=config.TREC_WEB_HIT_LIST_NPZ, M=config.TREC_WEB_N_ENTITIES):
+    npz_data = numpy.load(fn)
+    arr_list = []
+    for idx, field in enumerate(config.TREC_WEB_CATEGORIES):
+        indptr = numpy.concatenate(([0], npz_data['%d_indptr'%idx]), axis=0)
+        indices = npz_data['%d_indices'%idx]
+        data = npz_data['%d_data'%idx]
+        N = len(indptr) - 1
+        shape = (M, N)
+        print >>sys.stderr, field, shape
+        arr_list.append(scipy.sparse.csc_matrix(
+            (data, indices, indptr), shape=shape))
+    return arr_list
 
 class Mvlsa(object):
     ''' The MVLSA procedure is a simple algorithm for creating the embedding of
@@ -53,13 +71,16 @@ class Mvlsa(object):
         AT_list = []
         for arr in arr_list:
             if self.mean_center:
-                [A, S, B] = sparse_svd(arr, self.intermediate_dim, create_rsv=True)
+                [A, S, B] = scipy.sparse.linalg.svds(arr, self.intermediate_dim, create_rsv=True)
                 [A, S] = rank_one_svd_update(A, S, B, mean)
             else:
-                [A, S] = sparse_svd(arr, self.intermediate_dim)
+                [A, S] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim)
             T = self.create_T(S)
             AT_list.append(np.dot(A, T))
         return AT_list
+
+    def create_T(self, S):
+        return T
 
     def perform_inplace_row_weighting(self, AT):
         # TODO: Perform row weighting

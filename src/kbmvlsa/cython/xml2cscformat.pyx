@@ -4,9 +4,9 @@
 | Description : Convert XML file to a compressed collection of integers.
 | Author      : Pushpendre Rastogi
 | Created     : Wed Dec 21 00:03:06 2016 (-0500)
-| Last-Updated: Sat Dec 24 18:54:29 2016 (-0500)
+| Last-Updated: Sat Dec 24 22:36:46 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 182
+|     Update #: 183
 It turns out that standard fgrep can zip through 12 GB of data in
 15 minutes. Setting this as the benchmark, I want to convert the
 trecweb file into a 5 collection of integers.
@@ -75,7 +75,7 @@ def main(args):
     re_pattern = ' *<DOC>.*?%s</DOC>'%(''.join(
         fast_re_pattern%(e, e)
         for e
-        in ["DOCNO", "DOCHDR", "names", "category", "attributes", "SimEn", "RelEn"]))
+        in config.TREC_WEB_CATEGORIES))
 
     xml_matcher = re.compile(re_pattern)
     f = io.open(args.infn, mode='rt', encoding='utf8', errors='strict', buffering=1000000)

@@ -30,11 +30,25 @@
    <SimEn>      Aliases.
    <RelEN>      Names of related entities.
 
-All these files can be used extract features of entities, which can then
-be used for learning models of relevance. The simplest way forward will be
-to compute a model for (query, mvlsa) features, and to optimize it using a
-LeToR framework.
+5. After processing all this data we end up with
+   ~/export/kbmvlsa/dbpedia.trecweb.hit_list.npz
+   ~/export/kbmvlsa/dbpedia.trecweb.hit_list.pkl
+   ~/export/kbmvlsa/dbpedia.trecweb.field_tokens.pkl
+   These files contain the counts of all the data matrices
+   and associated metadata.
 
+6. The entire dataset can now be converted into different types of
+   co-occurrence based features, using the class of composable transforms.
+
+
+
+   All these files can be used extract features of entities, which can then
+   be used for learning models of relevance. The simplest way forward will be
+   to compute a model for (query, mvlsa) features, and to optimize it using a
+   LeToR framework.
+
+
+6.
 For the query feature, I can use word2vec features, or MVLSA features again.
 
 And the shim just needs to be learnt using LeTor.
@@ -55,8 +69,13 @@ And the shim just needs to be learnt using LeTor.
 ## Today's Goal
 
 * Run MVLSA on KB
-** Create Count Matrices from trecweb format.
-*** Perform Tokenization, Lemmatization, Thresholding, Stopword Removal.
+** [X] Create Count Matrices from trecweb format.
+*** [X] Perform Tokenization, Lemmatization, Thresholding, Stopword Removal.
+    This step took a long time,
+    From December 5, through Decmber 12, (one week on EACL in between)
+    I tried Lucene, Galago, Cython, CPython, C, C++, basically everything
+    I had to learn to process this data.
+    The final result was a single file containing the trec web data.
 ** Evaluate MVLSA
 *** Create MVLSA features.
 *** Incorporate a wrapped version of learning to rank to run the experiments.

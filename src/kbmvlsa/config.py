@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:49:44 2016 (-0500)
-| Last-Updated: Sat Dec 24 17:58:44 2016 (-0500)
+| Last-Updated: Sat Dec 24 23:09:22 2016 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 31
+|     Update #: 34
 '''
 import os
 from os import path
@@ -18,6 +18,8 @@ QUERY_FN = path.join(DBPEDIA_TEST_DATA_DIR, 'queries.txt')
 QRELS_FN = path.join(DBPEDIA_TEST_DATA_DIR, 'qrels.txt')
 
 TREC_WEB_DATA_DIR = path.join(RES_BASE, 'data/chen-xiong-EntityRankData')
+TREC_WEB_N_ENTITIES = 9566665
+
 # Some quick facts about dbpedia.trecweb.zip
 # 1. zipout ~/data/chen-xiong-EntityRankData/dbpedia.trecweb.zip | fgrep -c '</DOC>'
 #    takes almost 8 minutes and shows that there are 9.5M entries.
@@ -41,7 +43,7 @@ TREC_WEB_HIT_LIST_PKL = path.join(RES_BASE,
                                   "export/kbmvlsa/dbpedia.trecweb.hit_list.pkl")
 TREC_WEB_HIT_LIST_NPZ = path.join(RES_BASE,
                                   "export/kbmvlsa/dbpedia.trecweb.hit_list.npz")
-TREC_WEB_CATEGORIES = ['names', 'category', 'attributes', 'SimEn', 'RelEn']
+TREC_WEB_CATEGORIES = ("DOCNO", "DOCHDR", "names", "category", "attributes", "SimEn", "RelEn")
 TREC_WEB_CATEGORIES_STR = ' '.join(TREC_WEB_CATEGORIES)
 RANK_SVM_INEX_LD = path.join(TREC_WEB_DATA_DIR, 'RankSVM_INEX-LD.run')
 MVLSA_EMB_PKL_FN = path.join(
