@@ -4,9 +4,13 @@
 | Description : A General class to compose transforms
 | Author      : Pushpendre Rastogi
 | Created     : Mon Dec  5 11:48:58 2016 (-0500)
-| Last-Updated: Wed Dec  7 17:18:14 2016 (-0500)
+| Last-Updated: Mon Jan  2 15:53:03 2017 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 4
+|     Update #: 5
+ComposableTransform provides a way to register unit-callables to strings.
+It is a natural way to compose functions on the basis of string concatenations.
+
+unit-callables are (single input, single output) functions.
 '''
 class ComposableTransform(object):
     def __init__(self, callables, language, sep='_'):
@@ -43,9 +47,11 @@ class ComposableTransform(object):
         The returned callable is capable of taking a matrix and modifying it inplace.
         '''
         assert s in self.language
-        return self.compose([self.callables[_e]
+        f = self.compose([self.callables[_e]
                              for _e
                              in s.split(self.sep)])
+        f.__doc__ = s
+        return f
 
     def decompile(self, composition):
         return self.sep.join(e.name for e in composition.chain)

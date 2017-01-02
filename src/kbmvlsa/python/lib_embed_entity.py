@@ -4,38 +4,56 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Sat Dec 24 23:45:26 2016 (-0500)
+| Last-Updated: Mon Jan  2 17:36:27 2017 (-0500)
 |           By: Pushpendre Rastogi
-|     Update #: 17
+|     Update #: 95
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
 at runtime. The experiments naturally decouple, so the results from this
 library will typically be stored on disk.
 '''
-
 import config
+import lib_linalg
 import numpy, sys
 import scipy.sparse
 import scipy.sparse.linalg
-from lib_view_transform import VT, VTNS
-MVLSA_WEIGHTING_ENUM = Exception()
-for e in ['NONE', 'GLOVE', 'ARORA', 'MVLSA']:
-    setattr(MVLSA_WEIGHTING_ENUM, e, e)
+from numpy import sqrt, log1p  # pylint: disable=no-name-in-module
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.preprocessing import normalize
+from class_composable_transform import ComposableTransform
 
-def load_csc_arrays_from_npz(fn=config.TREC_WEB_HIT_LIST_NPZ, M=config.TREC_WEB_N_ENTITIES):
-    npz_data = numpy.load(fn)
-    arr_list = []
-    for idx, field in enumerate(config.TREC_WEB_CATEGORIES):
-        indptr = numpy.concatenate(([0], npz_data['%d_indptr'%idx]), axis=0)
-        indices = npz_data['%d_indices'%idx]
-        data = npz_data['%d_data'%idx]
-        N = len(indptr) - 1
-        shape = (M, N)
-        print >>sys.stderr, field, shape
-        arr_list.append(scipy.sparse.csc_matrix(
-            (data, indices, indptr), shape=shape))
-    return arr_list
+class MVLSA_WEIGHTING_ENUM(object):
+    NONE = 'NONE'
+    GLOVE = 'GLOVE'
+    ARORA = 'ARORA'
+    MVLSA = 'MVLSA'
+    pass
+
+
+# These callables modify input *INPLACE*
+callables = dict(
+    IDENTITY=(lambda _: _),
+    SQROOT=(lambda x: sqrt(x, out=x)), # pylint: disable=unnecessary-lambda
+    LOG  =(lambda x: log1p(x, out=x)),
+    # We don't copy data only if the original data was in `csr` format.
+    # Otherwise, if the data was dense, or it was in csc format, we copy the data.
+    TF   =(lambda x: TfidfTransformer(norm=None, use_idf=False, sublinear_tf=False).fit(x).transform(x, copy=False)),
+    TFIDF=(lambda x: TfidfTransformer(norm=None, use_idf=True, sublinear_tf=False).fit(x).transform(x, copy=False)),
+    NORM=(lambda x: normalize(x, norm='l2', axis=1, copy=False)),
+    # PMI=(lambda x: PmiTransformer()),
+)
+
+VT = ComposableTransform(
+    callables,
+    set('NORM IDENTITY LOG SQROOT '
+        'TFIDF TF '
+        'NORM_TFIDF NORM_TF '
+        'SQROOT_TFIDF LOG_TFIDF'.split()))
+VTNS = VT.NS
+
+def populate_remove_idx(remove_idx):
+    return tuple([int(e) for e in remove_idx.split('.') if e != ''])
 
 class Mvlsa(object):
     ''' The MVLSA procedure is a simple algorithm for creating the embedding of
@@ -53,79 +71,173 @@ class Mvlsa(object):
                  intermediate_dim=100,
                  view_transform=VTNS.IDENTITY,
                  row_weighting=MVLSA_WEIGHTING_ENUM.NONE,
-                 mean_center=True):
+                 mean_center=True,
+                 regularization=1e-8,
+                 remove_idx='',
+                 **_kwargs):
         assert hasattr(VTNS, view_transform)
+        # We don't really process the final_dim argument.
         self.final_dim = final_dim
         self.intermediate_dim = intermediate_dim
+        self.regularization = regularization
         self.view_transform = view_transform
         self.row_weighting = row_weighting
         self.mean_center = mean_center
+        self.remove_idx = populate_remove_idx(remove_idx)
         return
 
-    def preprocess(self, arr_list):
+    def create_AT(self, arr_gen):
+        # TODO: Make a shortcut, it the array to be generated already exists
+        try:
+            I = arr_gen.I
+        except AttributeError:
+            I = arr_gen[0].shape[0]
+        AT_arr = numpy.empty((I, self.intermediate_dim*len(arr_gen)),
+                             dtype='float32')
         transform_f = VT.parse(self.view_transform)
-        arr_list = [transform_f(arr) for arr in arr_list]
-        return
-
-    def create_AT(self, arr_list):
-        AT_list = []
-        for arr in arr_list:
+        for arr_idx, _arr in enumerate(arr_gen):
+            # arr = numpy.asfortranarray(transform_f(_arr))
+            arr = transform_f(_arr)
+            if not (arr is _arr):
+                del _arr
+                print "deleted _arr"
+            print >> sys.stderr, arr_idx, arr.shape
+            assert scipy.sparse.isspmatrix(arr), "Array number: " + str(arr_idx)
+            assert scipy.sparse.isspmatrix_csc(arr), \
+                "Array number: %d has type %s"%(arr_idx, str(type(arr)))
+            [A, S, B] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim,
+                                                 return_singular_vectors="u")
             if self.mean_center:
-                [A, S, B] = scipy.sparse.linalg.svds(arr, self.intermediate_dim, create_rsv=True)
-                [A, S] = rank_one_svd_update(A, S, B, mean)
-            else:
-                [A, S] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim)
-            T = self.create_T(S)
-            AT_list.append(np.dot(A, T))
-        return AT_list
+                if B is not None:
+                    [A, S, B] = lib_linalg.mean_center(A, S, B, arr)
+                    del B
+                else:
+                    [A, S] = lib_linalg.mean_center(A, S, arr)
+            A *= self.create_T(S)
+            begin = self.intermediate_dim*arr_idx
+            end = self.intermediate_dim*(arr_idx+1)
+            AT_arr[:, begin:end] = A
+            del A, S, B
+        return AT_arr
 
     def create_T(self, S):
+        assert S.ndim == 1
+        T = (S / (S + self.regularization/2))[numpy.newaxis,:]
         return T
 
-    def perform_inplace_row_weighting(self, AT):
+    def perform_inplace_row_weighting(self, AT_arr):
         # TODO: Perform row weighting
-        return AT
+        return AT_arr
 
-        # ajtj_row = 0;
-        # for i = 1:length(deptoload)
-        #     ajtj_size = size(matfile(deptoload{i}), 'ajtj');
-        #     load(deptoload{i}, 'kj_diag');
-        #     ajtj_row = ajtj_size(1);
-        #     if isnan(K)
-        #         K = zeros(ajtj_size(1), 1);
-        #     end
-        #     K = K+kj_diag;
-        # end;
-        # ajtj = ajtj(logical_acceptable_rows,1:min(M, end));
-        # assert(sanity_check_matrix(ajtj));
-        # ajtj = spdiags(K.^(-1/2), 0, length(K), length(K))*ajtj;
-        # assert(sanity_check_matrix(ajtj));
+    def process_AT(self, AT_arr, debug=False):
+        [G, i] = lib_linalg.svd_1(AT_arr, debug=debug)
+        return G
 
-
-    def process_AT(self, AT_list):
-        G = None
-        S_tilde = None
-        for AT in AT_list:
-            self.perform_inplace_row_weighting(AT)
-            incremental_pca_update(AT, G, S_tilde)
-        return [G, S_tilde]
-
-    def __call__(self, data, stage=1):
-        assert stage in [1, 2, 3]
-        if stage <= 1:
-            data = self.preprocess(data)
-        if stage <= 2:
-            data = self.create_AT(data)
-        if stage <= 3:
-            emb, _ = self.process_AT(data)
+    def __call__(self, arr_gen, stage=1):
+        AT_arr = self.create_AT(arr_gen)
+        emb = self.process_AT(AT_arr)
         return emb
 
 
+class ConcatLsa(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, data, stage=1):
+        pass
 
 
+class CscArrayGenerator(object):
+    def __init__(self, fn, I, remove_idx='', slice_by_I = 0, **kwargs):
+        self.fn = fn
+        self.I = I
+        self.remove_idx = populate_remove_idx(remove_idx)
+        self._rep = 'CscArrayGenerator(%s)'%fn
+        self.total_l = len(config.TREC_WEB_CATEGORIES)
+        self.effective_l = self.total_l - len(self.remove_idx)
+        self.npz_data = None
+        self.idx = 0
+        self.slice_by_I = slice_by_I
 
-def concatLSA(arr_list, opt):
-    pass
+    def __repr__(self):
+        return self._rep
 
-def gaussianEmbedding(arr_list, opt):
-    pass
+    def next(self):
+        while self.idx in self.remove_idx:
+            self.idx += 1
+        if self.idx >= self.total_l:
+            raise StopIteration()
+
+        _indptr = self.npz_data['%d_indptr'%self.idx]
+        _indptr.cumsum(out=_indptr)
+        indptr = numpy.concatenate(([0], _indptr), axis=0)
+        indices = numpy.asarray(self.npz_data['%d_indices'%self.idx])
+        _data = self.npz_data['%d_data'%self.idx]
+        data = _data.astype('float32')
+        del _data, _indptr
+        if self.slice_by_I:
+            indptr = indptr[:self.I+1]
+            data = data[:indptr[-1]]
+            indices = indices[:indptr[-1]]
+        shape = (self.I, len(indptr) - 1)
+        print >>sys.stderr, 'shape', shape, 'len(data)', len(data), \
+            'len(indices)', len(indices)
+        self.idx += 1
+        mat = scipy.sparse.csc_matrix((data, indices, indptr), shape=shape, dtype='float32')
+        return mat
+
+    def __iter__(self):
+        self.npz_data = numpy.load(self.fn)
+        return self
+
+    def __len__(self):
+        return self.effective_l
+
+    def __getitem__(self, idx):
+        raise NotImplementedError()
+
+
+def parse(arguments):
+    '''
+    Mvlsa := (final_dim~[num]@)?\
+             (intemediate_dim~[num]@)?\
+             (view_transform~[str]@)?\
+             (row_weighting~[word]@)?\
+             (mean_center~[01]@)?
+    '''
+    TYPES = dict(Mvlsa=dict(final_dim=int,
+                            intermediate_dim=int,
+                            mean_center=int,
+                            view_transform=str,
+                            row_weighting=str,
+                            regularization=float))
+    def process(parent, tup):
+        #print TYPES[parent], tup[0]
+        return (tup[0], TYPES[parent][tup[0]](tup[1]))
+    arguments = arguments.split('@')
+    transformer = arguments[0]
+    arguments = dict(process(transformer, e.split('~')) for e in arguments[1:])
+    return transformer, arguments
+
+def embed(arguments, I, fn, slice_by_I=0):
+    transformer, arguments = parse(arguments)
+    arr_generator = CscArrayGenerator(fn, I, slice_by_I=slice_by_I, **arguments)
+    transformer = eval(transformer)
+    return transformer(**arguments)(arr_generator)
+
+
+if __name__ == '__main__':
+    import argparse
+    arg_parser = argparse.ArgumentParser(description='')
+    arg_parser.add_argument('--seed', default=0, type=int)
+    arg_parser.add_argument('--config', type=str)
+    arg_parser.add_argument('--I', default=config.TREC_WEB_N_ENTITIES, type=int)
+    arg_parser.add_argument('--fn', default=config.TREC_WEB_HIT_LIST_NPZ, type=str)
+    arg_parser.add_argument('--slice_by_I', default=0, type=int)
+    args=arg_parser.parse_args()
+    import random
+    random.seed(args.seed)
+    numpy.random.seed(args.seed)
+    G = embed(args.config, args.I, args.fn, slice_by_I=args.slice_by_I)
+    with open(args.config, 'wb') as f:
+        numpy.save(f, G, allow_pickle=False)
