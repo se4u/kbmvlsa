@@ -39,6 +39,12 @@ small_%:
 
 SETUP_CMD = python $< build_ext --inplace
 
+## On COE
+## source activate multithreaded_numpy
+## CPPFLAGS="-std=c++11 -fpermissive " CC=g++ make matrix_multiply_inplace_test
+
+test_all: xml2cscformat_test matrix_multiply_inplace_test xml2cscformat_test tabsep_test
+
 matrix_multiply_inplace_test: matrix_multiply_inplace.so
 	python test_matrix_multiply_inplace.py
 
@@ -55,7 +61,7 @@ xml2cscformat_test: xml2cscformat.so
 	  --outnpz /tmp/tmp.hit_list.npz
 	./test_xml2cscformat.py /tmp/tmp.hit_list.pkl /tmp/tmp.hit_list.npz
 
-xml2cscformat.so: setup_xml2cscformat.py xml2cscformat.pyx Fielded_hit_list.pyx
+xml2cscformat.so: setup_xml2cscformat.py xml2cscformat.pyx fielded_hit_list.pyx
 	$(SETUP_CMD)
 
 tabsep_test: xml2tabsep.so
