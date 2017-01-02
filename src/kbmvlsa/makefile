@@ -43,7 +43,14 @@ eval:
 # word := [a-zA-Z0-9]+
 # bool := True | False
 
-
+rsyncx := rsync -avz -vi --progress --partial-dir=/tmp/rsync-partial
+rsync_to_coe:
+	for f in '~/data/chen-xiong-EntityRankData/dbpedia.trecweb/dbpedia.trecweb.small' \
+	   '~/data/chen-xiong-EntityRankData/dbpedia.trecweb.gz'  \
+	   '~/export/kbmvlsa/dbpedia.trecweb.*' ;\
+	do \
+	  echo $(rsyncx) $$f coe:`echo "$${f%/*}"`/ ; \
+	done
 # ------------------------------------------ #
 # Cython based processing of dbpedia.trecweb #
 # ------------------------------------------ #
