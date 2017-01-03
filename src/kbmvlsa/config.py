@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:49:44 2016 (-0500)
-| Last-Updated: Sat Dec 24 23:09:22 2016 (-0500)
-|           By: Pushpendre Rastogi
-|     Update #: 34
+| Last-Updated: Mon Jan  2 18:29:43 2017 (-0500)
+|           By: System User
+|     Update #: 35
 '''
 import os
 from os import path
@@ -37,12 +37,13 @@ TREC_WEB_DBPEDIA = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb', 'dbpedia.trec
 TREC_WEB_DBPEDIA_SMALL = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb', 'dbpedia.trecweb.small')
 TREC_WEB_DBPEDIA_ZIP = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.zip')
 TREC_WEB_DBPEDIA_GZ = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.gz')
-TREC_WEB_TOKEN_PKL = path.join(RES_BASE,
-                               "export/kbmvlsa/dbpedia.trecweb.field_tokens.pkl")
-TREC_WEB_HIT_LIST_PKL = path.join(RES_BASE,
-                                  "export/kbmvlsa/dbpedia.trecweb.hit_list.pkl")
-TREC_WEB_HIT_LIST_NPZ = path.join(RES_BASE,
-                                  "export/kbmvlsa/dbpedia.trecweb.hit_list.npz")
+TREC_WEB_STORAGE = path.join(RES_BASE, "export/kbmvlsa")
+TREC_WEB_TOKEN_PKL = path.join(TREC_WEB_STORAGE,
+                               "dbpedia.trecweb.field_tokens.pkl")
+TREC_WEB_HIT_LIST_PKL = path.join(TREC_WEB_STORAGE,
+                                  "dbpedia.trecweb.hit_list.pkl")
+TREC_WEB_HIT_LIST_NPZ = path.join(TREC_WEB_STORAGE,
+                                  "dbpedia.trecweb.hit_list.npz")
 TREC_WEB_CATEGORIES = ("DOCNO", "DOCHDR", "names", "category", "attributes", "SimEn", "RelEn")
 TREC_WEB_CATEGORIES_STR = ' '.join(TREC_WEB_CATEGORIES)
 RANK_SVM_INEX_LD = path.join(TREC_WEB_DATA_DIR, 'RankSVM_INEX-LD.run')

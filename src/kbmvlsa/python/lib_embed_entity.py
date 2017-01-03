@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Mon Jan  2 17:36:27 2017 (-0500)
-|           By: Pushpendre Rastogi
-|     Update #: 95
+| Last-Updated: Mon Jan  2 19:08:51 2017 (-0500)
+|           By: System User
+|     Update #: 115
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -15,13 +15,15 @@ library will typically be stored on disk.
 '''
 import config
 import lib_linalg
-import numpy, sys
+import numpy, sys, os
 import scipy.sparse
 import scipy.sparse.linalg
 from numpy import sqrt, log1p  # pylint: disable=no-name-in-module
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.preprocessing import normalize
 from class_composable_transform import ComposableTransform
+
+AT_arr = None
 
 class MVLSA_WEIGHTING_ENUM(object):
     NONE = 'NONE'
@@ -52,6 +54,27 @@ VT = ComposableTransform(
         'SQROOT_TFIDF LOG_TFIDF'.split()))
 VTNS = VT.NS
 
+def print_config(msg=None, numpy=0, hostname=1, ps=1):
+    try:
+        if numpy:
+            numpy.show_config()
+        pid = os.getpid()
+        if msg is not None:
+            print msg
+        print 'pid', pid
+        import subprocess
+        cmd = ("ps uf %d;"%pid if ps else "")
+        cmd += " grep '[TV][hm][rHRS][eSWw]' /proc/%d/status; "%pid
+        if hostname:
+            cmd += "echo hostname `hostname`"
+        print subprocess.check_output(
+            [cmd],
+            stderr=subprocess.STDOUT,
+            shell=True)
+    except:
+        pass
+    return
+
 def populate_remove_idx(remove_idx):
     return tuple([int(e) for e in remove_idx.split('.') if e != ''])
 
@@ -67,12 +90,12 @@ class Mvlsa(object):
     emb  : An embedding of arr_list
     mask : A binary mask specifying the rows that were kept for mvlsa.
     '''
-    def __init__(self, final_dim=50,
-                 intermediate_dim=100,
+    def __init__(self, final_dim=300,
+                 intermediate_dim=300,
                  view_transform=VTNS.IDENTITY,
                  row_weighting=MVLSA_WEIGHTING_ENUM.NONE,
-                 mean_center=True,
-                 regularization=1e-8,
+                 mean_center=1,
+                 regularization=1e-7,
                  remove_idx='',
                  **_kwargs):
         assert hasattr(VTNS, view_transform)
@@ -87,13 +110,15 @@ class Mvlsa(object):
         return
 
     def create_AT(self, arr_gen):
+        global AT_arr
         # TODO: Make a shortcut, it the array to be generated already exists
         try:
             I = arr_gen.I
         except AttributeError:
             I = arr_gen[0].shape[0]
-        AT_arr = numpy.empty((I, self.intermediate_dim*len(arr_gen)),
-                             dtype='float32')
+        AT_arr_shape = (I, self.intermediate_dim*len(arr_gen))
+        print "Allocating array of size", AT_arr_shape
+        AT_arr = numpy.empty(AT_arr_shape, dtype='float32')
         transform_f = VT.parse(self.view_transform)
         for arr_idx, _arr in enumerate(arr_gen):
             # arr = numpy.asfortranarray(transform_f(_arr))
@@ -107,6 +132,7 @@ class Mvlsa(object):
                 "Array number: %d has type %s"%(arr_idx, str(type(arr)))
             [A, S, B] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim,
                                                  return_singular_vectors="u")
+            print_config(msg='Finished SVDS')
             if self.mean_center:
                 if B is not None:
                     [A, S, B] = lib_linalg.mean_center(A, S, B, arr)
@@ -118,6 +144,7 @@ class Mvlsa(object):
             end = self.intermediate_dim*(arr_idx+1)
             AT_arr[:, begin:end] = A
             del A, S, B
+            print_config(msg='Finished processing Array: '+str(arr_idx))
         return AT_arr
 
     def create_T(self, S):
@@ -130,11 +157,15 @@ class Mvlsa(object):
         return AT_arr
 
     def process_AT(self, AT_arr, debug=False):
+        print_config(msg='Started svd_1')
         [G, i] = lib_linalg.svd_1(AT_arr, debug=debug)
+        print_config(msg='Finished svd_1')
         return G
 
     def __call__(self, arr_gen, stage=1):
         AT_arr = self.create_AT(arr_gen)
+        with open(OUT_FN+'.AT_arr', 'wb') as f:
+            numpy.save(f, AT_arr, allow_pickle=False)
         emb = self.process_AT(AT_arr)
         return emb
 
@@ -154,7 +185,7 @@ class CscArrayGenerator(object):
         self.remove_idx = populate_remove_idx(remove_idx)
         self._rep = 'CscArrayGenerator(%s)'%fn
         self.total_l = len(config.TREC_WEB_CATEGORIES)
-        self.effective_l = self.total_l - len(self.remove_idx)
+        self.effective_l = len([e for e in range(self.total_l) if e not in self.remove_idx])
         self.npz_data = None
         self.idx = 0
         self.slice_by_I = slice_by_I
@@ -167,7 +198,6 @@ class CscArrayGenerator(object):
             self.idx += 1
         if self.idx >= self.total_l:
             raise StopIteration()
-
         _indptr = self.npz_data['%d_indptr'%self.idx]
         _indptr.cumsum(out=_indptr)
         indptr = numpy.concatenate(([0], _indptr), axis=0)
@@ -203,14 +233,16 @@ def parse(arguments):
              (intemediate_dim~[num]@)?\
              (view_transform~[str]@)?\
              (row_weighting~[word]@)?\
-             (mean_center~[01]@)?
+             (mean_center~[01]@)?\
+             (remove_idx~[num.+]@)?\
     '''
     TYPES = dict(Mvlsa=dict(final_dim=int,
                             intermediate_dim=int,
                             mean_center=int,
                             view_transform=str,
                             row_weighting=str,
-                            regularization=float))
+                            regularization=float,
+                            remove_idx=str))
     def process(parent, tup):
         #print TYPES[parent], tup[0]
         return (tup[0], TYPES[parent][tup[0]](tup[1]))
@@ -239,5 +271,6 @@ if __name__ == '__main__':
     random.seed(args.seed)
     numpy.random.seed(args.seed)
     G = embed(args.config, args.I, args.fn, slice_by_I=args.slice_by_I)
-    with open(args.config, 'wb') as f:
+    OUT_FN = os.path.join(config.TREC_WEB_STORAGE, args.config)
+    with open(OUT_FN, 'wb') as f:
         numpy.save(f, G, allow_pickle=False)
