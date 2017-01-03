@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Tue Jan  3 11:47:04 2017 (-0500)
+| Last-Updated: Tue Jan  3 16:13:34 2017 (-0500)
 |           By: System User
-|     Update #: 137
+|     Update #: 162
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -19,6 +19,7 @@ import numpy, sys, os
 import scipy.sparse
 import scipy.sparse.linalg
 from sklearn.feature_extraction.text import TfidfTransformer
+import sklearn.utils.validation
 from sklearn.preprocessing import normalize
 from class_composable_transform import ComposableTransform
 from rasengan import tictoc
@@ -52,6 +53,33 @@ def clbl_norm(x):
         del x
     return r
 
+
+class MyTfidfTransformer(TfidfTransformer):
+    def transform(self, X, copy=False):
+        assert not copy
+        n_samples, n_features = X.shape
+        if self.sublinear_tf or self.norm:
+            raise NotImplementedError()
+        if self.use_idf:
+            sklearn.utils.validation.check_is_fitted(
+                self, '_idf_diag', 'idf vector is not fitted')
+            assert n_features == self._idf_diag.shape[0]
+            for i in xrange(X.shape[1]):
+                X.data[X.indptr[i]:X.indptr[i+1]] *= self._idf_diag.data[i]
+        return X
+
+def clbl_tfidf(x):
+    y = MyTfidfTransformer(norm=None, use_idf=True, sublinear_tf=False).fit(x).transform(x, copy=False)
+    if x is not y:
+        del x
+    return y
+
+def clbl_tf(x):
+    y = MyTfidfTransformer(norm=None, use_idf=False, sublinear_tf=False).fit(x).transform(x, copy=False)
+    if x is not y:
+        del x
+    return y
+
 # These callables modify input *INPLACE*
 callables = dict(
     IDENTITY=(lambda _: _),  # pylint: disable=unnecessary-lambda
@@ -59,8 +87,8 @@ callables = dict(
     LOG   =clbl_log1p,
     # We don't copy data only if the original data was in `csr` format.
     # Otherwise, if the data was dense, or it was in csc format, we copy the data.
-    TF   =(lambda x: TfidfTransformer(norm=None, use_idf=False, sublinear_tf=False).fit(x).transform(x, copy=False)),
-    TFIDF=(lambda x: TfidfTransformer(norm=None, use_idf=True, sublinear_tf=False).fit(x).transform(x, copy=False)),
+    TF   =clbl_tf,
+    TFIDF=clbl_tfidf,
     NORM=clbl_norm,
 )
 
@@ -71,6 +99,16 @@ VT = ComposableTransform(
         'NORM_TFIDF NORM_TF '
         'SQROOT_TFIDF LOG_TFIDF'.split()))
 VTNS = VT.NS
+
+
+def sparse_svd(arr, k, method='arpack', **kwargs):
+    if method == 'arpack':
+        return scipy.sparse.linalg.svds(arr, k=k, return_singular_vectors="u")
+    if method == 'halko':
+        return randomized_svd(arr, k, n_oversamples=10, n_iter=2, power_iteration_normalizer=None, transpose='auto', flip_sign=False, random_state=0)
+    if method == 'svdlibc':
+        from sparsesvd import sparsesvd
+        return sparsesvd(arr, k)
 
 def print_config(msg=None, numpy=0, hostname=1, ps=1):
     try:
@@ -119,6 +157,7 @@ class Mvlsa(object):
                  mean_center=1,
                  regularization=1e-7,
                  remove_idx='',
+                 svd_method='arpack',
                  **_kwargs):
         assert hasattr(VTNS, view_transform)
         # We don't really process the final_dim argument.
@@ -129,6 +168,7 @@ class Mvlsa(object):
         self.row_weighting = row_weighting
         self.mean_center = mean_center
         self.remove_idx = populate_remove_idx(remove_idx)
+        self.svd_method = svd_method
         return
 
     def create_AT(self, arr_gen):
@@ -139,7 +179,10 @@ class Mvlsa(object):
             I = arr_gen[0].shape[0]
         AT_arr_shape = (I, self.intermediate_dim*len(arr_gen))
         print "Allocating array of size", AT_arr_shape
-        AT_arr = numpy.empty(AT_arr_shape, dtype='float32')
+        try:
+            AT_arr = numpy.empty(AT_arr_shape, dtype='float32')
+        except MemoryError:
+            AT_arr = None
         transform_f = VT.parse(self.view_transform)
         for arr_idx, _arr in enumerate(arr_gen):
             # arr = numpy.asfortranarray(transform_f(_arr))
@@ -154,8 +197,8 @@ class Mvlsa(object):
             print_config(msg='Started SVDS')
             with tictoc('Timing SVD'):
                 print arr.max(), arr.min()
-                [A, S, B] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim,
-                                                     return_singular_vectors="u")
+                [A, S, B] = sparse_svd(arr, self.intermediate_dim,
+                                       method=self.svd_method)
             print_config(msg='Finished SVDS')
             if self.mean_center:
                 if B is not None:
@@ -260,6 +303,7 @@ def parse(arguments):
              (row_weighting~[word]@)?\
              (mean_center~[01]@)?\
              (remove_idx~[num.+]@)?\
+             (svd_method~[arpack|halko|svdlibc]@)?
     '''
     TYPES = dict(Mvlsa=dict(final_dim=int,
                             intermediate_dim=int,
@@ -267,7 +311,8 @@ def parse(arguments):
                             view_transform=str,
                             row_weighting=str,
                             regularization=float,
-                            remove_idx=str))
+                            remove_idx=str,
+                            svd_method=str))
     def process(parent, tup):
         #print TYPES[parent], tup[0]
         return (tup[0], TYPES[parent][tup[0]](tup[1]))
