@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Tue Jan  3 10:28:37 2017 (-0500)
+| Last-Updated: Tue Jan  3 11:47:04 2017 (-0500)
 |           By: System User
-|     Update #: 119
+|     Update #: 137
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -18,7 +18,6 @@ import lib_linalg
 import numpy, sys, os
 import scipy.sparse
 import scipy.sparse.linalg
-from numpy import sqrt, log1p  # pylint: disable=no-name-in-module
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.preprocessing import normalize
 from class_composable_transform import ComposableTransform
@@ -32,17 +31,37 @@ class MVLSA_WEIGHTING_ENUM(object):
     pass
 
 
+def csr_or_csc(x):
+    return (scipy.sparse.isspmatrix_csc(x)
+            or scipy.sparse.isspmatrix_csr(x))
+
+def clbl_sqrt(x):
+    assert csr_or_csc(x), 'sqrt '+str(type(x))
+    numpy.sqrt(x.data, out=x.data)
+    return x
+
+def clbl_log1p(x):
+    assert csr_or_csc(x), 'log1p '+str(type(x))
+    numpy.log1p(x.data, out=x.data)
+    return x
+
+def clbl_norm(x):
+    assert csr_or_csc(x), 'norm '+str(type(x))
+    r = normalize(x, norm='l2', axis=1, copy=False)
+    if r is not x:
+        del x
+    return r
+
 # These callables modify input *INPLACE*
 callables = dict(
-    IDENTITY=(lambda _: _),
-    SQROOT=(lambda x: sqrt(x, out=x)), # pylint: disable=unnecessary-lambda
-    LOG  =(lambda x: log1p(x, out=x)),
+    IDENTITY=(lambda _: _),  # pylint: disable=unnecessary-lambda
+    SQROOT=clbl_sqrt,
+    LOG   =clbl_log1p,
     # We don't copy data only if the original data was in `csr` format.
     # Otherwise, if the data was dense, or it was in csc format, we copy the data.
     TF   =(lambda x: TfidfTransformer(norm=None, use_idf=False, sublinear_tf=False).fit(x).transform(x, copy=False)),
     TFIDF=(lambda x: TfidfTransformer(norm=None, use_idf=True, sublinear_tf=False).fit(x).transform(x, copy=False)),
-    NORM=(lambda x: normalize(x, norm='l2', axis=1, copy=False)),
-    # PMI=(lambda x: PmiTransformer()),
+    NORM=clbl_norm,
 )
 
 VT = ComposableTransform(
@@ -57,20 +76,24 @@ def print_config(msg=None, numpy=0, hostname=1, ps=1):
     try:
         if numpy:
             numpy.show_config()
-        pid = os.getpid()
         if msg is not None:
             print msg
-        print 'pid', pid
-        import subprocess
-        cmd = ("ps uf %d;"%pid if ps else "")
-        cmd += " grep '[TV][hm][rHRS][eSWw]' /proc/%d/status; "%pid
         if hostname:
-            cmd += "echo hostname `hostname`"
-        print subprocess.check_output(
-            [cmd],
-            stderr=subprocess.STDOUT,
-            shell=True)
-    except:
+            import socket
+            print 'hostname', socket.gethostname()
+        pid = os.getpid()
+        print 'pid', pid
+        proc_stat = dict(e.strip().split(':') for e in open('/proc/%d/status'%pid))
+        print 'VmHWM', proc_stat["VmHWM"]
+        print 'VmRSS', proc_stat["VmRSS"]
+        print 'VmSwap', proc_stat["VmSwap"]
+        print 'Threads', proc_stat["Threads"]
+        import psutil
+        p = psutil.Process(pid)
+        print 'CPU%        ',  '%1.2f%%'%p.cpu_percent(interval=None)
+        print 'MEM%        ', '%1.2f%%'%p.memory_percent()
+    except Exception as e:
+        print e
         pass
     return
 
@@ -120,16 +143,17 @@ class Mvlsa(object):
         transform_f = VT.parse(self.view_transform)
         for arr_idx, _arr in enumerate(arr_gen):
             # arr = numpy.asfortranarray(transform_f(_arr))
-            arr = transform_f(_arr)
-            if not (arr is _arr):
-                del _arr
-                print "deleted _arr"
+            arr_ = transform_f(_arr)
+            if arr_ is not _arr: del _arr
+            arr = arr_.tocsc()
+            if arr is not arr_: del arr_
             print >> sys.stderr, arr_idx, arr.shape
             assert scipy.sparse.isspmatrix(arr), "Array number: " + str(arr_idx)
             assert scipy.sparse.isspmatrix_csc(arr), \
                 "Array number: %d has type %s"%(arr_idx, str(type(arr)))
             print_config(msg='Started SVDS')
             with tictoc('Timing SVD'):
+                print arr.max(), arr.min()
                 [A, S, B] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim,
                                                      return_singular_vectors="u")
             print_config(msg='Finished SVDS')
