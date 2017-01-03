@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Mon Jan  2 19:08:51 2017 (-0500)
+| Last-Updated: Tue Jan  3 10:22:01 2017 (-0500)
 |           By: System User
-|     Update #: 115
+|     Update #: 117
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -22,7 +22,7 @@ from numpy import sqrt, log1p  # pylint: disable=no-name-in-module
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.preprocessing import normalize
 from class_composable_transform import ComposableTransform
-
+from rasengan import tictoc
 AT_arr = None
 
 class MVLSA_WEIGHTING_ENUM(object):
@@ -130,8 +130,10 @@ class Mvlsa(object):
             assert scipy.sparse.isspmatrix(arr), "Array number: " + str(arr_idx)
             assert scipy.sparse.isspmatrix_csc(arr), \
                 "Array number: %d has type %s"%(arr_idx, str(type(arr)))
-            [A, S, B] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim,
-                                                 return_singular_vectors="u")
+            print_config(msg='Started SVDS')
+            with tictoc('Timing SVD'):
+                [A, S, B] = scipy.sparse.linalg.svds(arr, k=self.intermediate_dim,
+                                                     return_singular_vectors="u")
             print_config(msg='Finished SVDS')
             if self.mean_center:
                 if B is not None:
