@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Tue Jan  3 10:22:01 2017 (-0500)
+| Last-Updated: Tue Jan  3 10:28:37 2017 (-0500)
 |           By: System User
-|     Update #: 117
+|     Update #: 119
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -23,7 +23,6 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.preprocessing import normalize
 from class_composable_transform import ComposableTransform
 from rasengan import tictoc
-AT_arr = None
 
 class MVLSA_WEIGHTING_ENUM(object):
     NONE = 'NONE'
@@ -110,7 +109,6 @@ class Mvlsa(object):
         return
 
     def create_AT(self, arr_gen):
-        global AT_arr
         # TODO: Make a shortcut, it the array to be generated already exists
         try:
             I = arr_gen.I
@@ -164,10 +162,11 @@ class Mvlsa(object):
         print_config(msg='Finished svd_1')
         return G
 
-    def __call__(self, arr_gen, stage=1):
+    def __call__(self, arr_gen, save_intmdt_fn=None, stage=1):
         AT_arr = self.create_AT(arr_gen)
-        with open(OUT_FN+'.AT_arr', 'wb') as f:
-            numpy.save(f, AT_arr, allow_pickle=False)
+        if save_intmdt_fn is not None:
+            with open(save_intmdt_fn, 'wb') as f:
+                numpy.save(f, AT_arr, allow_pickle=False)
         emb = self.process_AT(AT_arr)
         return emb
 
@@ -253,11 +252,11 @@ def parse(arguments):
     arguments = dict(process(transformer, e.split('~')) for e in arguments[1:])
     return transformer, arguments
 
-def embed(arguments, I, fn, slice_by_I=0):
+def embed(arguments, I, fn, slice_by_I=0, save_intmdt_fn=None):
     transformer, arguments = parse(arguments)
     arr_generator = CscArrayGenerator(fn, I, slice_by_I=slice_by_I, **arguments)
     transformer = eval(transformer)
-    return transformer(**arguments)(arr_generator)
+    return transformer(**arguments)(arr_generator, save_intmdt_fn=save_intmdt_fn)
 
 
 if __name__ == '__main__':
@@ -272,7 +271,9 @@ if __name__ == '__main__':
     import random
     random.seed(args.seed)
     numpy.random.seed(args.seed)
-    G = embed(args.config, args.I, args.fn, slice_by_I=args.slice_by_I)
-    OUT_FN = os.path.join(config.TREC_WEB_STORAGE, args.config)
-    with open(OUT_FN, 'wb') as f:
+    out_fn = os.path.join(config.TREC_WEB_STORAGE, args.config)
+    G = embed(args.config, args.I, args.fn,
+              slice_by_I=args.slice_by_I,
+              save_intmdt_fn=out_fn+'.AT_arr')
+    with open(out_fn, 'wb') as f:
         numpy.save(f, G, allow_pickle=False)
