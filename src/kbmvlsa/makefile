@@ -51,6 +51,7 @@ rsync_to_coe:
 	  '~/data/dbpedia-entity-search-test-collection/queries.txt' \
 	  '~/data/chen-xiong-EntityRankData/RankSVM_INEX-LD.run' \
 	  '~/data/embedding/mvlsa/combined_embedding_0.emb.pkl' \
+	  '~/export/kbmvlsa/dbpedia.trecweb.docno2id.pkl' \
 	; do echo $(rsyncx) $$f coe:`echo "$${f%/*}"`/ ; done
 # ------------------------------------------ #
 # Cython based processing of dbpedia.trecweb #

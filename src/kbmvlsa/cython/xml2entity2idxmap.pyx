@@ -27,22 +27,13 @@ cdef int main(str infn, str outfn):
             rows_in_storage = i
             i=0
             document = u' '.join(storage[:rows_in_storage])
-            if doc_idx % 10000 == 0:
+            if doc_idx % 100000 == 0:
                 print doc_idx, doc_idx / 95000.0, '%', (time.time() - tic)/60, 'min'
-            docno = docno_matcher.match(document).group(0)
+            docno = docno_matcher.match(document).group(1)
             DOCNO_dict[docno] = doc_idx
     with open(outfn, "wb") as f:
         cPickle.dump(DOCNO_dict, f, protocol=-1)
     return 1
 
-def main_py(infn, outfn):
+def main_py(infn=config.TREC_WEB_DBPEDIA, outfn=config.TREC_WEB_DOCNO2ID_PKL):
     main(infn, outfn)
-
-if __name__ == '__main__':
-    import argparse
-    arg_parser = argparse.ArgumentParser(description='')
-    arg_parser.add_argument('--infn', default=config.TREC_WEB_DBPEDIA, type=str)
-    arg_parser.add_argument('--outfn', default=config.TREC_WEB_DOCNO2ID_PKL,
-                            type=str)
-    args=arg_parser.parse_args()
-    main_py(args.infn, args.outfn)
