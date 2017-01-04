@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Wed Jan  4 14:19:55 2017 (-0500)
+| Last-Updated: Wed Jan  4 14:53:38 2017 (-0500)
 |           By: System User
-|     Update #: 199
+|     Update #: 200
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -231,7 +231,10 @@ class CscArrayGenerator(object):
         self.I = I
         self.remove_idx = populate_remove_idx(remove_idx)
         self._rep = 'CscArrayGenerator(%s)'%fn
-        self.total_l = len(config.TREC_WEB_CATEGORIES)
+        if fn is None:
+            self.total_l = 3
+        else:
+            self.total_l = len(config.TREC_WEB_CATEGORIES)
         self.effective_l = len([e for e in range(self.total_l)
                                 if e not in self.remove_idx])
         self.npz_data = None

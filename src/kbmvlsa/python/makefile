@@ -1,4 +1,8 @@
 #!/usr/bin/make -f
+
+# ------------------ #
+#  Create Embeddings #
+# ------------------ #
 # r7n1[124]
 HOSTNAME := r7n0*
 QSUB := qsub -b y -V -j y -r yes -l 'mem_free=100G,arch=*64*,h_rt=100:00:00,num_proc=4,hostname=$(HOSTNAME)' -cwd
