@@ -4,9 +4,9 @@
 | Description : Create KB embedding
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 11:20:45 2016 (-0500)
-| Last-Updated: Tue Jan  3 16:13:34 2017 (-0500)
+| Last-Updated: Wed Jan  4 14:19:55 2017 (-0500)
 |           By: System User
-|     Update #: 162
+|     Update #: 199
 The `eval.py` file requires an embedding of the entities in the KB.
 This library provides methods to embed entities. Typically these methods
 will be called `offline` and their results will be accessed by `eval.py`
@@ -22,7 +22,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 import sklearn.utils.validation
 from sklearn.preprocessing import normalize
 from class_composable_transform import ComposableTransform
-from rasengan import tictoc
+from rasengan import tictoc, print_config
 
 class MVLSA_WEIGHTING_ENUM(object):
     NONE = 'NONE'
@@ -54,31 +54,35 @@ def clbl_norm(x):
     return r
 
 
-class MyTfidfTransformer(TfidfTransformer):
-    def transform(self, X, copy=False):
-        assert not copy
-        n_samples, n_features = X.shape
-        if self.sublinear_tf or self.norm:
-            raise NotImplementedError()
-        if self.use_idf:
-            sklearn.utils.validation.check_is_fitted(
-                self, '_idf_diag', 'idf vector is not fitted')
-            assert n_features == self._idf_diag.shape[0]
-            for i in xrange(X.shape[1]):
-                X.data[X.indptr[i]:X.indptr[i+1]] *= self._idf_diag.data[i]
-        return X
+def myTfidfTransformer(X, use_idf):
+    '''
+    The formula that is used to compute the tf-idf of term t is
+    tf-idf(d, t) = tf(t) * idf(d, t), and the idf is computed as
+    idf(d, t) = log [ n / df(d, t) ]
+    where n is the total number of documents and df(d, t) is the
+    document frequency; the document frequency is the number of documents d
+    that contain term t. Note that terms that occur in all documents
+    in a training set, will be completely ignored.
+    (Note that the idf formula above differs from the standard
+    textbook notation that defines the idf as
+    idf(d, t) = log [ n / (df(d, t) + 1) ]).
+    '''
+    assert scipy.sparse.isspmatrix_csc(X)
+    n_samples, n_features = X.shape
+    if use_idf:
+        df = numpy.diff(X.indptr)
+        idf = numpy.log(float(n_samples)/df)
+        for i in xrange(n_features):
+            X.data[X.indptr[i]:X.indptr[i+1]] *= idf[i]
+        del df, idf
+    return X
 
 def clbl_tfidf(x):
-    y = MyTfidfTransformer(norm=None, use_idf=True, sublinear_tf=False).fit(x).transform(x, copy=False)
-    if x is not y:
-        del x
-    return y
+    # if x is not y: del x
+    return myTfidfTransformer(x, use_idf=True)
 
 def clbl_tf(x):
-    y = MyTfidfTransformer(norm=None, use_idf=False, sublinear_tf=False).fit(x).transform(x, copy=False)
-    if x is not y:
-        del x
-    return y
+    return myTfidfTransformer(x, use_idf=False)
 
 # These callables modify input *INPLACE*
 callables = dict(
@@ -94,7 +98,7 @@ callables = dict(
 
 VT = ComposableTransform(
     callables,
-    set('NORM IDENTITY LOG SQROOT '
+    set('NORM LOG SQROOT '
         'TFIDF TF '
         'NORM_TFIDF NORM_TF '
         'SQROOT_TFIDF LOG_TFIDF'.split()))
@@ -110,30 +114,6 @@ def sparse_svd(arr, k, method='arpack', **kwargs):
         from sparsesvd import sparsesvd
         return sparsesvd(arr, k)
 
-def print_config(msg=None, numpy=0, hostname=1, ps=1):
-    try:
-        if numpy:
-            numpy.show_config()
-        if msg is not None:
-            print msg
-        if hostname:
-            import socket
-            print 'hostname', socket.gethostname()
-        pid = os.getpid()
-        print 'pid', pid
-        proc_stat = dict(e.strip().split(':') for e in open('/proc/%d/status'%pid))
-        print 'VmHWM', proc_stat["VmHWM"]
-        print 'VmRSS', proc_stat["VmRSS"]
-        print 'VmSwap', proc_stat["VmSwap"]
-        print 'Threads', proc_stat["Threads"]
-        import psutil
-        p = psutil.Process(pid)
-        print 'CPU%        ',  '%1.2f%%'%p.cpu_percent(interval=None)
-        print 'MEM%        ', '%1.2f%%'%p.memory_percent()
-    except Exception as e:
-        print e
-        pass
-    return
 
 def populate_remove_idx(remove_idx):
     return tuple([int(e) for e in remove_idx.split('.') if e != ''])
@@ -152,7 +132,7 @@ class Mvlsa(object):
     '''
     def __init__(self, final_dim=300,
                  intermediate_dim=300,
-                 view_transform=VTNS.IDENTITY,
+                 view_transform=VTNS.TF,
                  row_weighting=MVLSA_WEIGHTING_ENUM.NONE,
                  mean_center=1,
                  regularization=1e-7,
@@ -171,32 +151,31 @@ class Mvlsa(object):
         self.svd_method = svd_method
         return
 
-    def create_AT(self, arr_gen):
+    def create_AT(self, arr_gen, intmdt_fn=None):
         # TODO: Make a shortcut, it the array to be generated already exists
         try:
             I = arr_gen.I
         except AttributeError:
             I = arr_gen[0].shape[0]
         AT_arr_shape = (I, self.intermediate_dim*len(arr_gen))
-        print "Allocating array of size", AT_arr_shape
-        try:
-            AT_arr = numpy.empty(AT_arr_shape, dtype='float32')
-        except MemoryError:
-            AT_arr = None
+        if intmdt_fn is None:
+            print "Allocating array of size", AT_arr_shape
+            AT_arr = numpy.empty(AT_arr_shape, dtype='float32', order='C')
+        else:
+            AT_arr = numpy.memmap(intmdt_fn, dtype='float32', mode='w+',
+                                  shape=AT_arr_shape, order='C')
         transform_f = VT.parse(self.view_transform)
         for arr_idx, _arr in enumerate(arr_gen):
             # arr = numpy.asfortranarray(transform_f(_arr))
             arr_ = transform_f(_arr)
-            if arr_ is not _arr: del _arr
             arr = arr_.tocsc()
-            if arr is not arr_: del arr_
-            print >> sys.stderr, arr_idx, arr.shape
-            assert scipy.sparse.isspmatrix(arr), "Array number: " + str(arr_idx)
-            assert scipy.sparse.isspmatrix_csc(arr), \
-                "Array number: %d has type %s"%(arr_idx, str(type(arr)))
+            if arr is not _arr:
+                del _arr
+            if arr is not arr_:
+                del arr_
+            print >> sys.stderr, arr_idx, arr.shape, arr.max(), arr.min()
             print_config(msg='Started SVDS')
-            with tictoc('Timing SVD'):
-                print arr.max(), arr.min()
+            with tictoc('Timing SVD', override='stderr'):
                 [A, S, B] = sparse_svd(arr, self.intermediate_dim,
                                        method=self.svd_method)
             print_config(msg='Finished SVDS')
@@ -212,6 +191,8 @@ class Mvlsa(object):
             AT_arr[:, begin:end] = A
             del A, S, B
             print_config(msg='Finished processing Array: '+str(arr_idx))
+            if intmdt_fn is not None:
+                AT_arr.flush()
         return AT_arr
 
     def create_T(self, S):
@@ -225,15 +206,13 @@ class Mvlsa(object):
 
     def process_AT(self, AT_arr, debug=False):
         print_config(msg='Started svd_1')
-        [G, i] = lib_linalg.svd_1(AT_arr, debug=debug)
+        with tictoc('Performing Final SVD', override='stderr'):
+            [G, i] = lib_linalg.svd_1(AT_arr, debug=debug)
         print_config(msg='Finished svd_1')
         return G
 
     def __call__(self, arr_gen, save_intmdt_fn=None, stage=1):
-        AT_arr = self.create_AT(arr_gen)
-        if save_intmdt_fn is not None:
-            with open(save_intmdt_fn, 'wb') as f:
-                numpy.save(f, AT_arr, allow_pickle=False)
+        AT_arr = self.create_AT(arr_gen, intmdt_fn=save_intmdt_fn)
         emb = self.process_AT(AT_arr)
         return emb
 
@@ -247,16 +226,16 @@ class ConcatLsa(object):
 
 
 class CscArrayGenerator(object):
-    def __init__(self, fn, I, remove_idx='', slice_by_I = 0, **kwargs):
+    def __init__(self, I, fn=None, remove_idx='', **kwargs):
         self.fn = fn
         self.I = I
         self.remove_idx = populate_remove_idx(remove_idx)
         self._rep = 'CscArrayGenerator(%s)'%fn
         self.total_l = len(config.TREC_WEB_CATEGORIES)
-        self.effective_l = len([e for e in range(self.total_l) if e not in self.remove_idx])
+        self.effective_l = len([e for e in range(self.total_l)
+                                if e not in self.remove_idx])
         self.npz_data = None
         self.idx = 0
-        self.slice_by_I = slice_by_I
 
     def __repr__(self):
         return self._rep
@@ -266,6 +245,16 @@ class CscArrayGenerator(object):
             self.idx += 1
         if self.idx >= self.total_l:
             raise StopIteration()
+        mat = (self.next_random()
+               if self.npz_data is None
+               else self.next_fn())
+        self.idx += 1
+        return mat
+
+    def next_random(self):
+        return scipy.sparse.rand(self.I, 500, .4, 'csc').astype('float32')
+
+    def next_fn(self):
         _indptr = self.npz_data['%d_indptr'%self.idx]
         _indptr.cumsum(out=_indptr)
         indptr = numpy.concatenate(([0], _indptr), axis=0)
@@ -273,19 +262,16 @@ class CscArrayGenerator(object):
         _data = self.npz_data['%d_data'%self.idx]
         data = _data.astype('float32')
         del _data, _indptr
-        if self.slice_by_I:
-            indptr = indptr[:self.I+1]
-            data = data[:indptr[-1]]
-            indices = indices[:indptr[-1]]
         shape = (self.I, len(indptr) - 1)
         print >>sys.stderr, 'shape', shape, 'len(data)', len(data), \
             'len(indices)', len(indices)
-        self.idx += 1
-        mat = scipy.sparse.csc_matrix((data, indices, indptr), shape=shape, dtype='float32')
+        mat = scipy.sparse.csc_matrix((data, indices, indptr),
+                                      shape=shape, dtype='float32')
         return mat
 
     def __iter__(self):
-        self.npz_data = numpy.load(self.fn)
+        if self.fn is not None:
+            self.npz_data = numpy.load(self.fn)
         return self
 
     def __len__(self):
@@ -321,13 +307,39 @@ def parse(arguments):
     arguments = dict(process(transformer, e.split('~')) for e in arguments[1:])
     return transformer, arguments
 
-def embed(arguments, I, fn, slice_by_I=0, save_intmdt_fn=None):
+def embed(arguments, I, fn, save_intmdt_fn=None):
     transformer, arguments = parse(arguments)
-    arr_generator = CscArrayGenerator(fn, I, slice_by_I=slice_by_I, **arguments)
+    arr_generator = CscArrayGenerator(I, fn=fn, **arguments)
     transformer = eval(transformer)
     return transformer(**arguments)(arr_generator, save_intmdt_fn=save_intmdt_fn)
 
 
+'''
+1. [X] I am leaking memory in some places.
+       One possible way to figure this out is to do a line by line memory profiling
+       with a smaller file. Instead I just checked the jobs where I took too much
+       memory and then just reduced the memory of their code paths.
+2. [X] I should memmap the large array, rather than creating it in memory.
+   This way, I get an automatic backup while I am building the array.
+3. The cpu_percent in psutils that I am using is wrong.
+4. The program core dumped while processing SQRT and IDENTITY
+   The memory usage was ~ 30% at RSS=80 and HWM=109, so there
+   was no memory leak, but maybe I tried to delete something that
+   did not exist? The things that did not core dump were TFIDF, TF, NORM_TF
+   TFIDF = 140G, TF=NORM_TF=110G (It turns out that TF = Identity, so no biggy)
+   So there was a memory leak with TFIDF ( I Fixed that)
+5. The individual SVDs take a long time:
+   6.2 ks, 3.0 ks, 4.3 ks, 1.0 ks, 11.7 ks, 3.0 ks, 10.8 ks = 40ks
+   Perfect parallelization will decrease time to 11.7ks
+   But the memory usage will increase, and if I am able to speed up
+   the SVD 4 times, then I'll have the same effect.
+   Fix: I have increased threads to 32, in the hope that that will increase
+   my CPU utilization during the sparse SVD.
+6. I should store the singular values to track how much energy I am throwing away.
+7. I need to add methods for weighting the GCCA, weighted SVD is NP hard, but
+   methods like ADAGrad can handle it.
+8. I need to do mean normalization.
+'''
 if __name__ == '__main__':
     import argparse
     arg_parser = argparse.ArgumentParser(description='')
@@ -335,14 +347,16 @@ if __name__ == '__main__':
     arg_parser.add_argument('--config', type=str)
     arg_parser.add_argument('--I', default=config.TREC_WEB_N_ENTITIES, type=int)
     arg_parser.add_argument('--fn', default=config.TREC_WEB_HIT_LIST_NPZ, type=str)
-    arg_parser.add_argument('--slice_by_I', default=0, type=int)
+    arg_parser.add_argument('--test', default=0, type=int)
     args=arg_parser.parse_args()
     import random
     random.seed(args.seed)
     numpy.random.seed(args.seed)
     out_fn = os.path.join(config.TREC_WEB_STORAGE, args.config)
+    if args.test:
+        args.fn = None
     G = embed(args.config, args.I, args.fn,
-              slice_by_I=args.slice_by_I,
               save_intmdt_fn=out_fn+'.AT_arr')
-    with open(out_fn, 'wb') as f:
-        numpy.save(f, G, allow_pickle=False)
+    with tictoc('Pickling G'):
+        with open(out_fn, 'wb') as f:
+            numpy.save(f, G, allow_pickle=False)
