@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:49:44 2016 (-0500)
-| Last-Updated: Mon Jan  2 18:29:43 2017 (-0500)
+| Last-Updated: Wed Jan  4 16:06:00 2017 (-0500)
 |           By: System User
-|     Update #: 35
+|     Update #: 36
 '''
 import os
 from os import path
@@ -38,6 +38,8 @@ TREC_WEB_DBPEDIA_SMALL = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb', 'dbpedi
 TREC_WEB_DBPEDIA_ZIP = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.zip')
 TREC_WEB_DBPEDIA_GZ = path.join(TREC_WEB_DATA_DIR, 'dbpedia.trecweb.gz')
 TREC_WEB_STORAGE = path.join(RES_BASE, "export/kbmvlsa")
+TREC_WEB_DOCNO2ID_PKL = path.join(TREC_WEB_STORAGE,
+                               "dbpedia.trecweb.docno2id.pkl")
 TREC_WEB_TOKEN_PKL = path.join(TREC_WEB_STORAGE,
                                "dbpedia.trecweb.field_tokens.pkl")
 TREC_WEB_HIT_LIST_PKL = path.join(TREC_WEB_STORAGE,

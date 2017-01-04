@@ -2,6 +2,8 @@
 def main(debug=False, define_macros=None, extra_directives=None,
          extension_ns=(("xml2tabsep", ("xml2tabsep.pyx",)),
                        ("analyzer", ("analyzer.pyx", "KrovetzStemmer.cpp")))):
+    import os
+    os.environ["CC"] = "g++"
     if debug:
         import os
         os.environ.setdefault('DISTUTILS_DEBUG', failobj='1')
@@ -23,8 +25,12 @@ def main(debug=False, define_macros=None, extra_directives=None,
     if extra_directives is not None:
         compiler_directives.update(extra_directives)
     include_dirs = ['.', numpy.get_include()]
-    extensions = [Extension(a, sources=list(b), include_dirs=include_dirs,
-                            define_macros=define_macros) # , language='c++'
+    extensions = [Extension(a,
+                            sources=list(b),
+                            include_dirs=include_dirs,
+                            define_macros=define_macros,
+                            extra_compile_args = ["-std=c++11"],
+                            language='c++')
                   for (a,b)
                   in extension_ns]
     setup(ext_modules=cythonize(extensions,

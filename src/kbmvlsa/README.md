@@ -77,16 +77,11 @@ And the shim just needs to be learnt using LeTor.
     I had to learn to process this data.
     The final result was a single file containing the trec web data.
 ** Evaluate MVLSA
-*** Create MVLSA features.
-*** Incorporate a wrapped version of learning to rank to run the experiments.
-** Prepare count matrices
-*** Prepare PMI transformer
-**** Write class_pmi_transformer
-***** Write PMI
-***** Write Dicounted PMI
-***** Write Laplace Smoothed PMI
-** Prepare an MVLSA runner
-*** Write class `Mvlsa` in `lib_embed_entity.py`
+*** [X] Create MVLSA features.
+*** [-] Incorporate a wrapped version of learning to rank to run the experiments.
+** [X] Prepare count matrices
+** [X] Prepare an MVLSA runner
+*** [X] Write class `Mvlsa`
 **** Check that my existing method for performing MVLSA is not broken.
 **** Write method for incremental pca in `lib_linalg`.
 **** Add method for better regularized GCCA.
