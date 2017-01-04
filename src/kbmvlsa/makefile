@@ -22,17 +22,16 @@ TREC_WEB_HIT_LIST_NPZ := $(shell ./config.sh TREC_WEB_HIT_LIST_NPZ)
 eval:
 	./eval.py
 
-# Convert queries, and query words, into vectors.
+
 
 # ------------------------------------------------------ #
 # Perform MVLSA to create a single embedding from the KB #
 # ------------------------------------------------------ #
-# Embed/
-#  ➕ lib_embed_entity
-#    ➕━━ class_composable_transform
-#    ➕━━ lib_linalg
-#    ➕━━ ~~class_pmi_transformer~~
-#  ➕ test_lib_embed_entity
+# ➕
+# ➕ lib_embed_entity
+#   ➕━━ class_composable_transform
+#   ➕━━ lib_linalg
+# ➕ test_lib_embed_entity
 # target := Mvlsa@[mvlsa_opt] | CONCAT
 # mvlsa_opt := (final_dim~[num]@)?\
 #              (intemediate_dim~[num]@)?\
@@ -42,12 +41,14 @@ eval:
 # num := \d(\.\d)?
 # word := [a-zA-Z0-9]+
 # bool := True | False
-
 rsyncx := rsync -avz -vi --progress --partial-dir=/tmp/rsync-partial
 rsync_to_coe:
-	for f in '~/data/chen-xiong-EntityRankData/dbpedia.trecweb/dbpedia.trecweb.small' \
-	   '~/data/chen-xiong-EntityRankData/dbpedia.trecweb.gz'  \
-	   '~/export/kbmvlsa/dbpedia.trecweb.*' ;\
+	for f in \
+	  '~/data/chen-xiong-EntityRankData/dbpedia.trecweb/dbpedia.trecweb.small' \
+	  '~/data/chen-xiong-EntityRankData/dbpedia.trecweb.gz'  \
+	  '~/export/kbmvlsa/dbpedia.trecweb.*' \
+	  '~/data/dbpedia-entity-search-test-collection/qrels.txt' \
+	  '~/data/dbpedia-entity-search-test-collection/queries.txt'; \
 	do \
 	  echo $(rsyncx) $$f coe:`echo "$${f%/*}"`/ ; \
 	done
