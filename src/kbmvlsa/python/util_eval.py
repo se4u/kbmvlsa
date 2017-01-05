@@ -4,12 +4,13 @@
 | Description : Utility functions for populating data.
 | Author      : Pushpendre Rastogi
 | Created     : Sat Dec  3 09:22:33 2016 (-0500)
-| Last-Updated: Sat Dec  3 10:47:39 2016 (-0500)
-|           By: Pushpendre Rastogi
-|     Update #: 2
+| Last-Updated: Wed Jan  4 23:16:15 2017 (-0500)
+|           By: System User
+|     Update #: 27
 '''
 import config
 from collections import OrderedDict, defaultdict
+import itertools
 
 def get_qid_2_query_dict():
     ''' Return a dictionary that contains:
@@ -45,3 +46,45 @@ def get_qid_2_true_answer():
             qid_2_true_answer[qid].append(answer)
     qid_2_true_answer.default_factory = None
     return qid_2_true_answer
+
+
+def get_all_relevant_entities():
+    s = set()
+    for e in itertools.chain(get_qid_2_fsdm_top_100().itervalues(),
+                             get_qid_2_true_answer().itervalues()):
+        s.update(e)
+    return s
+
+
+def create_embbedding_feature_dict(emb_feat_fn, out_fn):
+    import cPickle, numpy
+    arr = numpy.load(emb_feat_fn, mmap_mode='r', allow_pickle=False)
+    docno2idx = cPickle.load(open(config.TREC_WEB_DOCNO2ID_PKL))
+    emb = {}
+    for ent in get_all_relevant_entities():
+
+        try:
+            idx = docno2idx[ent]
+        except KeyError:
+            e = ent.split('%23')
+            if len(e) == 2:
+                idx = docno2idx[e[0]]
+            else:
+                assert ent == 'http://dbpedia.org/resource/Template:Edward_D._Wood,_Jr.'
+                idx = docno2idx['http://dbpedia.org/resource/Edward_D._Wood,_Jr.']
+        emb[ent] = arr[idx][-300:]
+    with open(out_fn, 'wb') as f:
+        print 'Saving to ', out_fn
+        cPickle.dump(emb, f)
+
+if __name__ == '__main__':
+    import config, os
+    import argparse
+    arg_parser = argparse.ArgumentParser(description='')
+    arg_parser.add_argument(
+        '--emb_feat_fn', type=str,
+        default='Mvlsa@intermediate_dim~300@view_transform~TFIDF@mean_center~0')
+    args=arg_parser.parse_args()
+    emb_feat_fn = os.path.join(config.TREC_WEB_STORAGE, args.emb_feat_fn)
+    out_fn = emb_feat_fn + '.small.pkl'
+    create_embbedding_feature_dict(emb_feat_fn, out_fn)
