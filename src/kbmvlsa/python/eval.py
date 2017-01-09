@@ -4,9 +4,9 @@
 | Description :
 | Author      : Pushpendre Rastogi
 | Created     : Thu Dec  1 20:46:46 2016 (-0500)
-| Last-Updated: Thu Dec  8 17:37:35 2016 (-0500)
-|           By: Pushpendre Rastogi
-|     Update #: 35
+| Last-Updated: Wed Jan  4 23:59:04 2017 (-0500)
+|           By: System User
+|     Update #: 42
 All learning to rank methods are quite simple, the goal is to learn a model
 that can optimize a metric like MAP, or ROC given a few examples. In my case
 I can start with a list of things that the true FSDM code returns, thanks to
@@ -110,8 +110,10 @@ def test_model(testing_query_ids, entities_retrieved_by_fsdm, entity_vec_dict, m
 
 
 def evaluate(test_data_fn='/tmp/test_data_fn', prediction_fn='/tmp/prediction_fn'):
-    # for e in `seq 100 100 1000` ; do paste <( awk '{print substr($2, 5), $1}' test_data_fn ) prediction_fn | hn $e | tn 100 | sort -s -k 3,3 -n -r | hn 20 | grep -v '0.00000' | sumColumns '$2' ; done | avgColumns
-    print 'MAP', 'P@10', 'P@20'
+    cmd = '''for e in `seq 100 100 1000` ; do paste <( awk '{print substr($2, 5), $1}' %s ) %s | head -n $e | tail -n 100 | sort -s -k 3,3 -n -r | head -n 20 | grep -v '0.00000' | awk 'BEGIN{a=0;}{a=a+$2}END{print a}' ; done | awk 'BEGIN{a=0.0; b=0}{a=a+$1; b=b+1}END{print a/b}'''%(test_data_fn, prediction_fn)
+    print cmd
+    import subprocess
+    subprocess.Popen(cmd, shell=True, executable='/bin/bash')
     return
 
 def main():
@@ -119,14 +121,18 @@ def main():
     qid_2_fsdm_top_100 = get_qid_2_fsdm_top_100()
     qid_2_true_answer = get_qid_2_true_answer()
     mvlsa_data = pkl.load(open(config.MVLSA_EMB_PKL_FN, mode="rb"))
-    entity_vec_dict = pkl.load(open("kbmvlsa_embedding.pkl", mode="rb"))
+    # "kbmvlsa_embedding.pkl"
+    entity_vec_dict = pkl.load(
+        open("/home/hltcoe/prastogi/export/kbmvlsa/Mvlsa@intermediate_dim~300@view_transform~TFIDF@mean_center~0.small.pkl",
+             mode="rb"))
     for (train_ent, test_ent) in FoldIterator(n=5, list_to_fold=qid_2_fsdm_top_100):
         print(len(train_ent))
         print(len(test_ent))
         model_fn = train_model(train_ent, qid_2_true_answer, qid_2_fsdm_top_100, entity_vec_dict, mvlsa_data, qid_2_query)
         prediction_fn = test_model(test_ent, qid_2_fsdm_top_100, entity_vec_dict, mvlsa_data, qid_2_query, qid_2_true_answer,
                                    model_fn=model_fn)
-        print(evaluate(test_ent, qid_2_true_answer, prediction_fn))
+        # qid_2_true_answer
+        evaluate()
     return
 
 if __name__ == '__main__':
