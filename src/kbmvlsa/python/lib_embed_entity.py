@@ -347,7 +347,7 @@ if __name__ == '__main__':
     import argparse
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument('--seed', default=0, type=int)
-    arg_parser.add_argument('--config', type=str)
+    arg_parser.add_argument('--config', type=str, default='Mvlsa@intermediate_dim~300@view_transform~SQROOT@mean_center~0')
     arg_parser.add_argument('--I', default=config.TREC_WEB_N_ENTITIES, type=int)
     arg_parser.add_argument('--fn', default=config.TREC_WEB_HIT_LIST_NPZ, type=str)
     arg_parser.add_argument('--test', default=0, type=int)
